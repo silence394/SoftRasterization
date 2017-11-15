@@ -91,6 +91,18 @@ App::~App()
 	CloseWindow( mWindow );
 }
 
+void App::Create()
+{
+	if ( mRenderDevice == nullptr )
+	{
+		RECT rect = { 0 };
+		GetClientRect( mWindow, &rect );
+		mRenderDevice = new RenderDevice( mWindow, (unsigned int *) mScreenBuffer );
+	}
+
+	OnCreate( );
+}
+
 void App::Run()
 {
 	MSG msg = {0};
@@ -117,16 +129,4 @@ void App::Run()
 			Sleep( 10 );
 		}
 	}
-}
-
-RenderDevice& App::CreateRenderDevice( )
-{
-	if ( mRenderDevice == nullptr )
-	{
-		RECT rect = { 0 };
-		GetClientRect( mWindow, &rect );
-		mRenderDevice = new RenderDevice( mWindow, (unsigned int *) mScreenBuffer );
-	}
-
-	return *mRenderDevice;
 }

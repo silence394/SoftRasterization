@@ -18,13 +18,16 @@ private:
 	void ProcessMessage( UINT msg, WPARAM wparam, LPARAM lparam );
 
 public:
-	App(int width = 800, int height = 600, LPCWSTR name = L"SoftRender");
+	App( int width = 800, int height = 600, LPCWSTR name = L"SoftRender" );
 	~App();
 
 	virtual void	OnCreate( ) { };
 	virtual void	OnRender( ) { };
 
 public:
-	void Run();
-	RenderDevice& CreateRenderDevice( );
+	inline RenderDevice* GetRenderDevice( )
+		{ return mRenderDevice; }
+
+	void			Create( );
+	void			Run();
 };
