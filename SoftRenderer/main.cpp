@@ -1,11 +1,19 @@
-
 #include "app.h"
 #include "math.h"
 #include "vector3.h"
+#include "matrix4.h"
+#include "camera.h"
 RenderDevice*	gRenderDevice = nullptr;
 
 class DemoApp : public App
 {
+private:
+	RenderDevice*	mRenderDevice;
+	Camera			mCamera;
+	Matrix4			mWorldTransform;
+	Matrix4			mViewTransform;
+	Matrix4			mPerspectTransform;
+
 public:
 	DemoApp( int width = 800, int height = 600, LPCWSTR name = L"Demo" )
 		: App( width, height, name ) { }
@@ -17,6 +25,15 @@ public:
 
 void DemoApp::OnCreate( )
 {
+	mRenderDevice = GetRenderDevice( );
+	mCamera.eye = Vector3( 3.0f, 0.0f, 0.0f );
+	mCamera.look = Vector3( 0.0f, 0.0f, 0.0f );
+	mCamera.up = Vector3( 0.0f, 0.0f, 1.0f );
+
+	mWorldTransform = Matrix4::identity;
+	mViewTransform = Matrix4::View( mCamera.eye, mCamera.look, mCamera.up );
+	mPerspectTransform = Matrix4::Perspective( 1.57f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 0.001f, 1000.0f );
+
 	struct Vertex
 	{
 		Vector3	pos;
@@ -54,31 +71,19 @@ void DemoApp::OnCreate( )
 
 void DemoApp::OnRender( )
 {
-	gRenderDevice->SetClearColor( 0xFF808080 );
-	gRenderDevice->Clear( );
+	mRenderDevice->SetClearColor( 0xFF808080 );
+	mRenderDevice->Clear( );
 
-// 	for ( int i = 0; i < 5; i ++ )
-// 	{
-// 		int x1 = rand( ) % gRenderDevice->GetDeviceWidth( );
-// 		int x2 = rand( ) % gRenderDevice->GetDeviceWidth( );
-// 		int y1 =  rand( ) % gRenderDevice->GetDeviceHeight( );
-// 		int y2 =  rand( ) % gRenderDevice->GetDeviceHeight( );
-// 		Point p1( x1, y1 );
-// 		Point p2( x2, y2 );
-// 		gRenderDevice->DrawLine( p1, p2, 0xff00ff00 );
-// 	}
+	Matrix4 wvp = mWorldTransform * mViewTransform * mPerspectTransform;
 
-// 	gRenderDevice->FillTriangle( Point( 300, 100 ), Point( 200, 200 ), Point( 100, 100 ), 0xff00ff00 );
-// 	gRenderDevice->DrawPoint( Point( 500, 200 ), 0xffff0000 );
-	//gRenderDevice->FillTriangle( Point( 300, 400 ), Point( 200, 400 ), Point( 300, 300 ), 0xff00ff00 );
-	gRenderDevice->FillTriangle( Point( 200, 400 ), Point( 100, 100 ), Point( 300, 300 ), 0xff00ff00 );
+	mRenderDevice->FillTriangle( Point( 200, 400 ), Point( 100, 100 ), Point( 300, 300 ), 0xff00ff00 );
 }
 
 int main( )
 {
-	DemoApp window( 800, 600 );
-	gRenderDevice = &window.CreateRenderDevice( );
-	window.Run( );
+	DemoApp app( 800, 600 );
+	app.Create( );
+	app.Run( );
 
 	return 0;
 }

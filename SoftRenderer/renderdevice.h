@@ -1,9 +1,8 @@
 #pragma once
 #include "windows.h"
-
+#include "common.h"
 #include "Point.h"
 #include "math.h"
-#include "common.h"
 
 class GraphicsBuffer;
 class RenderDevice
