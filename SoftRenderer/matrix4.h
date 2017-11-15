@@ -1,5 +1,8 @@
 #pragma once
 
+#include "vector4.h"
+#include "assert.h"
+
 class Vector3;
 class Matrix4
 {
@@ -23,6 +26,8 @@ public:
 
 	Matrix4 operator * ( const Matrix4& mat );
 	Matrix4& operator *= ( const Matrix4& mat );
+	float operator[](uint index) const
+		{ assert( index < 16 ); return m[index]; }
 
 	static Matrix4 View( const Vector3& eye, const Vector3& look, const Vector3& up );
 	static Matrix4 Perspective( float fov, float aspect, float znear, float zfar );
@@ -34,3 +39,13 @@ public:
 	Matrix4& RotationZ( float r );
 	Matrix4& Transpose( );
 };
+
+inline Vector4 operator *( const Vector4& v, Matrix4& mat )
+{
+	return Vector4(
+		v.x * mat[0] + v.y * mat[4] + v.z * mat[8] + v.w * mat[12],
+		v.x * mat[1] + v.y * mat[5] + v.z * mat[9] + v.w * mat[13],
+		v.x * mat[2] + v.y * mat[6] + v.z * mat[10] + v.w * mat[14],
+		v.x * mat[3] + v.y * mat[7] + v.z * mat[11] + v.w * mat[15]
+	);
+}
