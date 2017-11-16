@@ -34,8 +34,6 @@ void DemoApp::OnCreate( )
 	mWorldTransform = Matrix4::identity;
 	mViewTransform = Matrix4::View( mCamera.eye, mCamera.look, mCamera.up );
 	mPerspectTransform = Matrix4::Perspective( 1.57f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 0.001f, 1000.0f );
-
-
 }
 
 void DemoApp::OnRender( )
@@ -78,6 +76,14 @@ void DemoApp::OnRender( )
 	};
 
 	Matrix4 wvp = mWorldTransform * mViewTransform * mPerspectTransform;
+
+	Vertex vertexcvv[8];
+	for ( uint i = 0; i < 8; i ++ )
+	{
+		Vector4 pos = vertex[i].pos * wvp;
+		float divz = 1.0f / pos.w;
+		vertexcvv[i].pos = pos / pos.w;
+	}
 
 	for ( uint i = 0; i < 36; i += 3 )
 	{
