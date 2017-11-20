@@ -8,10 +8,10 @@ class GraphicsBuffer;
 class RenderDevice
 {
 private:
-	unsigned int	mWidth;
-	unsigned int	mHeight;
-	unsigned int**	mFrameBuffer;
-	uint			mClearColor;
+	uint	mWidth;
+	uint	mHeight;
+	uint**	mFrameBuffer;
+	uint	mClearColor;
 
 public:
 	RenderDevice( HWND window, unsigned int * framebuffer );
