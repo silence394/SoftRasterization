@@ -38,8 +38,7 @@ void DemoApp::OnCreate( )
 
 bool CheckInCVV( const Vector4& v )
 {
-	float w = v.w;
-	if ( v.x < -w || v.x > w || v.y < -w || v.y > w || v.z < 0 || v.w > w )
+	if ( v.x < -1.0f || v.x > 1.0f || v.y < -1.0f || v.y > 1.0f || v.z < 0 || v.w > 1.0f )
 		return false;
 
 	return true;
@@ -68,7 +67,7 @@ void DemoApp::OnRender( )
 		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xffff0000 },
 	};
 
-	uint indexs[36] =
+	uint indices[36] =
 	{
 		0, 1, 2,
 		0, 2, 3,
@@ -114,6 +113,14 @@ void DemoApp::OnRender( )
 		vsinput[i].pos.y = ( vsinput[i].pos.y + 1.0f ) * 0.5f * height;
 	}
 
+	
+	for ( uint i = 0; i < 36; i ++ )
+	{
+		if ( !CheckInCVV( vsinput[ indices[i] ].pos ) || !CheckInCVV( vsinput[ indices[i] ].pos ) || !CheckInCVV( vsinput[ indices[i] ].pos ) )
+			continue;
+
+		// BackCulling.
+	}
 	// Rasterazer Statge.
 // 	for ( uint i = 0; i < 36; i += 3 )
 // 	{
