@@ -83,25 +83,27 @@ void DemoApp::OnRender( )
 		4, 3, 7,
 	};
 
-	Matrix4 wvp = mWorldTransform * mViewTransform * mPerspectTransform;
-
+	Matrix4 wv = mWorldTransform * mViewTransform;
+	Matrix4 wvp = wv * mPerspectTransform;
+	
 	// VS Stage.
-	struct VSInput
+	struct VSOutput
 	{
-		Vector4	pos;
+		Vector4	pos; // TO Pixel shader stage.
 	};
 
-	VSInput vsinput[8];
+	VSOutput vsoutput[8];
 	for ( uint i = 0; i < 8; i ++ )
 	{
 		// TODO. 可以通过Vector3 * wvp 得到一个空间点， 哪种更适合后面的计算？
-		Vector4 pos = Vector4( vertex[i].pos, 1.0f ) * wvp;
+		Vector4 hamopos = Vector4( vertex[i].pos, 1.0f );
+		Vector4 pos = hamopos * wvp;
 		float invw = 1.0f / pos.w;
 		pos.x *= invw;
 		pos.y *= invw;
 		pos.z = pos.w;
 		pos.w = invw;
-		vsinput[i].pos = pos;
+		vsoutput[i].pos = pos;
 	}
 
 	// TO Screen.
@@ -109,17 +111,34 @@ void DemoApp::OnRender( )
 	float height = (float) mRenderDevice->GetDeviceHeight( );
 	for ( uint i = 0; i < 8; i ++ )
 	{
-		vsinput[i].pos.x = ( vsinput[i].pos.x + 1.0f ) * 0.5f * width;
-		vsinput[i].pos.y = ( vsinput[i].pos.y + 1.0f ) * 0.5f * height;
+		vsoutput[i].pos.x = ( vsoutput[i].pos.x + 1.0f ) * 0.5f * width;
+		vsoutput[i].pos.y = ( vsoutput[i].pos.y + 1.0f ) * 0.5f * height;
 	}
-
-	
-	for ( uint i = 0; i < 36; i ++ )
+	for ( uint i = 0; i < 36; i += 3 )
 	{
-		if ( !CheckInCVV( vsinput[ indices[i] ].pos ) || !CheckInCVV( vsinput[ indices[i] ].pos ) || !CheckInCVV( vsinput[ indices[i] ].pos ) )
-			continue;
+		const Vector4& v1 = vsoutput[ indices[i] ].pos;
+		const Vector4& v2 = vsoutput[ indices[i + 1] ].pos;
+		const Vector4& v3 = vsoutput[ indices[i + 2] ].pos;
+
+//		Move To assembly stage.
+// 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
+// 			continue;
 
 		// BackCulling.
+		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
+			continue;
+
+		uint color;
+		if ( i < 10 )
+			color = 0xffff0000;
+		else if ( i < 20 )
+			color = 0xff00ff00;
+		else
+			color = 0xff0000ff;
+
+		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v2.x, v2.y ), color );
+		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v3.x, v3.y ), color );
+		mRenderDevice->DrawLine( Point( v2.x, v2.y ), Point( v3.x, v3.y ), color );
 	}
 	// Rasterazer Statge.
 // 	for ( uint i = 0; i < 36; i += 3 )

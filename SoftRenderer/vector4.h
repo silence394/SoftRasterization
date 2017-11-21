@@ -17,4 +17,7 @@ public:
 
 	inline Vector4 operator / ( float div ) const
 		{ float inv = 1.0f / div; return Vector4( x * inv, y * inv, z * inv, w * inv ); }
+
+	float Dot( const Vector4& v ) const
+		{ return x * v.x + y * v.y + z * v.z + w * v.w; }
 };
