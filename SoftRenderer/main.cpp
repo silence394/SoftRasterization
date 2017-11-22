@@ -4,6 +4,8 @@
 #include "vector4.h"
 #include "matrix4.h"
 #include "camera.h"
+#include "texture.h"
+#include "vector2.h"
 RenderDevice*	gRenderDevice = nullptr;
 
 class DemoApp : public App
@@ -14,6 +16,7 @@ private:
 	Matrix4			mWorldTransform;
 	Matrix4			mViewTransform;
 	Matrix4			mPerspectTransform;
+	Texture*		mTexture;
 
 public:
 	DemoApp( int width = 800, int height = 600, LPCWSTR name = L"Demo" )
@@ -22,18 +25,42 @@ public:
 public:
 	virtual void OnCreate( );
 	virtual void OnRender( );
+	virtual void OnClose( );
 };
 
 void DemoApp::OnCreate( )
 {
 	mRenderDevice = GetRenderDevice( );
-	mCamera.eye = Vector3( 3.0f, 2.0f, 1.0f );
+	mCamera.eye = Vector3( 5.0f, 4.0f, 3.0f );
 	mCamera.look = Vector3( 0.0f, 0.0f, 0.0f );
 	mCamera.up = Vector3( 0.0f, 0.0f, 1.0f );
 
 	mWorldTransform = Matrix4::identity;
 	mViewTransform = Matrix4::View( mCamera.eye, mCamera.look, mCamera.up );
 	mPerspectTransform = Matrix4::Perspective( 1.57f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 0.001f, 1000.0f );
+
+	// Create texture.
+	uint width = 256;
+	uint height = 256;
+	uint length = width * height;
+	uint* texbuffer = new uint[ length ];
+	uint* base = texbuffer;
+	for ( uint j = 0; j < height; j ++ )
+	{
+		for ( uint i = 0; i < width; i ++ )
+		{
+			uint color = ( ( i / 32 + j / 32 ) & 1) ? 0xffffffff : 0xff0093dd;
+			*base = color;
+		}
+	}
+
+	mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
+	delete[] texbuffer;
+}
+
+void DemoApp::OnClose( )
+{
+	delete mTexture;
 }
 
 bool CheckInCVV( const Vector4& v )
@@ -53,18 +80,19 @@ void DemoApp::OnRender( )
 	{
 		Vector3	pos;
 		uint	color;
+		Vector2	texcoord;
 	};
 
 	Vertex vertex[8] = 
 	{
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xffff0000 },
-		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xffff0000 },
-		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffff0000 },
-		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff0000 },
-		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xffff0000 },
-		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xffff0000 },
-		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xffff0000 },
-		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xffff0000 },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xffff0000, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xffff0000, Vector2( 1.0f, 0.0f ) },
 	};
 
 	uint indices[36] =
@@ -89,7 +117,7 @@ void DemoApp::OnRender( )
 	// VS Stage.
 	struct VSOutput
 	{
-		Vector4	pos; // TO Pixel shader stage.
+		Vector4	pos; // To Pixel shader stage.
 	};
 
 	VSOutput vsoutput[8];
@@ -114,6 +142,7 @@ void DemoApp::OnRender( )
 		vsoutput[i].pos.x = ( vsoutput[i].pos.x + 1.0f ) * 0.5f * width;
 		vsoutput[i].pos.y = ( vsoutput[i].pos.y + 1.0f ) * 0.5f * height;
 	}
+
 	for ( uint i = 0; i < 36; i += 3 )
 	{
 		const Vector4& v1 = vsoutput[ indices[i] ].pos;
@@ -125,8 +154,8 @@ void DemoApp::OnRender( )
 // 			continue;
 
 		// BackCulling.
-		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
-			continue;
+// 		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
+// 			continue;
 
 		uint color;
 		if ( i < 10 )

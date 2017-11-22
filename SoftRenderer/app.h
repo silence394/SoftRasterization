@@ -23,6 +23,7 @@ public:
 
 	virtual void	OnCreate( ) { };
 	virtual void	OnRender( ) { };
+	virtual void	OnClose( ) { };
 
 public:
 	inline RenderDevice* GetRenderDevice( )

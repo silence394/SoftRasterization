@@ -86,6 +86,7 @@ App::App( int width, int height, LPCWSTR name )
 
 App::~App()
 {
+	OnClose( );
 	DeleteObject( mBITMAP );
 	DeleteDC( mWindowDC );
 	CloseWindow( mWindow );
