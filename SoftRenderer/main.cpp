@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "texture.h"
 #include "vector2.h"
+#include "color.h"
 RenderDevice*	gRenderDevice = nullptr;
 
 class DemoApp : public App
@@ -118,6 +119,7 @@ void DemoApp::OnRender( )
 	struct VSOutput
 	{
 		Vector4	pos; // To Pixel shader stage.
+		Color	color;
 	};
 
 	VSOutput vsoutput[8];
@@ -132,6 +134,9 @@ void DemoApp::OnRender( )
 		pos.z = pos.w;
 		pos.w = invw;
 		vsoutput[i].pos = pos;
+
+		vsoutput[i].color = vertex[i].color;
+		vsoutput[i].color *= invw;
 	}
 
 	// TO Screen.
