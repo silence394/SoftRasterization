@@ -1,4 +1,5 @@
 #include "common.h"
+#include "math.h"
 #include "color.h"
 
 Color::Color( uint color )

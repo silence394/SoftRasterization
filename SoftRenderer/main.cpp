@@ -87,13 +87,13 @@ void DemoApp::OnRender( )
 	Vertex vertex[8] = 
 	{
 		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xffff0000, Vector2( 1.0f, 0.0f ) },
-		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffffff00, Vector2( 1.0f, 1.0f ) },
 		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
-		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
-		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xffff0000, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xff00ff00, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xff0000ff, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xffff4444, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xff44ffff, Vector2( 1.0f, 0.0f ) },
 	};
 
 	uint indices[36] =
@@ -153,26 +153,21 @@ void DemoApp::OnRender( )
 		const Vector4& v1 = vsoutput[ indices[i] ].pos;
 		const Vector4& v2 = vsoutput[ indices[i + 1] ].pos;
 		const Vector4& v3 = vsoutput[ indices[i + 2] ].pos;
+		const Color& c1 = vsoutput[ indices[i] ].color;
+		const Color& c2 = vsoutput[ indices[i + 1] ].color;
+		const Color& c3 = vsoutput[ indices[i + 2] ].color;
 
 //		Move To assembly stage.
 // 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
 // 			continue;
 
 		// BackCulling.
-// 		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
-// 			continue;
+		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
+			continue;
 
-		uint color;
-		if ( i < 10 )
-			color = 0xffff0000;
-		else if ( i < 20 )
-			color = 0xff00ff00;
-		else
-			color = 0xff0000ff;
-
-		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v2.x, v2.y ), color );
-		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v3.x, v3.y ), color );
-		mRenderDevice->DrawLine( Point( v2.x, v2.y ), Point( v3.x, v3.y ), color );
+		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v2.x, v2.y ), c1 * v1.z );
+		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v3.x, v3.y ), c2 * v2.z );
+		mRenderDevice->DrawLine( Point( v2.x, v2.y ), Point( v3.x, v3.y ), c3 * v3.z );
 	}
 	// Rasterazer Statge.
 // 	for ( uint i = 0; i < 36; i += 3 )
