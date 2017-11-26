@@ -14,8 +14,17 @@ public:
 
 	Color( uint color );
 
+	static Color Lerp( const Color& c1, const Color& c2, float f )
+		{ return c1 + ( c2 - c1 ) * f; }
+
+	Color operator + ( const Color& c ) const
+		{ return Color( r + c.r, g + c.g, b + c.g, a + c.a ); }
+
+	Color operator - ( const Color& c ) const
+	{ return Color( r - c.r, g - c.r, b - c.b, a - c.a ); }
+
 	Color operator * ( float f ) const
-		{ Color c = *this; c.r *= f; c.g *= f; c.b *= f; c.a *= f; return c; }
+		{ return Color ( r * f, g * f, b * f, a * f ); }
 
 	Color& operator*= ( float f )
 		{ r *= f; g *= f; b *= f; a *= f; return *this; }

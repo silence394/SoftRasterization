@@ -30,6 +30,7 @@ public:
 		{ mClearColor = color; }
 
 	void Clear( );
+	void DrawPixel( uint x, uint y, uint color );
 	void DrawPoint( const Point& p, unsigned int color );
 	void DrawLine( const Point& p1, const Point& p2, unsigned int color );
 	void FillTriangle( const Point& p1, const Point& p2, const Point& p3, unsigned int color );

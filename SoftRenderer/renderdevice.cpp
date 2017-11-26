@@ -117,6 +117,12 @@ void RenderDevice::Clear( )
 		memset( mFrameBuffer[i], mClearColor, mWidth * 4 );
 }
 
+void RenderDevice::DrawPixel( uint x, uint y, uint color )
+{
+	if ( x >= 0 && x < mWidth && y >=0 && y < mHeight )
+		mFrameBuffer[y][x] = color;
+}
+
 void RenderDevice::DrawPoint( const Point& p, unsigned int color )
 {
 	if ( p.x < mWidth && p.y < mHeight )

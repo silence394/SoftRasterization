@@ -87,13 +87,13 @@ void DemoApp::OnRender( )
 	Vertex vertex[8] = 
 	{
 		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 0.0f ) },
-		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffffff00, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
-		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xff00ff00, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xff0000ff, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xffffff00, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xff22ff33, Vector2( 0.0f, 1.0f ) },
 		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xffff4444, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xff44ffff, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xff22ffff, Vector2( 1.0f, 0.0f ) },
 	};
 
 	uint indices[36] =
@@ -157,6 +157,9 @@ void DemoApp::OnRender( )
 		const Color& c2 = vsoutput[ indices[i + 1] ].color;
 		const Color& c3 = vsoutput[ indices[i + 2] ].color;
 
+// 		if ( i < 25 )
+// 			continue;
+
 //		Move To assembly stage.
 // 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
 // 			continue;
@@ -164,6 +167,112 @@ void DemoApp::OnRender( )
 		// BackCulling.
 		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
 			continue;
+
+		// Draw Scanline.
+		{
+			VSOutput* top = &vsoutput[ indices[i] ];
+			VSOutput* middle = &vsoutput[ indices[i+1] ];
+			VSOutput* bottom = &vsoutput[ indices[i+2] ];
+			// top to bottom, value of y is larger.
+			if ( top->pos.y > middle->pos.y )
+				Math::Swap( top, middle );
+			if ( middle->pos.y > bottom->pos.y )
+				Math::Swap( middle, bottom );
+			if ( top->pos.y > middle->pos.y )
+				Math::Swap( top, middle );
+
+			if ( top->pos.y == bottom->pos.y )
+			{
+				//drawScanline( min, max, yindex );
+			}
+			else
+			{
+				float factor = ( middle->pos.y - top->pos.y ) / ( bottom->pos.y - top->pos.y );
+				VSOutput newmiddle;
+				// Lerp.
+				{
+					// w is in linear space, z is not. So doesnot use z when interploate.
+					newmiddle.pos = Vector4::Lerp( top->pos, bottom->pos, factor );
+					newmiddle.color = Color::Lerp( top->color, bottom->color, factor );
+				}
+
+				// Process top newmiddle, middle.
+				{
+					uint starty = top->pos.y;
+					uint endy = middle->pos.y;
+
+					for ( uint y = starty; y < endy; y ++ )
+					{
+						float factor = (float) ( y - starty ) / ( endy - starty );
+						VSOutput va;
+						va.pos = Vector4::Lerp( top->pos, middle->pos, factor );
+						va.color = Color::Lerp( top->color, middle->color, factor );
+						VSOutput vb;
+						vb.pos = Vector4::Lerp( top->pos, newmiddle.pos, factor );
+						va.color = Color::Lerp( top->color, newmiddle.color, factor );
+
+						VSOutput* left = &va;
+						VSOutput* right = &vb;
+						if ( left->pos.x > right->pos.x )
+							Math::Swap( left, right );
+
+						uint startx = (uint) left->pos.x;
+						uint endx = (uint) right->pos.x;
+						for ( uint x = startx; x < endx; x ++)
+						{
+							float factor = (float) ( x - startx ) / ( endx - startx );
+							VSOutput out;
+							out.pos = Vector4::Lerp( left->pos, right->pos, factor );
+							out.color = Color::Lerp( left->color, right->color, factor );
+
+							float w = 1.0f / out.pos.w;
+							out.color *= w;
+
+							mRenderDevice->DrawPixel( (uint) out.pos.x, (uint) out.pos.y, out.color );
+						}
+					}
+				}
+
+				// Process middle, newmiddle, bottom.
+				{
+					uint starty = middle->pos.y;
+					uint endy = bottom->pos.y;
+
+					for ( uint y = starty; y < endy; y ++ )
+					{
+						float factor = (float) ( y - starty ) / ( endy - starty );
+						VSOutput va;
+						va.pos = Vector4::Lerp( middle->pos, bottom->pos, factor );
+						va.color = Color::Lerp( middle->color, bottom->color, factor );
+						VSOutput vb;
+						vb.pos = Vector4::Lerp( newmiddle.pos, bottom->pos, factor );
+						va.color = Color::Lerp( newmiddle.color, bottom->color, factor );
+
+						VSOutput* left = &va;
+						VSOutput* right = &vb;
+						if ( left->pos.x > right->pos.x )
+							Math::Swap( left, right );
+
+						uint startx = (uint) left->pos.x;
+						uint endx = (uint) right->pos.x;
+						for ( uint x = startx; x < endx; x ++)
+						{
+							float factor = (float) ( x - startx ) / ( endx - startx );
+							VSOutput out;
+							out.pos = Vector4::Lerp( left->pos, right->pos, factor );
+							out.color = Color::Lerp( left->color, right->color, factor );
+
+							float w = 1.0f / out.pos.w;
+							out.color *= w;
+
+							mRenderDevice->DrawPixel( (uint) out.pos.x, (uint) out.pos.y, out.color );
+						}
+					}
+				}
+			}
+
+
+		}
 
 		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v2.x, v2.y ), c1 * v1.z );
 		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v3.x, v3.y ), c2 * v2.z );
