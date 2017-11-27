@@ -18,10 +18,10 @@ public:
 		{ return c1 + ( c2 - c1 ) * f; }
 
 	Color operator + ( const Color& c ) const
-		{ return Color( r + c.r, g + c.g, b + c.g, a + c.a ); }
+		{ return Color( r + c.r, g + c.g, b + c.b, a + c.a ); }
 
 	Color operator - ( const Color& c ) const
-	{ return Color( r - c.r, g - c.r, b - c.b, a - c.a ); }
+	{ return Color( r - c.r, g - c.g, b - c.b, a - c.a ); }
 
 	Color operator * ( float f ) const
 		{ return Color ( r * f, g * f, b * f, a * f ); }

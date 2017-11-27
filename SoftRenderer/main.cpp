@@ -88,11 +88,11 @@ void DemoApp::OnRender( )
 	{
 		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
 		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 0.0f ) },
-		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
 		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 0.0f, 1.0f ) },
 		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xffffff00, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xff22ff33, Vector2( 0.0f, 1.0f ) },
-		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xffff4444, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f ) },
 		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xff22ffff, Vector2( 1.0f, 0.0f ) },
 	};
 
@@ -157,9 +157,6 @@ void DemoApp::OnRender( )
 		const Color& c2 = vsoutput[ indices[i + 1] ].color;
 		const Color& c3 = vsoutput[ indices[i + 2] ].color;
 
-// 		if ( i < 25 )
-// 			continue;
-
 //		Move To assembly stage.
 // 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
 // 			continue;
@@ -209,7 +206,7 @@ void DemoApp::OnRender( )
 						va.color = Color::Lerp( top->color, middle->color, factor );
 						VSOutput vb;
 						vb.pos = Vector4::Lerp( top->pos, newmiddle.pos, factor );
-						va.color = Color::Lerp( top->color, newmiddle.color, factor );
+						vb.color = Color::Lerp( top->color, newmiddle.color, factor );
 
 						VSOutput* left = &va;
 						VSOutput* right = &vb;
@@ -234,6 +231,7 @@ void DemoApp::OnRender( )
 				}
 
 				// Process middle, newmiddle, bottom.
+				if ( 1 )
 				{
 					uint starty = middle->pos.y;
 					uint endy = bottom->pos.y;
@@ -246,7 +244,7 @@ void DemoApp::OnRender( )
 						va.color = Color::Lerp( middle->color, bottom->color, factor );
 						VSOutput vb;
 						vb.pos = Vector4::Lerp( newmiddle.pos, bottom->pos, factor );
-						va.color = Color::Lerp( newmiddle.color, bottom->color, factor );
+						vb.color = Color::Lerp( newmiddle.color, bottom->color, factor );
 
 						VSOutput* left = &va;
 						VSOutput* right = &vb;
@@ -270,13 +268,11 @@ void DemoApp::OnRender( )
 					}
 				}
 			}
-
-
 		}
 
-		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v2.x, v2.y ), c1 * v1.z );
-		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v3.x, v3.y ), c2 * v2.z );
-		mRenderDevice->DrawLine( Point( v2.x, v2.y ), Point( v3.x, v3.y ), c3 * v3.z );
+// 		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v2.x, v2.y ), c1 * v1.z );
+// 		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v3.x, v3.y ), c2 * v2.z );
+// 		mRenderDevice->DrawLine( Point( v2.x, v2.y ), Point( v3.x, v3.y ), c3 * v3.z );
 	}
 	// Rasterazer Statge.
 // 	for ( uint i = 0; i < 36; i += 3 )
