@@ -131,7 +131,7 @@ void DemoApp::OnRender( )
 		float invw = 1.0f / pos.w;
 		pos.x *= invw;
 		pos.y *= invw;
-		pos.z = pos.w;
+		pos.z *= invw;
 		pos.w = invw;
 		vsoutput[i].pos = pos;
 
@@ -180,7 +180,29 @@ void DemoApp::OnRender( )
 
 			if ( top->pos.y == bottom->pos.y )
 			{
-				//drawScanline( min, max, yindex );
+				if ( top->pos.x > middle->pos.x )
+					Math::Swap( top, middle );
+				if ( middle->pos.x > bottom->pos.x )
+					Math::Swap( middle, bottom );
+				if ( top->pos.x > middle->pos.x )
+					Math::Swap( top, middle );
+
+				VSOutput* left = top;
+				VSOutput* right = bottom;
+				uint startx = left->pos.x;
+				uint endx = left->pos.x;
+				for ( uint x = startx; x < endx; x ++ )
+				{
+					float factor = (float) ( x - startx ) / ( endx - startx );
+					VSOutput out;
+					out.pos = Vector4::Lerp( left->pos, right->pos, factor );
+					out.color = Color::Lerp( left->color, right->color, factor );
+
+					float w = 1.0f / out.pos.w;
+					out.color *= w;
+
+					mRenderDevice->DrawPixel( (uint) out.pos.x, (uint) out.pos.y, out.color );
+				}
 			}
 			else
 			{
@@ -225,6 +247,7 @@ void DemoApp::OnRender( )
 							float w = 1.0f / out.pos.w;
 							out.color *= w;
 
+							// Pixel Shader.
 							mRenderDevice->DrawPixel( (uint) out.pos.x, (uint) out.pos.y, out.color );
 						}
 					}

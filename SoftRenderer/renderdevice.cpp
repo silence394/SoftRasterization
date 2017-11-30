@@ -1,9 +1,10 @@
 #include "graphicsbuffer.h"
 #include "math.h"
 #include "common.h"
+#include "vector4.h"
 #include "renderdevice.h"
 
-RenderDevice::RenderDevice( HWND window, unsigned int * framebuffer ) : mClearColor( 0 )
+RenderDevice::RenderDevice( HWND window, unsigned int * framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
 {
 	RECT rect = { 0 };
 	GetClientRect( window, &rect  );
@@ -47,18 +48,6 @@ void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Po
 
 void RenderDevice::DrawLine( unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int color )
 {
-// 	if ( x1 == x2 )
-// 	{
-// 		int dy = y1 <= y2 ? 1 : -1;
-// 		if ( y1 == y2 )
-// 			dy = 0;
-// 		do
-// 		{
-// 			mFrameBuffer[y1][x1] = color;
-// 			y1 += dy;
-// 		}
-// 		while( y1 != y2 );
-// 	}
 	if ( y1 == y2 )
 	{
 		int dx = x1 <= x2 ? 1 : -1;
@@ -109,6 +98,24 @@ void RenderDevice::DrawLine( unsigned int x1, unsigned int y1, unsigned int x2, 
 			}
 		}
 	}
+}
+
+void RenderDevice::DrawScanline( Vector4* left, Vector4* right )
+{
+	if ( left[0].x > right[0].x )
+		Math::Swap( left, right );
+
+	uint startx = (uint) left[0].x;
+	uint endx = (uint) right[0].x;
+	for ( uint x = startx; x < endx; x ++)
+	{
+		float factor = (float) ( x - startx ) / ( endx - startx );
+		VSOutput out;
+		out.pos = Vector4::Lerp( left->pos, right->pos, factor );
+	//	out.color = Color::Lerp( left->color, right->color, factor );
+
+		float w = 1.0f / out.pos.w;
+		out.color *= w;
 }
 
 void RenderDevice::Clear( )

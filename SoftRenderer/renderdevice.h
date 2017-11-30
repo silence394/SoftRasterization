@@ -3,6 +3,7 @@
 #include "common.h"
 #include "Point.h"
 #include "math.h"
+#include "stdlib.h"
 
 class GraphicsBuffer;
 class RenderDevice
@@ -12,6 +13,8 @@ private:
 	uint	mHeight;
 	uint**	mFrameBuffer;
 	uint	mClearColor;
+	void*	mVertexShader;
+	void*	mPixelShader;
 
 public:
 	RenderDevice( HWND window, unsigned int * framebuffer );
@@ -19,6 +22,8 @@ public:
 
 	void FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, unsigned int color  );
 	void DrawLine( unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int color );
+	void DrawScanline( Vector4* left, Vector4* right );
+	void DrawStandardTriangle( );
 
 public:
 	inline int GetDeviceWidth( ) const
