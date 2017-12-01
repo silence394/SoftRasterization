@@ -1,7 +1,10 @@
-#include "graphicsbuffer.h"
-#include "math.h"
+#include "windows.h"
+#include "stdlib.h"
 #include "common.h"
+#include "math.h"
 #include "vector4.h"
+#include "graphicsbuffer.h"
+#include "Point.h"
 #include "renderdevice.h"
 
 RenderDevice::RenderDevice( HWND window, unsigned int * framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
@@ -100,22 +103,63 @@ void RenderDevice::DrawLine( unsigned int x1, unsigned int y1, unsigned int x2, 
 	}
 }
 
-void RenderDevice::DrawScanline( Vector4* left, Vector4* right )
+PSInput RenderDevice::InterpolatePSInput( const PSInput* input1, const PSInput* input2, float factor )
 {
-	if ( left[0].x > right[0].x )
-		Math::Swap( left, right );
+	PSInput input;
+	for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
+		input.mShaderRigisters[i] = Vector4::Lerp( input1->mShaderRigisters[i], input2->mShaderRigisters[i], factor );
 
-	uint startx = (uint) left[0].x;
-	uint endx = (uint) right[0].x;
+	return input;
+}
+
+void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
+{
+	const PSInput* left = nullptr;
+	const PSInput* right = nullptr;
+	if ( input1->mShaderRigisters[0].x < input2->mShaderRigisters[0].x )
+	{
+		left = input1;
+		right = input2;
+	}
+	else
+	{
+		left = input2;
+		right = input1;
+	}
+
+	uint startx = (uint) left->mShaderRigisters[0].x;
+	uint endx = (uint) right->mShaderRigisters[0].x;
 	for ( uint x = startx; x < endx; x ++)
 	{
 		float factor = (float) ( x - startx ) / ( endx - startx );
-		VSOutput out;
-		out.pos = Vector4::Lerp( left->pos, right->pos, factor );
-	//	out.color = Color::Lerp( left->color, right->color, factor );
+		PSInput psinput = InterpolatePSInput( left, right, factor );
 
-		float w = 1.0f / out.pos.w;
-		out.color *= w;
+		float invw = psinput.mShaderRigisters[0].w;
+		for ( uint i = 1; i < _MAX_PSINPUT_COUNT; i ++ )
+			psinput.mShaderRigisters[i] *= invw;
+
+		// Pixel Shadering.
+	}
+}
+
+void RenderDevice::DrawStandardTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
+{
+	float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
+
+	const Vector4* topreg = top->mShaderRigisters;
+	const Vector4* midreg = middle->mShaderRigisters;
+	const Vector4* btmreg = bottom->mShaderRigisters;
+
+	uint starty = topreg[0].y;
+	uint endy = midreg[0].y;
+	for ( uint y = starty; y < endy; y ++ )
+	{
+		float factor = (float) ( y - starty ) / ( endy - starty );
+		PSInput input1 = InterpolatePSInput( top, middle, factor );
+		PSInput input2 = InterpolatePSInput( top, bottom, factor );
+
+		DrawScanline( &input1, &input2 );
+	}
 }
 
 void RenderDevice::Clear( )

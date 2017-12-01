@@ -189,8 +189,8 @@ void DemoApp::OnRender( )
 
 				VSOutput* left = top;
 				VSOutput* right = bottom;
-				uint startx = left->pos.x;
-				uint endx = left->pos.x;
+				uint startx = (uint) left->pos.x;
+				uint endx = (uint) left->pos.x;
 				for ( uint x = startx; x < endx; x ++ )
 				{
 					float factor = (float) ( x - startx ) / ( endx - startx );
@@ -217,8 +217,8 @@ void DemoApp::OnRender( )
 
 				// Process top newmiddle, middle.
 				{
-					uint starty = top->pos.y;
-					uint endy = middle->pos.y;
+					uint starty = (uint) top->pos.y;
+					uint endy = (uint) middle->pos.y;
 
 					for ( uint y = starty; y < endy; y ++ )
 					{
@@ -256,8 +256,8 @@ void DemoApp::OnRender( )
 				// Process middle, newmiddle, bottom.
 				if ( 1 )
 				{
-					uint starty = middle->pos.y;
-					uint endy = bottom->pos.y;
+					uint starty = (uint) middle->pos.y;
+					uint endy = (uint) bottom->pos.y;
 
 					for ( uint y = starty; y < endy; y ++ )
 					{

@@ -87,6 +87,8 @@
     <ClCompile Include="renderdevice.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="vector3.cpp" />
+    <ClCompile Include="vector4.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />

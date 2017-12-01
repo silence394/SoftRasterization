@@ -1,11 +1,20 @@
 #pragma once
-#include "windows.h"
-#include "common.h"
-#include "Point.h"
-#include "math.h"
-#include "stdlib.h"
 
 class GraphicsBuffer;
+
+#define _MAX_VSINPUT_COUNT 4
+#define _MAX_PSINPUT_COUNT 4
+
+struct VSInput
+{
+	Vector4	mShaderRigisters[ _MAX_VSINPUT_COUNT ];
+};
+
+struct PSInput
+{
+	Vector4 mShaderRigisters[ _MAX_PSINPUT_COUNT ];
+};
+
 class RenderDevice
 {
 private:
@@ -20,10 +29,11 @@ public:
 	RenderDevice( HWND window, unsigned int * framebuffer );
 	~RenderDevice( );
 
-	void FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, unsigned int color  );
-	void DrawLine( unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int color );
-	void DrawScanline( Vector4* left, Vector4* right );
-	void DrawStandardTriangle( );
+	void	FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, unsigned int color  );
+	void	DrawLine( unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int color );
+	PSInput	InterpolatePSInput( const PSInput* input1, const PSInput* input2, float factor );
+	void	DrawScanline( const PSInput* input1, const PSInput* input2 );
+	void	DrawStandardTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
 
 public:
 	inline int GetDeviceWidth( ) const
