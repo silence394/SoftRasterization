@@ -1,4 +1,5 @@
 #include "app.h"
+#include "common.h"
 #include "math.h"
 #include "vector3.h"
 #include "vector4.h"

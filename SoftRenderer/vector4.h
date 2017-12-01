@@ -1,5 +1,7 @@
 #pragma once
 
+#include "vector3.h"
+
 class Vector4
 {
 public:

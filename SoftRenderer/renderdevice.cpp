@@ -150,8 +150,8 @@ void RenderDevice::DrawStandardTriangle( const PSInput* top, const PSInput* midd
 	const Vector4* midreg = middle->mShaderRigisters;
 	const Vector4* btmreg = bottom->mShaderRigisters;
 
-	uint starty = topreg[0].y;
-	uint endy = midreg[0].y;
+	uint starty = (uint) topreg[0].y;
+	uint endy = (uint) midreg[0].y;
 	for ( uint y = starty; y < endy; y ++ )
 	{
 		float factor = (float) ( y - starty ) / ( endy - starty );
