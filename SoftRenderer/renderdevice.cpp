@@ -174,9 +174,9 @@ void RenderDevice::DrawPixel( uint x, uint y, uint color )
 		mFrameBuffer[y][x] = color;
 }
 
-void RenderDevice::DrawPoint( const Point& p, unsigned int color )
+void RenderDevice::DrawPoint( const Point& p, uint color )
 {
-	if ( p.x < mWidth && p.y < mHeight )
+	if ( (uint) p.x < mWidth && (uint) p.y < mHeight )
 		mFrameBuffer[p.y][p.x] = color;
 }
 
