@@ -1,13 +1,7 @@
 #pragma once
 
-class GraphicsBuffer;
-
 #define _MAX_VSINPUT_COUNT 4
 #define _MAX_PSINPUT_COUNT 4
-
-#include "vector4.h"
-#include "common.h"
-#include "point.h"
 
 struct VSInput
 {
