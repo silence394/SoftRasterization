@@ -1,13 +1,4 @@
-#include "app.h"
-#include "common.h"
-#include "math.h"
-#include "vector3.h"
-#include "vector4.h"
-#include "matrix4.h"
-#include "camera.h"
-#include "texture.h"
-#include "vector2.h"
-#include "color.h"
+#include "renderer.h"
 RenderDevice*	gRenderDevice = nullptr;
 
 class DemoApp : public App

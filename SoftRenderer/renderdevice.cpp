@@ -1,13 +1,6 @@
-#include "windows.h"
-#include "stdlib.h"
-#include "common.h"
-#include "math.h"
-#include "vector4.h"
-#include "graphicsbuffer.h"
-#include "Point.h"
-#include "renderdevice.h"
+#include "renderer.h"
 
-RenderDevice::RenderDevice( HWND window, unsigned int * framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
+RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
 {
 	RECT rect = { 0 };
 	GetClientRect( window, &rect  );
@@ -25,7 +18,7 @@ RenderDevice::~RenderDevice( )
 	delete[] mFrameBuffer;
 }
 
-void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, unsigned int color )
+void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color )
 {
 	float k1 = (float) (int) ( p3.x - p1.x ) / (float) (int) ( p3.y - p1.y );
 	float k2 = (float) (int) ( p3.x - p2.x ) / (float) (int) ( p3.y - p2.y );

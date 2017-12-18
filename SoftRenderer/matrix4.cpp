@@ -1,9 +1,4 @@
-#include "assert.h"
 #include "common.h"
-#include "math.h"
-#include "vector3.h"
-#include "vector4.h"
-#include "matrix4.h"
 
 const Matrix4 Matrix4::identity(1.0f, 0.0f, 0.0f, 0.0f,
 								0.0f, 1.0f, 0.0f, 0.0f,
