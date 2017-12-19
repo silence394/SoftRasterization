@@ -1,4 +1,5 @@
-#include "renderer.h"
+#include "renderdevice.h"
+#include "windows.h"
 
 RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
 {

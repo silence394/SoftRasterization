@@ -1,9 +1,10 @@
 #pragma once
 
+#include "prerequisites.h"
+#include "vector3.h"
 #include "vector4.h"
 #include "assert.h"
 
-class Vector3;
 class Matrix4
 {
 public:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "prerequisites.h"
+
 class Point
 {
 public:

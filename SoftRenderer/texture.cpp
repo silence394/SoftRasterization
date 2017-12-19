@@ -1,4 +1,5 @@
-#include "renderer.h"
+#include "texture.h"
+#include <string>
 
 Texture::Texture( void* buffer, uint width, uint height, uint format )
 	: mWidth( width ), mHeight( height ), mFormat( format )

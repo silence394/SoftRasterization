@@ -1,5 +1,10 @@
 #pragma once
 
+#include "windows.h"
+#include "point.h"
+#include "vector4.h"
+#include "graphicsbuffer.h"
+
 #define _MAX_VSINPUT_COUNT 4
 #define _MAX_PSINPUT_COUNT 4
 

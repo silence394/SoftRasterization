@@ -1,4 +1,4 @@
-#include "common.h"
+#include "color.h"
 
 Color::Color( uint color )
 {

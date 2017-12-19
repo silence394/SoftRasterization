@@ -92,17 +92,16 @@
     <ClCompile Include="vector4.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="common.h" />
+    <ClInclude Include="libengine.h" />
+    <ClInclude Include="prerequisites.h" />
     <ClInclude Include="graphicsbuffer.h" />
     <ClInclude Include="math.h" />
     <ClInclude Include="matrix4.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="renderdevice.h" />
     <ClInclude Include="app.h" />
-    <ClInclude Include="renderer.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="vector3.h" />

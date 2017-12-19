@@ -1,5 +1,8 @@
 #pragma once
 
+#include "prerequisites.h"
+#include "math.h"
+
 class Color
 {
 public:
