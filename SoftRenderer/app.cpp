@@ -1,4 +1,5 @@
 #include "app.h"
+#include "renderdevice.h"
 
 LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -98,7 +99,7 @@ void App::Create()
 	{
 		RECT rect = { 0 };
 		GetClientRect( mWindow, &rect );
-		mRenderDevice = new RenderDevice( mWindow, (unsigned int *) mScreenBuffer );
+		mRenderDevice = new RenderDevice( mWindow, (uint *) mScreenBuffer );
 	}
 
 	OnCreate( );

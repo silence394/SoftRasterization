@@ -1,5 +1,7 @@
 #include "renderdevice.h"
-#include "windows.h"
+#include "point.h"
+#include "vector4.h"
+#include "graphicsbuffer.h"
 
 RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
 {
@@ -9,9 +11,9 @@ RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ),
 	mWidth = rect.right;
 	mHeight = rect.bottom;
 
-	mFrameBuffer = new unsigned int* [ mHeight ];
-	for ( unsigned int i = 0; i < mHeight; i ++ )
-		mFrameBuffer[i] = (unsigned int*) ( framebuffer + mWidth * i );
+	mFrameBuffer = new uint* [ mHeight ];
+	for ( uint i = 0; i < mHeight; i ++ )
+		mFrameBuffer[i] = (uint*) ( framebuffer + mWidth * i );
 }
 
 RenderDevice::~RenderDevice( )
@@ -33,17 +35,17 @@ void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Po
 		k2 = -k2;
 	}
 
-	for ( unsigned int y = p1.y; y != p3.y; y += dy )
+	for ( uint y = p1.y; y != p3.y; y += dy )
 	{
-		DrawLine( (unsigned int) xs, y, (unsigned int) xe, y, color );
+		DrawLine( (uint) xs, y, (uint) xe, y, color );
 		xs += k1;
 		xe += k2;
 	}
 
-	mFrameBuffer[p3.y][ (unsigned int) xs ] = color;
+	mFrameBuffer[p3.y][ (uint) xs ] = color;
 }
 
-void RenderDevice::DrawLine( unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int color )
+void RenderDevice::DrawLine( uint x1, uint y1, uint x2, uint y2, uint color )
 {
 	if ( y1 == y2 )
 	{
@@ -158,7 +160,7 @@ void RenderDevice::DrawStandardTriangle( const PSInput* top, const PSInput* midd
 
 void RenderDevice::Clear( )
 {
-	for ( unsigned int i = 0; i < mHeight; i ++ )
+	for ( uint i = 0; i < mHeight; i ++ )
 		memset( mFrameBuffer[i], mClearColor, mWidth * 4 );
 }
 
@@ -174,12 +176,12 @@ void RenderDevice::DrawPoint( const Point& p, uint color )
 		mFrameBuffer[p.y][p.x] = color;
 }
 
-void RenderDevice::DrawLine( const Point& p1, const Point& p2, unsigned int color )
+void RenderDevice::DrawLine( const Point& p1, const Point& p2, uint color )
 {
 	DrawLine( p1.x, p1.y, p2.x, p2.y, color );
 }
 
-void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& p3, unsigned int color )
+void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& p3, uint color )
 {
 	if ( p1.y == p2.y )
 	{
@@ -218,7 +220,6 @@ void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& 
 
 GraphicsBuffer* RenderDevice::CreateBuffer( uint type, void* buffer, uint length )
 {
-
 	return new GraphicsBuffer;
 }
 

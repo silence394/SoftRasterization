@@ -1,4 +1,5 @@
 #include "matrix4.h"
+#include "vector3.h"
 
 const Matrix4 Matrix4::identity(1.0f, 0.0f, 0.0f, 0.0f,
 								0.0f, 1.0f, 0.0f, 0.0f,

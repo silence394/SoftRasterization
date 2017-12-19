@@ -1,7 +1,7 @@
 #pragma once
 
+#include "prerequisites.h"
 #include "windows.h"
-#include "renderdevice.h"
 
 class App
 {
