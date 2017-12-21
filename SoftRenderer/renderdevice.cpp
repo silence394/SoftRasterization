@@ -1,6 +1,7 @@
 #include "renderdevice.h"
 #include "point.h"
 #include "vector4.h"
+#include "color.h"
 #include "graphicsbuffer.h"
 
 RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
@@ -125,6 +126,7 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 
 	uint startx = (uint) left->mShaderRigisters[0].x;
 	uint endx = (uint) right->mShaderRigisters[0].x;
+	uint y = (uint) left->mShaderRigisters[0].y;
 	for ( uint x = startx; x < endx; x ++)
 	{
 		float factor = (float) ( x - startx ) / ( endx - startx );
@@ -135,6 +137,10 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 			psinput.mShaderRigisters[i] *= invw;
 
 		// Pixel Shadering.
+		Color color;
+		float depth = 0.0f;
+		mPixelShader->Execute( psinput.mShaderRigisters, color, depth );
+		mFrameBuffer[y][x] = color;
 	}
 }
 

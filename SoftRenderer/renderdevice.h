@@ -3,6 +3,7 @@
 #include "prerequisites.h"
 #include "windows.h"
 #include "vector4.h"
+#include "shaders.h"
 
 #define _MAX_VSINPUT_COUNT 4
 #define _MAX_PSINPUT_COUNT 4
@@ -20,12 +21,12 @@ struct PSInput
 class RenderDevice
 {
 private:
-	uint	mWidth;
-	uint	mHeight;
-	uint**	mFrameBuffer;
-	uint	mClearColor;
-	void*	mVertexShader;
-	void*	mPixelShader;
+	uint			mWidth;
+	uint			mHeight;
+	uint**			mFrameBuffer;
+	uint			mClearColor;
+	IVertexShader*	mVertexShader;
+	IPixelShader*	mPixelShader;
 
 public:
 	RenderDevice( HWND window, uint * framebuffer );
@@ -45,6 +46,11 @@ public:
 
 	inline void SetClearColor( uint color )
 		{ mClearColor = color; }
+
+	inline void SetVertexShader( IVertexShader* vs )
+		{ mVertexShader = vs; }
+	inline void SetPixelShader( IPixelShader* ps )
+		{ mPixelShader = ps; }
 
 	void Clear( );
 	void DrawPixel( uint x, uint y, uint color );

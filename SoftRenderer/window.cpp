@@ -78,7 +78,7 @@ Window::Window( int width, int height, LPCWSTR name )
 
 	SelectObject( mWindowDC, mBITMAP );
 
-	unsigned char* sb = (unsigned char*) mScreenBuffer;
+	byte* sb = (byte*) mScreenBuffer;
 	memset (sb, 128, width*height*4 );
 }
 
