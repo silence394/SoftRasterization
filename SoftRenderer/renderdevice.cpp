@@ -132,7 +132,7 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 		float factor = (float) ( x - startx ) / ( endx - startx );
 		PSInput psinput = InterpolatePSInput( left, right, factor );
 
-		float invw = psinput.mShaderRigisters[0].w;
+		float invw = 1.0f / psinput.mShaderRigisters[0].w;
 		for ( uint i = 1; i < _MAX_PSINPUT_COUNT; i ++ )
 			psinput.mShaderRigisters[i] *= invw;
 
@@ -144,21 +144,29 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 	}
 }
 
-void RenderDevice::DrawStandardTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
+void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
 {
-	float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
-
-	const Vector4* topreg = top->mShaderRigisters;
-	const Vector4* midreg = middle->mShaderRigisters;
-	const Vector4* btmreg = bottom->mShaderRigisters;
-
-	uint starty = (uint) topreg[0].y;
-	uint endy = (uint) midreg[0].y;
+	uint starty = (uint) top->mShaderRigisters[0].y;
+	uint endy = (uint) bottom->mShaderRigisters[0].y;
 	for ( uint y = starty; y < endy; y ++ )
 	{
 		float factor = (float) ( y - starty ) / ( endy - starty );
 		PSInput input1 = InterpolatePSInput( top, middle, factor );
 		PSInput input2 = InterpolatePSInput( top, bottom, factor );
+
+		DrawScanline( &input1, &input2 );
+	}
+}
+
+void RenderDevice::DrawStandardBottomTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
+{
+	uint starty = (uint) top->mShaderRigisters[0].y;
+	uint endy = (uint) bottom->mShaderRigisters[0].y;
+	for ( uint y = starty; y < endy; y ++ )
+	{
+		float factor = (float) ( y - starty ) / ( endy - starty );
+		PSInput input1 = InterpolatePSInput( top, bottom, factor );
+		PSInput input2 = InterpolatePSInput( middle, bottom, factor );
 
 		DrawScanline( &input1, &input2 );
 	}

@@ -1,6 +1,14 @@
 #include "libengine.h"
 RenderDevice*	gRenderDevice = nullptr;
 
+class PixelShader : public IPixelShader
+{
+	virtual void Execute( Vector4* regs, Color& color, float& depth )
+	{
+		color = Color( regs[1].x, regs[1].y, regs[1].z, regs[1].w );
+	}
+};
+
 class DemoApp : public App
 {
 private:
@@ -22,11 +30,6 @@ public:
 	virtual void OnCreate( );
 	virtual void OnRender( );
 	virtual void OnClose( );
-};
-
-class PixelShader : public IPixelShader
-{
-	virtual void Execute( Vector4* regs, Color& color, float& depth );
 };
 
 void DemoApp::OnCreate( )
@@ -57,6 +60,9 @@ void DemoApp::OnCreate( )
 
 	mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
 	delete[] texbuffer;
+
+	mPixelShader = new PixelShader( );
+	mRenderDevice->SetPixelShader( mPixelShader );
 }
 
 void DemoApp::OnClose( )
@@ -187,29 +193,12 @@ void DemoApp::OnRender( )
 					Math::Swap( top, middle );
 
 				PSInput topinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
-				PSInput bottominput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };;
+				PSInput bottominput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
 				topinput.mShaderRigisters[0] = top->pos;
 				topinput.mShaderRigisters[1] = Vector4( top->color.r, top->color.g, top->color.b, top->color.a );
 				bottominput.mShaderRigisters[0] = bottom->pos;
 				bottominput.mShaderRigisters[1] = Vector4( bottom->color.r, bottom->color.g, bottom->color.b, bottom->color.a );
 				mRenderDevice->DrawScanline( &topinput, &bottominput );
-
-// 				VSOutput* left = top;
-// 				VSOutput* right = bottom;
-// 				uint startx = (uint) left->pos.x;
-// 				uint endx = (uint) left->pos.x;
-// 				for ( uint x = startx; x < endx; x ++ )
-// 				{
-// 					float factor = (float) ( x - startx ) / ( endx - startx );
-// 					VSOutput out;
-// 					out.pos = Vector4::Lerp( left->pos, right->pos, factor );
-// 					out.color = Color::Lerp( left->color, right->color, factor );
-// 
-// 					float w = 1.0f / out.pos.w;
-// 					out.color *= w;
-// 
-// 					mRenderDevice->DrawPixel( (uint) out.pos.x, (uint) out.pos.y, out.color );
-// 				}
 			}
 			else
 			{
@@ -222,120 +211,24 @@ void DemoApp::OnRender( )
 					newmiddle.color = Color::Lerp( top->color, bottom->color, factor );
 				}
 
-				mRenderDevice->DrawStandardTriangle( top, newmiddle, middle );
-				mRenderDevice->DrawStandardTriangle( middle, newmiddle, bottom );
+				PSInput topinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
+				PSInput middleinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
+				PSInput newmiddleinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
+				PSInput bottominput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
+				topinput.mShaderRigisters[0] = top->pos;
+				topinput.mShaderRigisters[1] = Vector4( top->color.r, top->color.g, top->color.b, top->color.a );
+				middleinput.mShaderRigisters[0] = middle->pos;
+				middleinput.mShaderRigisters[1] = Vector4( middle->color.r, middle->color.g, middle->color.b, middle->color.a );
+				newmiddleinput.mShaderRigisters[0] = newmiddle.pos;
+				newmiddleinput.mShaderRigisters[1] = Vector4( newmiddle.color.r, newmiddle.color.g, newmiddle.color.b, newmiddle.color.a );
+				bottominput.mShaderRigisters[0] = bottom->pos;
+				bottominput.mShaderRigisters[1] = Vector4( bottom->color.r, bottom->color.g, bottom->color.b, bottom->color.a );
 
-				// Process top newmiddle, middle.
-				{
-					uint starty = (uint) top->pos.y;
-					uint endy = (uint) middle->pos.y;
-
-					for ( uint y = starty; y < endy; y ++ )
-					{
-						float factor = (float) ( y - starty ) / ( endy - starty );
-						VSOutput va;
-						va.pos = Vector4::Lerp( top->pos, middle->pos, factor );
-						va.color = Color::Lerp( top->color, middle->color, factor );
-						VSOutput vb;
-						vb.pos = Vector4::Lerp( top->pos, newmiddle.pos, factor );
-						vb.color = Color::Lerp( top->color, newmiddle.color, factor );
-
-						VSOutput* left = &va;
-						VSOutput* right = &vb;
-						if ( left->pos.x > right->pos.x )
-							Math::Swap( left, right );
-
-						uint startx = (uint) left->pos.x;
-						uint endx = (uint) right->pos.x;
-						for ( uint x = startx; x < endx; x ++)
-						{
-							float factor = (float) ( x - startx ) / ( endx - startx );
-							VSOutput out;
-							out.pos = Vector4::Lerp( left->pos, right->pos, factor );
-							out.color = Color::Lerp( left->color, right->color, factor );
-
-							float w = 1.0f / out.pos.w;
-							out.color *= w;
-
-							// Pixel Shader.
-							mRenderDevice->DrawPixel( (uint) out.pos.x, (uint) out.pos.y, out.color );
-						}
-					}
-				}
-
-				// Process middle, newmiddle, bottom.
-				if ( 1 )
-				{
-					uint starty = (uint) middle->pos.y;
-					uint endy = (uint) bottom->pos.y;
-
-					for ( uint y = starty; y < endy; y ++ )
-					{
-						float factor = (float) ( y - starty ) / ( endy - starty );
-						VSOutput va;
-						va.pos = Vector4::Lerp( middle->pos, bottom->pos, factor );
-						va.color = Color::Lerp( middle->color, bottom->color, factor );
-						VSOutput vb;
-						vb.pos = Vector4::Lerp( newmiddle.pos, bottom->pos, factor );
-						vb.color = Color::Lerp( newmiddle.color, bottom->color, factor );
-
-						VSOutput* left = &va;
-						VSOutput* right = &vb;
-						if ( left->pos.x > right->pos.x )
-							Math::Swap( left, right );
-
-						uint startx = (uint) left->pos.x;
-						uint endx = (uint) right->pos.x;
-						for ( uint x = startx; x < endx; x ++)
-						{
-							float factor = (float) ( x - startx ) / ( endx - startx );
-							VSOutput out;
-							out.pos = Vector4::Lerp( left->pos, right->pos, factor );
-							out.color = Color::Lerp( left->color, right->color, factor );
-
-							float w = 1.0f / out.pos.w;
-							out.color *= w;
-
-							mRenderDevice->DrawPixel( (uint) out.pos.x, (uint) out.pos.y, out.color );
-						}
-					}
-				}
+				mRenderDevice->DrawStandardTopTriangle( &topinput, &newmiddleinput, &middleinput );
+				mRenderDevice->DrawStandardBottomTriangle( &middleinput, &newmiddleinput, &bottominput );
 			}
 		}
-
-// 		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v2.x, v2.y ), c1 * v1.z );
-// 		mRenderDevice->DrawLine( Point( v1.x, v1.y ), Point( v3.x, v3.y ), c2 * v2.z );
-// 		mRenderDevice->DrawLine( Point( v2.x, v2.y ), Point( v3.x, v3.y ), c3 * v3.z );
 	}
-	// Rasterazer Statge.
-// 	for ( uint i = 0; i < 36; i += 3 )
-// 	{
-// 		Vector4 s1 = vertex[indexs[i]].pos * wvp;
-// 		s1 = s1 / s1.w;
-// 		Vector4 s2 = vertex[indexs[i+1]].pos * wvp;
-// 		s2 = s2 / s2.w;
-// 		Vector4 s3 = vertex[indexs[i+2]].pos * wvp;
-// 		s3 = s3 / s3.w;
-// 
-// 		Point point1( (int) ( (s1.x + 1.0f) * 0.5f * mRenderDevice->GetDeviceWidth( ) ), (int) ( (s1.y + 1.0f) * 0.5f * mRenderDevice->GetDeviceHeight( ) ) );
-// 		Point point2( (int) ( (s2.x + 1.0f) * 0.5f * mRenderDevice->GetDeviceWidth( ) ), (int) ( (s2.y + 1.0f) * 0.5f * mRenderDevice->GetDeviceHeight( ) ) );
-// 		Point point3( (int) ( (s3.x + 1.0f) * 0.5f * mRenderDevice->GetDeviceWidth( ) ), (int) ( (s3.y + 1.0f) * 0.5f * mRenderDevice->GetDeviceHeight( ) ) );
-// 
-// 		uint color;
-// 		if ( i < 10 )
-// 			color = 0xffff0000;
-// 		else if ( i < 20 )
-// 			color = 0xff00ff00;
-// 		else
-// 			color = 0xff0000ff;
-// 
-// 		// Pixel Stage.
-// 
-// 		//mRenderDevice->FillTriangle( point1, point2, point3, 0xff00ff00 );
-// 		mRenderDevice->DrawLine( point1, point2, color );
-// 		mRenderDevice->DrawLine( point3, point2, color );
-// 		mRenderDevice->DrawLine( point1, point3, color );
-// 	}
 }
 
 int main( )

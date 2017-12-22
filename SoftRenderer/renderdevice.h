@@ -36,7 +36,8 @@ public:
 	void	DrawLine( uint x1, uint y1, uint x2, uint y2, uint color );
 	PSInput	InterpolatePSInput( const PSInput* input1, const PSInput* input2, float factor );
 	void	DrawScanline( const PSInput* input1, const PSInput* input2 );
-	void	DrawStandardTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
+	void	DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
+	void	DrawStandardBottomTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
 
 public:
 	inline int GetDeviceWidth( ) const
