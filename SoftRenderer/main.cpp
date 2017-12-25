@@ -122,16 +122,10 @@ void DemoApp::OnRender( )
 	Matrix4 wvp = wv * mPerspectTransform;
 	
 	// VS Stage.
-	struct VSOutput
-	{
-		Vector4	pos; // To Pixel shader stage.
-		Color	color;
-	};
-
-	VSOutput vsoutput[8];
+	PSInput vsoutput[8];
+	
 	for ( uint i = 0; i < 8; i ++ )
 	{
-		// TODO. 可以通过Vector3 * wvp 得到一个空间点， 哪种更适合后面的计算？
 		Vector4 hamopos = Vector4( vertex[i].pos, 1.0f );
 		Vector4 pos = hamopos * wvp;
 		float invw = 1.0f / pos.w;
@@ -139,10 +133,22 @@ void DemoApp::OnRender( )
 		pos.y *= invw;
 		pos.z *= invw;
 		pos.w = invw;
-		vsoutput[i].pos = pos;
+		vsoutput[i].mShaderRigisters[0] = Vector4( vertex[i].pos, 1.0f ) * wvp;
+		vsoutput[i].mShaderRigisters[1] = Color( vertex[i].color );
+		for ( uint j = 2; j < _MAX_VSINPUT_COUNT; j ++ )
+			vsoutput[i].mShaderRigisters[j] = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
+	}
 
-		vsoutput[i].color = vertex[i].color;
-		vsoutput[i].color *= invw;
+	for ( uint i = 0; i < 8; i ++ )
+	{
+		float invw = 1.0f / vsoutput[i].mShaderRigisters[0].w;
+		vsoutput[i].mShaderRigisters[0].x *= invw;
+		vsoutput[i].mShaderRigisters[0].y *= invw;
+		vsoutput[i].mShaderRigisters[0].z *= invw;
+		vsoutput[i].mShaderRigisters[0].w = invw;
+
+		for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
+			vsoutput[i].mShaderRigisters[j] *= invw;
 	}
 
 	// TO Screen.
@@ -150,18 +156,15 @@ void DemoApp::OnRender( )
 	float height = (float) mRenderDevice->GetDeviceHeight( );
 	for ( uint i = 0; i < 8; i ++ )
 	{
-		vsoutput[i].pos.x = ( vsoutput[i].pos.x + 1.0f ) * 0.5f * width;
-		vsoutput[i].pos.y = ( vsoutput[i].pos.y + 1.0f ) * 0.5f * height;
+		vsoutput[i].mShaderRigisters[0].x = ( vsoutput[i].mShaderRigisters[0].x + 1.0f ) * 0.5f * width;
+		vsoutput[i].mShaderRigisters[0].y = ( vsoutput[i].mShaderRigisters[0].y + 1.0f ) * 0.5f * height;
 	}
 
 	for ( uint i = 0; i < 36; i += 3 )
 	{
-		const Vector4& v1 = vsoutput[ indices[i] ].pos;
-		const Vector4& v2 = vsoutput[ indices[i + 1] ].pos;
-		const Vector4& v3 = vsoutput[ indices[i + 2] ].pos;
-		const Color& c1 = vsoutput[ indices[i] ].color;
-		const Color& c2 = vsoutput[ indices[i + 1] ].color;
-		const Color& c3 = vsoutput[ indices[i + 2] ].color;
+		const Vector4& v1 = vsoutput[ indices[i] ].mShaderRigisters[0];
+		const Vector4& v2 = vsoutput[ indices[i + 1] ].mShaderRigisters[0];
+		const Vector4& v3 = vsoutput[ indices[i + 2] ].mShaderRigisters[0];
 
 //		Move To assembly stage.
 // 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
@@ -172,60 +175,35 @@ void DemoApp::OnRender( )
 			continue;
 
 		{
-			VSOutput* top = &vsoutput[ indices[i] ];
-			VSOutput* middle = &vsoutput[ indices[i+1] ];
-			VSOutput* bottom = &vsoutput[ indices[i+2] ];
+			PSInput* top = &vsoutput[ indices[i] ];
+			PSInput* middle = &vsoutput[ indices[i+1] ];
+			PSInput* bottom = &vsoutput[ indices[i+2] ];
 			// top to bottom, value of y is larger.
-			if ( top->pos.y > middle->pos.y )
+			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
 				Math::Swap( top, middle );
-			if ( middle->pos.y > bottom->pos.y )
+			if ( middle->mShaderRigisters[0].y > bottom->mShaderRigisters[0].y )
 				Math::Swap( middle, bottom );
-			if ( top->pos.y > middle->pos.y )
+			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
 				Math::Swap( top, middle );
 
-			if ( top->pos.y == bottom->pos.y )
+			if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
 			{
-				if ( top->pos.x > middle->pos.x )
+				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
 					Math::Swap( top, middle );
-				if ( middle->pos.x > bottom->pos.x )
+				if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
 					Math::Swap( middle, bottom );
-				if ( top->pos.x > middle->pos.x )
+				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
 					Math::Swap( top, middle );
 
-				PSInput topinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
-				PSInput bottominput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
-				topinput.mShaderRigisters[0] = top->pos;
-				topinput.mShaderRigisters[1] = Vector4( top->color.r, top->color.g, top->color.b, top->color.a );
-				bottominput.mShaderRigisters[0] = bottom->pos;
-				bottominput.mShaderRigisters[1] = Vector4( bottom->color.r, bottom->color.g, bottom->color.b, bottom->color.a );
-				mRenderDevice->DrawScanline( &topinput, &bottominput );
+				mRenderDevice->DrawScanline( top, bottom );
 			}
 			else
 			{
-				float factor = ( middle->pos.y - top->pos.y ) / ( bottom->pos.y - top->pos.y );
-				VSOutput newmiddle;
-				// Lerp.
-				{
-					// w is in linear space, z is not. So doesnot use z when interploate.
-					newmiddle.pos = Vector4::Lerp( top->pos, bottom->pos, factor );
-					newmiddle.color = Color::Lerp( top->color, bottom->color, factor );
-				}
+				float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
+				PSInput newmiddle = mRenderDevice->InterpolatePSInput( top, bottom, factor );
 
-				PSInput topinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
-				PSInput middleinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
-				PSInput newmiddleinput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
-				PSInput bottominput = { Vector4(0.0f, 0.0f, 0.0f, 0.0f ) };
-				topinput.mShaderRigisters[0] = top->pos;
-				topinput.mShaderRigisters[1] = Vector4( top->color.r, top->color.g, top->color.b, top->color.a );
-				middleinput.mShaderRigisters[0] = middle->pos;
-				middleinput.mShaderRigisters[1] = Vector4( middle->color.r, middle->color.g, middle->color.b, middle->color.a );
-				newmiddleinput.mShaderRigisters[0] = newmiddle.pos;
-				newmiddleinput.mShaderRigisters[1] = Vector4( newmiddle.color.r, newmiddle.color.g, newmiddle.color.b, newmiddle.color.a );
-				bottominput.mShaderRigisters[0] = bottom->pos;
-				bottominput.mShaderRigisters[1] = Vector4( bottom->color.r, bottom->color.g, bottom->color.b, bottom->color.a );
-
-				mRenderDevice->DrawStandardTopTriangle( &topinput, &newmiddleinput, &middleinput );
-				mRenderDevice->DrawStandardBottomTriangle( &middleinput, &newmiddleinput, &bottominput );
+				mRenderDevice->DrawStandardTopTriangle( top, &newmiddle, middle );
+				mRenderDevice->DrawStandardBottomTriangle( middle, &newmiddle, bottom );
 			}
 		}
 	}
