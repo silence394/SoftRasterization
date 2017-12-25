@@ -40,7 +40,7 @@ public:
 	Matrix4& Transpose( );
 };
 
-inline Vector4 operator *( const Vector4& v, Matrix4& mat )
+inline Vector4 operator *( const Vector4& v, const Matrix4& mat )
 {
 	return Vector4(
 		v.x * mat[0] + v.y * mat[4] + v.z * mat[8] + v.w * mat[12],

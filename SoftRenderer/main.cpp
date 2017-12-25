@@ -1,6 +1,14 @@
 #include "libengine.h"
 RenderDevice*	gRenderDevice = nullptr;
 
+class VertexShader : public IVertexShader
+{
+	virtual void Execute( Vector4* regs )
+	{
+		regs[0] *= GetMatrix( _CT_WVP_TRANSFORM );
+	}
+};
+
 class PixelShader : public IPixelShader
 {
 	virtual void Execute( Vector4* regs, Color& color, float& depth )
@@ -63,11 +71,16 @@ void DemoApp::OnCreate( )
 
 	mPixelShader = new PixelShader( );
 	mRenderDevice->SetPixelShader( mPixelShader );
+
+	mVertexShader = new VertexShader( );
+	mRenderDevice->SetVertexShader( mVertexShader );
 }
 
 void DemoApp::OnClose( )
 {
 	delete mTexture;
+	delete mVertexShader;
+	delete mPixelShader;
 }
 
 bool CheckInCVV( const Vector4& v )
@@ -118,25 +131,18 @@ void DemoApp::OnRender( )
 		4, 3, 7,
 	};
 
-	Matrix4 wv = mWorldTransform * mViewTransform;
-	Matrix4 wvp = wv * mPerspectTransform;
+	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	
 	// VS Stage.
 	PSInput vsoutput[8];
-	
 	for ( uint i = 0; i < 8; i ++ )
 	{
-		Vector4 hamopos = Vector4( vertex[i].pos, 1.0f );
-		Vector4 pos = hamopos * wvp;
-		float invw = 1.0f / pos.w;
-		pos.x *= invw;
-		pos.y *= invw;
-		pos.z *= invw;
-		pos.w = invw;
-		vsoutput[i].mShaderRigisters[0] = Vector4( vertex[i].pos, 1.0f ) * wvp;
+		vsoutput[i].mShaderRigisters[0] = Vector4( vertex[i].pos, 1.0f );
 		vsoutput[i].mShaderRigisters[1] = Color( vertex[i].color );
 		for ( uint j = 2; j < _MAX_VSINPUT_COUNT; j ++ )
 			vsoutput[i].mShaderRigisters[j] = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
+
+		mVertexShader->Execute( vsoutput[i].mShaderRigisters );
 	}
 
 	for ( uint i = 0; i < 8; i ++ )

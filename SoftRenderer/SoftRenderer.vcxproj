@@ -87,6 +87,7 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="renderdevice.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="shaders.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="vector3.cpp" />
     <ClCompile Include="vector4.cpp" />
