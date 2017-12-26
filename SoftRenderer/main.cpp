@@ -1,4 +1,5 @@
 #include "libengine.h"
+#include <string>
 RenderDevice*	gRenderDevice = nullptr;
 
 class VertexShader : public IVertexShader
@@ -114,6 +115,31 @@ void DemoApp::OnRender( )
 		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f ) },
 		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xff22ffff, Vector2( 1.0f, 0.0f ) },
 	};
+
+	struct Buffer
+	{
+		byte* buffer;
+		uint length;
+	};
+
+	struct VertexBuffer : public Buffer
+	{
+		
+	};
+
+	struct InputElementDesc
+	{
+		std::string	name;
+		uint		index;
+		uint		format;
+		uint		offset;
+	};
+
+	// SetInputLayOut, SetVertexBuffer
+	// FectchVertex
+	// inputdesc[0].format, offset, to vertexregister.  reg[0] = xxx, reg[1] = xxx, reg[2] = xxx,
+	// Execute VertexShader.
+
 
 	uint indices[36] =
 	{
