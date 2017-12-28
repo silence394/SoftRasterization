@@ -232,9 +232,20 @@ void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& 
 	}
 }
 
-GraphicsBuffer* RenderDevice::CreateBuffer( uint type, void* buffer, uint length )
+InputLayout* RenderDevice::CreateInputLayout( InputElementDesc const * desc, uint count )
 {
-	return new GraphicsBuffer;
+	return new InputLayout( desc, count );
+}
+
+void RenderDevice::ReleaseInputLayout( InputLayout*& layout )
+{
+	delete layout;
+	layout = nullptr;
+}
+
+GraphicsBuffer* RenderDevice::CreateBuffer( void* buffer, uint length )
+{
+	return new GraphicsBuffer( buffer, length );
 }
 
 void RenderDevice::Releasebuffer( GraphicsBuffer*& buffer )

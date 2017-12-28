@@ -4,6 +4,7 @@
 #include "windows.h"
 #include "vector4.h"
 #include "shaders.h"
+#include <vector>
 
 #define _MAX_VSINPUT_COUNT 4
 #define _MAX_PSINPUT_COUNT 4
@@ -59,6 +60,9 @@ public:
 	void DrawLine( const Point& p1, const Point& p2, uint color );
 	void FillTriangle( const Point& p1, const Point& p2, const Point& p3, uint color );
 
-	GraphicsBuffer*	CreateBuffer( uint type, void* buffer, uint length );
+	InputLayout*	CreateInputLayout( InputElementDesc const * desc, uint count );
+	void			ReleaseInputLayout( InputLayout*& layout );
+
+	GraphicsBuffer*	CreateBuffer( void* buffer, uint length );
 	void			Releasebuffer( GraphicsBuffer*& buffer );
 };

@@ -31,6 +31,10 @@ private:
 	IVertexShader*	mVertexShader;
 	IPixelShader*	mPixelShader;
 
+	InputLayout		mInputLayOut;
+	GraphicsBuffer*	mVertexBuffer;
+	GraphicsBuffer*	mIndexBuffer;
+
 public:
 	DemoApp( int width = 800, int height = 600, LPCWSTR name = L"Demo" )
 		: App( width, height, name ) { }
@@ -75,6 +79,42 @@ void DemoApp::OnCreate( )
 
 	mVertexShader = new VertexShader( );
 	mRenderDevice->SetVertexShader( mVertexShader );
+
+	std::vector<InputElementDesc> descs;
+	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT ) );
+	descs.push_back( InputElementDesc( "COLOR", GraphicsBuffer::BF_A8R8G8B8 ) );
+	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT ) );
+
+	mRenderDevice->CreateInputLayout( &descs[0], descs.size( ) );
+
+	struct Vertex
+	{
+		Vector3	pos;
+		uint	color;
+		Vector2	texcoord;
+	};
+
+	Vertex vertex[8] = 
+	{
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xffffff00, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xff22ffff, Vector2( 1.0f, 0.0f ) },
+	};
+
+	uint vcount = 8;
+	uint vsize = sizeof( Vector3 ) + sizeof( uint ) + sizeof( Vector2 );
+	uint vlen = vcount * vsize;
+	byte* vbuffer = new byte[ vlen ];
+
+	memcpy( vbuffer, vertex, vlen );
+
+	mVertexBuffer = mRenderDevice->CreateBuffer( vbuffer, vlen );
+// 	mIndexBuffer = mRenderDevice->CreateBuffer( );
 }
 
 void DemoApp::OnClose( )
@@ -125,14 +165,6 @@ void DemoApp::OnRender( )
 	struct VertexBuffer : public Buffer
 	{
 		
-	};
-
-	struct InputElementDesc
-	{
-		std::string	name;
-		uint		index;
-		uint		format;
-		uint		offset;
 	};
 
 	// SetInputLayOut, SetVertexBuffer

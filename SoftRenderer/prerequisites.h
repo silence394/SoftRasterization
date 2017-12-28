@@ -13,6 +13,8 @@ class Camera;
 class Color;
 class Texture;
 class GraphicsBuffer;
+struct InputElementDesc;
+class InputLayout;
 class RenderDevice;
 
 class Window;

@@ -20,9 +20,11 @@ public:
 	Texture( )
 		: mBuffer( nullptr ), mWidth( 0 ), mHeight( 0 ), mFormat( 0 ) { }
 
-	Texture( void* buffer, uint width, uint height, uint format );
+	Texture( void* buffer, uint width, uint height, uint format )
+		: mBuffer( buffer ), mWidth( width ), mHeight( height ), mFormat( format ) { }
 
-	~Texture( );
+	~Texture( )
+		{ delete[] mBuffer; }
 
 	static uint Texture::GetBpp( uint format );
 
