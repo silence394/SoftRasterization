@@ -28,6 +28,8 @@ private:
 	uint			mClearColor;
 	IVertexShader*	mVertexShader;
 	IPixelShader*	mPixelShader;
+	GraphicsBuffer*	mVertexBuffer;
+	GraphicsBuffer*	mIndexBuffer;
 
 public:
 	RenderDevice( HWND window, uint * framebuffer );
@@ -54,6 +56,11 @@ public:
 	inline void SetPixelShader( IPixelShader* ps )
 		{ mPixelShader = ps; }
 
+	inline void SetVertexBuffer( GraphicsBuffer* buffer )
+		{ mVertexBuffer = buffer; }
+	inline void SetIndexBuffer( GraphicsBuffer* buffer )
+		{ mIndexBuffer = buffer; }
+
 	void Clear( );
 	void DrawPixel( uint x, uint y, uint color );
 	void DrawPoint( const Point& p, uint color );
@@ -65,4 +72,6 @@ public:
 
 	GraphicsBuffer*	CreateBuffer( void* buffer, uint length );
 	void			Releasebuffer( GraphicsBuffer*& buffer );
+
+	void			DrawIndex( uint indexcount, uint startindex, uint startvertex );
 };

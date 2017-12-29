@@ -4,7 +4,7 @@
 #include "color.h"
 #include "graphicsbuffer.h"
 
-RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr )
+RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr )
 {
 	RECT rect = { 0 };
 	GetClientRect( window, &rect  );
@@ -252,4 +252,9 @@ void RenderDevice::Releasebuffer( GraphicsBuffer*& buffer )
 {
 	delete buffer;
 	buffer = nullptr;
+}
+
+void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex )
+{
+
 }
