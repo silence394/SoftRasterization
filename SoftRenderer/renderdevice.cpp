@@ -256,5 +256,14 @@ void RenderDevice::Releasebuffer( GraphicsBuffer*& buffer )
 
 void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex )
 {
+	if ( mVertexBuffer == nullptr || mIndexBuffer == nullptr )
+		return;
 
+	void* vb = mVertexBuffer->GetBuffer( );
+	void* ib = mIndexBuffer->GetBuffer( );
+
+	for ( uint i = 0; i < indexcount; i += 3 )
+	{
+
+	}
 }

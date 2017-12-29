@@ -27,6 +27,11 @@ public:
 
 	~GraphicsBuffer( )
 		{ delete[] mBuffer; }
+
+	inline void* GetBuffer( ) const
+		{ return mBuffer; }
+	inline uint GetLength( ) const
+		{ return mLength; }
 };
 
 struct InputElementDesc
