@@ -264,6 +264,6 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 	for ( uint i = 0; i < indexcount; i += 3 )
 	{
-
+		auto& cache = mVertexCache[i];
 	}
 }

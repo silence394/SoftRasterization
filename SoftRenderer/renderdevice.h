@@ -22,14 +22,21 @@ struct PSInput
 class RenderDevice
 {
 private:
-	uint			mWidth;
-	uint			mHeight;
-	uint**			mFrameBuffer;
-	uint			mClearColor;
-	IVertexShader*	mVertexShader;
-	IPixelShader*	mPixelShader;
-	GraphicsBuffer*	mVertexBuffer;
-	GraphicsBuffer*	mIndexBuffer;
+	enum
+	{
+		_VertexCache_Size	= 64,
+	};
+
+	uint						mWidth;
+	uint						mHeight;
+	uint**						mFrameBuffer;
+	uint						mClearColor;
+	IVertexShader*				mVertexShader;
+	IPixelShader*				mPixelShader;
+	GraphicsBuffer*				mVertexBuffer;
+	GraphicsBuffer*				mIndexBuffer;
+
+	std::pair< uint, PSInput* >	mVertexCache[ _VertexCache_Size ];
 
 public:
 	RenderDevice( HWND window, uint * framebuffer );
