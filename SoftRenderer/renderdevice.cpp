@@ -260,10 +260,33 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		return;
 
 	void* vb = mVertexBuffer->GetBuffer( );
-	void* ib = mIndexBuffer->GetBuffer( );
-
-	for ( uint i = 0; i < indexcount; i += 3 )
+	uint vsize = mVertexBuffer->GetLength( );
+	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
+	
+	indexcount = indexcount - indexcount % 3;
+	ushort* ibegin = ib;
+	ushort* iend = ib + indexcount;
+	for ( ; ibegin < iend; ibegin += 3 )
 	{
-		auto& cache = mVertexCache[i];
+		PSInput* inputs[3];
+		for ( uint k = 0; k < 3; k ++ )
+		{
+			uint index = *( ibegin + k );
+			uint key = index % _VertexCache_Size;
+			auto& cache = mVertexCache[ key ];
+			if ( cache.first == index )
+			{
+				inputs[k] = cache.second;
+			}
+			else
+			{
+				// Execute vertex shader.
+
+				PSInput* input = nullptr;
+				cache = std::make_pair( index, input );
+			}
+		}
+
+
 	}
 }
