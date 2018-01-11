@@ -260,6 +260,9 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		return;
 
 	// Prepare vertexpool;
+	for ( uint i = 0; i < _VertexCache_Size; i ++ )
+		mVertexCache[i] = std::make_pair( -1, nullptr );
+
 	uint vlen = mVertexBuffer->GetLength( );
 	uint vsize = mVertexBuffer->GetSize( );
 	uint vcount = vlen / vsize;
@@ -288,6 +291,14 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			{
 				// Execute vertex shader.
 				PSInput& input = mVertexPool[ index ];
+
+				// Fetch vertex.
+				{
+// 					for ( uint i = 0; i < ; i ++ )
+// 					{
+// 
+// 					}
+				}
 				mVertexShader->Execute( input.mShaderRigisters );
 				
 				// ToScreen.

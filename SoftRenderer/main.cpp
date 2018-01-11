@@ -28,10 +28,11 @@ private:
 	Matrix4			mPerspectTransform;
 	Texture*		mTexture;
 
+	InputLayout*	mInputLayout;
 	IVertexShader*	mVertexShader;
 	IPixelShader*	mPixelShader;
 
-	InputLayout		mInputLayOut;
+	InputLayout*	mInputLayOut;
 	GraphicsBuffer*	mVertexBuffer;
 	GraphicsBuffer*	mIndexBuffer;
 
@@ -85,7 +86,7 @@ void DemoApp::OnCreate( )
 	descs.push_back( InputElementDesc( "COLOR", GraphicsBuffer::BF_A8R8G8B8 ) );
 	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT ) );
 
-	mRenderDevice->CreateInputLayout( &descs[0], descs.size( ) );
+	mInputLayout = mRenderDevice->CreateInputLayout( &descs[0], descs.size( ) );
 
 	struct Vertex
 	{
@@ -179,6 +180,7 @@ void DemoApp::OnRender( )
 	// FectchVertex
 	// inputdesc[0].format, offset, to vertexregister.  reg[0] = xxx, reg[1] = xxx, reg[2] = xxx,
 	// Execute VertexShader.
+	mRenderDevice->SetInputLayout( mInputLayOut );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
 	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );

@@ -33,6 +33,7 @@ private:
 	uint						mClearColor;
 	IVertexShader*				mVertexShader;
 	IPixelShader*				mPixelShader;
+	InputLayout*				mInputLayout;
 	GraphicsBuffer*				mVertexBuffer;
 	GraphicsBuffer*				mIndexBuffer;
 
@@ -64,6 +65,8 @@ public:
 	inline void SetPixelShader( IPixelShader* ps )
 		{ mPixelShader = ps; }
 
+	inline void SetInputLayout( InputLayout* layout )
+		{ mInputLayout = layout; }
 	inline void SetVertexBuffer( GraphicsBuffer* buffer )
 		{ mVertexBuffer = buffer; }
 	inline void SetIndexBuffer( GraphicsBuffer* buffer )
