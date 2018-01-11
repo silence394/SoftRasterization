@@ -37,6 +37,7 @@ private:
 	GraphicsBuffer*				mIndexBuffer;
 
 	std::pair< uint, PSInput* >	mVertexCache[ _VertexCache_Size ];
+	std::vector< PSInput >		mVertexPool;
 
 public:
 	RenderDevice( HWND window, uint * framebuffer );
@@ -77,7 +78,7 @@ public:
 	InputLayout*	CreateInputLayout( InputElementDesc const * desc, uint count );
 	void			ReleaseInputLayout( InputLayout*& layout );
 
-	GraphicsBuffer*	CreateBuffer( void* buffer, uint length );
+	GraphicsBuffer*	CreateBuffer( void* buffer, uint length, uint size );
 	void			Releasebuffer( GraphicsBuffer*& buffer );
 
 	void			DrawIndex( uint indexcount, uint startindex, uint startvertex );

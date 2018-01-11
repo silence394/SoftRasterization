@@ -243,9 +243,9 @@ void RenderDevice::ReleaseInputLayout( InputLayout*& layout )
 	layout = nullptr;
 }
 
-GraphicsBuffer* RenderDevice::CreateBuffer( void* buffer, uint length )
+GraphicsBuffer* RenderDevice::CreateBuffer( void* buffer, uint length, uint size )
 {
-	return new GraphicsBuffer( buffer, length );
+	return new GraphicsBuffer( buffer, length, size );
 }
 
 void RenderDevice::Releasebuffer( GraphicsBuffer*& buffer )
@@ -259,16 +259,22 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	if ( mVertexBuffer == nullptr || mIndexBuffer == nullptr )
 		return;
 
+	// Prepare vertexpool;
+	uint vlen = mVertexBuffer->GetLength( );
+	uint vsize = mVertexBuffer->GetSize( );
+	uint vcount = vlen / vsize;
+	mVertexPool.resize( vcount );
+
 	void* vb = mVertexBuffer->GetBuffer( );
-	uint vsize = mVertexBuffer->GetLength( );
+
 	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
 	
 	indexcount = indexcount - indexcount % 3;
 	ushort* ibegin = ib;
 	ushort* iend = ib + indexcount;
-	for ( ; ibegin < iend; ibegin += 3 )
+	for ( ; ibegin != iend; ibegin += 3 )
 	{
-		PSInput* inputs[3];
+		PSInput* psinputs[3];
 		for ( uint k = 0; k < 3; k ++ )
 		{
 			uint index = *( ibegin + k );
@@ -276,17 +282,61 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			auto& cache = mVertexCache[ key ];
 			if ( cache.first == index )
 			{
-				inputs[k] = cache.second;
+				psinputs[k] = cache.second;
 			}
 			else
 			{
 				// Execute vertex shader.
-
-				PSInput* input = nullptr;
-				cache = std::make_pair( index, input );
+				PSInput& input = mVertexPool[ index ];
+				mVertexShader->Execute( input.mShaderRigisters );
+				
+				// ToScreen.
+				input.mShaderRigisters[0].x = ( input.mShaderRigisters[0].x + 1.0f ) * 0.5f * mWidth;
+				input.mShaderRigisters[0].y = ( input.mShaderRigisters[0].y + 1.0f ) * 0.5f * mHeight;
+				 
+				cache = std::make_pair( index, &input );
+				psinputs[k] = &input;
 			}
 		}
 
+		PSInput* top = psinputs[0];
+		PSInput* middle = psinputs[1];
+		PSInput* bottom = psinputs[2];
 
+		const Vector4& v1 = top->mShaderRigisters[0];
+		const Vector4& v2 = middle->mShaderRigisters[0];
+		const Vector4& v3 = bottom->mShaderRigisters[0];
+
+		// BackCulling.
+		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
+			continue;
+
+		// top to bottom, value of y is larger.
+		if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
+			Math::Swap( top, middle );
+		if ( middle->mShaderRigisters[0].y > bottom->mShaderRigisters[0].y )
+			Math::Swap( middle, bottom );
+		if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
+			Math::Swap( top, middle );
+
+		if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
+		{
+			if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+				Math::Swap( top, middle );
+			if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
+				Math::Swap( middle, bottom );
+			if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+				Math::Swap( top, middle );
+
+			DrawScanline( top, bottom );
+		}
+		else
+		{
+			float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
+			PSInput newmiddle = InterpolatePSInput( top, bottom, factor );
+
+			DrawStandardTopTriangle( top, &newmiddle, middle );
+			DrawStandardBottomTriangle( middle, &newmiddle, bottom );
+		}
 	}
 }

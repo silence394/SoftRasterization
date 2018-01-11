@@ -17,13 +17,14 @@ public:
 private:
 	void*	mBuffer;
 	uint	mLength;
+	uint	mSize;
 
 public:
 	GraphicsBuffer( )
-		: mBuffer( nullptr ), mLength( 0 ){ }
+		: mBuffer( nullptr ), mLength( 0 ), mSize( 0 ){ }
 
-	GraphicsBuffer( void* buffer, uint len )
-		: mBuffer( buffer ), mLength( ) { }
+	GraphicsBuffer( void* buffer, uint len, uint size )
+		: mBuffer( buffer ), mLength( len ), mSize( size ) { }
 
 	~GraphicsBuffer( )
 		{ delete[] mBuffer; }
@@ -32,6 +33,8 @@ public:
 		{ return mBuffer; }
 	inline uint GetLength( ) const
 		{ return mLength; }
+	inline uint GetSize( ) const
+		{ return mSize; }
 };
 
 struct InputElementDesc
