@@ -32,7 +32,6 @@ private:
 	IVertexShader*	mVertexShader;
 	IPixelShader*	mPixelShader;
 
-	InputLayout*	mInputLayOut;
 	GraphicsBuffer*	mVertexBuffer;
 	GraphicsBuffer*	mIndexBuffer;
 
@@ -180,93 +179,111 @@ void DemoApp::OnRender( )
 	// FectchVertex
 	// inputdesc[0].format, offset, to vertexregister.  reg[0] = xxx, reg[1] = xxx, reg[2] = xxx,
 	// Execute VertexShader.
-	mRenderDevice->SetInputLayout( mInputLayOut );
+	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
+	mRenderDevice->SetInputLayout( mInputLayout );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
 	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
 
-	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
+	uint indices[36] =
+	{
+		0, 1, 2,
+		0, 2, 3,
+		4, 6, 5,
+		4, 7, 6,
+		4, 5, 1,
+		4, 1, 0,
+		3, 2, 6,
+		3, 6, 7,
+		1, 5, 6,
+		1, 6, 2,
+		4, 0, 3,
+		4, 3, 7,
+	};
 
 // 	// VS Stage.
-// 	PSInput vsoutput[8];
-// 	for ( uint i = 0; i < 8; i ++ )
-// 	{
-// 		vsoutput[i].mShaderRigisters[0] = Vector4( vertex[i].pos, 1.0f );
-// 		vsoutput[i].mShaderRigisters[1] = Color( vertex[i].color );
-// 		for ( uint j = 2; j < _MAX_VSINPUT_COUNT; j ++ )
-// 			vsoutput[i].mShaderRigisters[j] = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
-// 
-// 		mVertexShader->Execute( vsoutput[i].mShaderRigisters );
-// 	}
-// 
-// 	for ( uint i = 0; i < 8; i ++ )
-// 	{
-// 		float invw = 1.0f / vsoutput[i].mShaderRigisters[0].w;
-// 		vsoutput[i].mShaderRigisters[0].x *= invw;
-// 		vsoutput[i].mShaderRigisters[0].y *= invw;
-// 		vsoutput[i].mShaderRigisters[0].z *= invw;
-// 		vsoutput[i].mShaderRigisters[0].w = invw;
-// 
-// 		for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
-// 			vsoutput[i].mShaderRigisters[j] *= invw;
-// 	}
-// 
-// 	// TO Screen.
-// 	float width = (float) mRenderDevice->GetDeviceWidth( );
-// 	float height = (float) mRenderDevice->GetDeviceHeight( );
-// 	for ( uint i = 0; i < 8; i ++ )
-// 	{
-// 		vsoutput[i].mShaderRigisters[0].x = ( vsoutput[i].mShaderRigisters[0].x + 1.0f ) * 0.5f * width;
-// 		vsoutput[i].mShaderRigisters[0].y = ( vsoutput[i].mShaderRigisters[0].y + 1.0f ) * 0.5f * height;
-// 	}
-// 
-// 	for ( uint i = 0; i < 36; i += 3 )
-// 	{
-// 		const Vector4& v1 = vsoutput[ indices[i] ].mShaderRigisters[0];
-// 		const Vector4& v2 = vsoutput[ indices[i + 1] ].mShaderRigisters[0];
-// 		const Vector4& v3 = vsoutput[ indices[i + 2] ].mShaderRigisters[0];
-// 
-// //		Move To assembly stage.
-// // 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
-// // 			continue;
-// 
-// 		// BackCulling.
-// 		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
-// 			continue;
-// 
-// 		{
-// 			PSInput* top = &vsoutput[ indices[i] ];
-// 			PSInput* middle = &vsoutput[ indices[i+1] ];
-// 			PSInput* bottom = &vsoutput[ indices[i+2] ];
-// 			// top to bottom, value of y is larger.
-// 			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
-// 				Math::Swap( top, middle );
-// 			if ( middle->mShaderRigisters[0].y > bottom->mShaderRigisters[0].y )
-// 				Math::Swap( middle, bottom );
-// 			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
-// 				Math::Swap( top, middle );
-// 
-// 			if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
-// 			{
-// 				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-// 					Math::Swap( top, middle );
-// 				if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
-// 					Math::Swap( middle, bottom );
-// 				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-// 					Math::Swap( top, middle );
-// 
-// 				mRenderDevice->DrawScanline( top, bottom );
-// 			}
-// 			else
-// 			{
-// 				float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
-// 				PSInput newmiddle = mRenderDevice->InterpolatePSInput( top, bottom, factor );
-// 
-// 				mRenderDevice->DrawStandardTopTriangle( top, &newmiddle, middle );
-// 				mRenderDevice->DrawStandardBottomTriangle( middle, &newmiddle, bottom );
-// 			}
-// 		}
-// 	}
+	if ( 0 )
+	{
+		PSInput vsoutput[8];
+		for ( uint i = 0; i < 8; i ++ )
+		{
+			vsoutput[i].mShaderRigisters[0] = Vector4( vertex[i].pos, 1.0f );
+			vsoutput[i].mShaderRigisters[1] = Color( vertex[i].color );
+			for ( uint j = 2; j < _MAX_VSINPUT_COUNT; j ++ )
+				vsoutput[i].mShaderRigisters[j] = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
+
+			mVertexShader->Execute( vsoutput[i].mShaderRigisters );
+		}
+
+		for ( uint i = 0; i < 8; i ++ )
+		{
+			float invw = 1.0f / vsoutput[i].mShaderRigisters[0].w;
+			vsoutput[i].mShaderRigisters[0].x *= invw;
+			vsoutput[i].mShaderRigisters[0].y *= invw;
+			vsoutput[i].mShaderRigisters[0].z *= invw;
+			vsoutput[i].mShaderRigisters[0].w = invw;
+
+			for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
+				vsoutput[i].mShaderRigisters[j] *= invw;
+		}
+
+		// TO Screen.
+		float width = (float) mRenderDevice->GetDeviceWidth( );
+		float height = (float) mRenderDevice->GetDeviceHeight( );
+		for ( uint i = 0; i < 8; i ++ )
+		{
+			vsoutput[i].mShaderRigisters[0].x = ( vsoutput[i].mShaderRigisters[0].x + 1.0f ) * 0.5f * width;
+			vsoutput[i].mShaderRigisters[0].y = ( vsoutput[i].mShaderRigisters[0].y + 1.0f ) * 0.5f * height;
+		}
+
+		for ( uint i = 0; i < 36; i += 3 )
+		{
+			const Vector4& v1 = vsoutput[ indices[i] ].mShaderRigisters[0];
+			const Vector4& v2 = vsoutput[ indices[i + 1] ].mShaderRigisters[0];
+			const Vector4& v3 = vsoutput[ indices[i + 2] ].mShaderRigisters[0];
+
+			//		Move To assembly stage.
+			// 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
+			// 			continue;
+
+			// BackCulling.
+			if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
+				continue;
+
+			{
+				PSInput* top = &vsoutput[ indices[i] ];
+				PSInput* middle = &vsoutput[ indices[i+1] ];
+				PSInput* bottom = &vsoutput[ indices[i+2] ];
+				// top to bottom, value of y is larger.
+				if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
+					Math::Swap( top, middle );
+				if ( middle->mShaderRigisters[0].y > bottom->mShaderRigisters[0].y )
+					Math::Swap( middle, bottom );
+				if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
+					Math::Swap( top, middle );
+
+				if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
+				{
+					if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+						Math::Swap( top, middle );
+					if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
+						Math::Swap( middle, bottom );
+					if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+						Math::Swap( top, middle );
+
+					mRenderDevice->DrawScanline( top, bottom );
+				}
+				else
+				{
+					float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
+					PSInput newmiddle = mRenderDevice->InterpolatePSInput( top, bottom, factor );
+
+					mRenderDevice->DrawStandardTopTriangle( top, &newmiddle, middle );
+					mRenderDevice->DrawStandardBottomTriangle( middle, &newmiddle, bottom );
+				}
+			}
+		}
+	}
 }
 
 int main( )

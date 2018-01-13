@@ -3,6 +3,7 @@
 #include "vector4.h"
 #include "color.h"
 #include "graphicsbuffer.h"
+#include "vector2.h"
 
 RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr )
 {
@@ -140,7 +141,8 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 		Color color;
 		float depth = 0.0f;
 		mPixelShader->Execute( psinput.mShaderRigisters, color, depth );
-		mFrameBuffer[y][x] = color;
+		DrawPixel( x, y, color );
+		//mFrameBuffer[y][x] = color;
 	}
 }
 
@@ -268,7 +270,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	uint vcount = vlen / vsize;
 	mVertexPool.resize( vcount );
 
-	void* vb = mVertexBuffer->GetBuffer( );
+	byte* vb = (byte*) mVertexBuffer->GetBuffer( );
 
 	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
 	
@@ -294,12 +296,51 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 				// Fetch vertex.
 				{
-// 					for ( uint i = 0; i < ; i ++ )
-// 					{
-// 
-// 					}
+					auto& descs = mInputLayout->GetElementDescs( );
+					auto iterbegin = descs.begin( );
+					auto iterend = descs.end( );
+					byte* vbase = vb + index * vsize;
+					uint i = 0;
+					for ( ; iterbegin != iterend ; iterbegin ++, i ++ )
+					{
+						uint format = iterbegin->mFormat;
+						if ( format == GraphicsBuffer::BF_R32B32G32_FLOAT )
+						{
+							Vector3& vec3 = *(Vector3*) vbase;
+							input.mShaderRigisters[i] = Vector4( vec3.x, vec3.y, vec3.z, 0.0f );
+							vbase += 12;
+						}
+						else if ( format == GraphicsBuffer::BF_A8R8G8B8 )
+						{
+							Color c = *(uint*) vbase;
+							input.mShaderRigisters[i] = Vector4( c.r, c.g, c.b, c.a );
+							vbase += 4;
+						}
+						else if ( format == GraphicsBuffer::BF_R32G32_FLOAT )
+						{
+							Vector2& vec2 = *(Vector2*) vbase;
+							input.mShaderRigisters[i] = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
+							vbase += 8;
+						}
+					}
+
+					while ( i < _MAX_VSINPUT_COUNT )
+					{
+						input.mShaderRigisters[i] = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
+						i ++;
+					}
 				}
+
 				mVertexShader->Execute( input.mShaderRigisters );
+
+				float invw = 1.0f / input.mShaderRigisters[0].w;
+				input.mShaderRigisters[0].x *= invw;
+				input.mShaderRigisters[0].y *= invw;
+				input.mShaderRigisters[0].z *= invw;
+				input.mShaderRigisters[0].w = invw;
+
+				for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
+					input.mShaderRigisters[j] *= invw;
 				
 				// ToScreen.
 				input.mShaderRigisters[0].x = ( input.mShaderRigisters[0].x + 1.0f ) * 0.5f * mWidth;
