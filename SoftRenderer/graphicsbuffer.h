@@ -57,4 +57,7 @@ public:
 
 	InputLayout( InputElementDesc const* desc, uint count )
 		{ mDescs.assign( desc, desc + count ); }
+
+	const std::vector<InputElementDesc>& GetElementDescs( ) const
+		{ return mDescs; }
 };

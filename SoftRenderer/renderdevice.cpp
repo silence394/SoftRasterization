@@ -307,7 +307,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 						if ( format == GraphicsBuffer::BF_R32B32G32_FLOAT )
 						{
 							Vector3& vec3 = *(Vector3*) vbase;
-							input.mShaderRigisters[i] = Vector4( vec3.x, vec3.y, vec3.z, 0.0f );
+							input.mShaderRigisters[i] = Vector4( vec3.x, vec3.y, vec3.z, 1.0f );
 							vbase += 12;
 						}
 						else if ( format == GraphicsBuffer::BF_A8R8G8B8 )

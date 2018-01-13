@@ -241,7 +241,9 @@ void DemoApp::OnRender( )
 			const Vector4& v1 = vsoutput[ indices[i] ].mShaderRigisters[0];
 			const Vector4& v2 = vsoutput[ indices[i + 1] ].mShaderRigisters[0];
 			const Vector4& v3 = vsoutput[ indices[i + 2] ].mShaderRigisters[0];
-
+			PSInput* top = &vsoutput[ indices[i] ];
+			PSInput* middle = &vsoutput[ indices[i+1] ];
+			PSInput* bottom = &vsoutput[ indices[i+2] ];
 			//		Move To assembly stage.
 			// 		if ( !CheckInCVV( v1 ) || !CheckInCVV( v2 ) || !CheckInCVV( v3 ) )
 			// 			continue;
@@ -251,9 +253,7 @@ void DemoApp::OnRender( )
 				continue;
 
 			{
-				PSInput* top = &vsoutput[ indices[i] ];
-				PSInput* middle = &vsoutput[ indices[i+1] ];
-				PSInput* bottom = &vsoutput[ indices[i+2] ];
+				
 				// top to bottom, value of y is larger.
 				if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
 					Math::Swap( top, middle );
