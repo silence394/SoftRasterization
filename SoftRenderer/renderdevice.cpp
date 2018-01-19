@@ -271,7 +271,6 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	mVertexPool.resize( vcount );
 
 	byte* vb = (byte*) mVertexBuffer->GetBuffer( );
-
 	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
 	
 	indexcount = indexcount - indexcount % 3;
@@ -300,7 +299,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 					auto iterend = descs.end( );
 					byte* vbase = vb + index * vsize;
 					uint i = 0;
-					for ( ; iterbegin != iterend ; iterbegin ++, i ++ )
+					for ( ; iterbegin != iterend; iterbegin ++, i ++ )
 					{
 						uint format = iterbegin->mFormat;
 						if ( format == GraphicsBuffer::BF_R32B32G32_FLOAT )

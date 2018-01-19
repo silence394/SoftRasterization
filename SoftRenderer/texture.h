@@ -29,6 +29,7 @@ public:
 	static uint Texture::GetBpp( uint format );
 
 	uint GetPixel( uint x, uint y );
+	uint GetPixelbyUV( float u, float v );
 
 	uint GetWidth( ) const
 		{ return mWidth; }

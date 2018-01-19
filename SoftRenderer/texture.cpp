@@ -1,5 +1,6 @@
 #include "texture.h"
 #include <string>
+#include "math.h"
 
 uint Texture::GetBpp( uint format )
 {
@@ -19,4 +20,14 @@ uint Texture::GetPixel( uint x, uint y )
 		return 0;
 
 	return *( (uint*) mBuffer + mWidth * y + x );
+}
+
+uint Texture::GetPixelbyUV( float x, float y )
+{
+	// TODO.Clamp is default.
+
+	x = Math::Clamp( x, 0.0f, 1.0f ) * (float) mWidth;
+	y = Math::Clamp( y, 0.0f, 1.0f ) * (float) mHeight;
+
+	return *( (uint*) mBuffer + mWidth * (uint) y + (uint) x );
 }

@@ -1,5 +1,6 @@
 #include "libengine.h"
 #include <string>
+Texture* gTexture = nullptr;
 
 class VertexShader : public IVertexShader
 {
@@ -9,11 +10,13 @@ class VertexShader : public IVertexShader
 	}
 };
 
+// Regs[0] - position, regs[1] = color, reg[2] = UV., reg[3] = 
 class PixelShader : public IPixelShader
 {
 	virtual void Execute( Vector4* regs, Color& color, float& depth )
 	{
 		color = Color( regs[1].x, regs[1].y, regs[1].z, regs[1].w );
+		color = gTexture->GetPixelbyUV( regs[2].x, regs[2].y );
 	}
 };
 
@@ -71,6 +74,7 @@ void DemoApp::OnCreate( )
 	}
 
 	mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
+	gTexture = mTexture;
 
 	mPixelShader = new PixelShader( );
 	mRenderDevice->SetPixelShader( mPixelShader );
