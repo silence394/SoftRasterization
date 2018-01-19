@@ -12,3 +12,11 @@ uint Texture::GetBpp( uint format )
 			return 0;
 	}
 }
+
+uint Texture::GetPixel( uint x, uint y )
+{
+	if ( x >= mWidth || y >= mHeight )
+		return 0;
+
+	return *( (uint*) mBuffer + mWidth * y + x );
+}

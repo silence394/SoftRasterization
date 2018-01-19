@@ -293,7 +293,6 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			{
 				// Execute vertex shader.
 				PSInput& input = mVertexPool[ index ];
-
 				// Fetch vertex.
 				{
 					auto& descs = mInputLayout->GetElementDescs( );
