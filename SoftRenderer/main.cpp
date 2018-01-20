@@ -16,7 +16,9 @@ class PixelShader : public IPixelShader
 	virtual void Execute( Vector4* regs, Color& color, float& depth )
 	{
 		color = Color( regs[1].x, regs[1].y, regs[1].z, regs[1].w );
-		color = gTexture->GetPixelbyUV( regs[2].x, regs[2].y );
+// 		if ( regs[2].x )
+// 		color = gTexture->GetPixelbyUV( regs[2].x, regs[2].y );
+// 		color = Color( regs[2].x, regs[2].x, regs[2].x, regs[2].x );
 	}
 };
 
@@ -96,38 +98,64 @@ void DemoApp::OnCreate( )
 		Vector2	texcoord;
 	};
 
-	Vertex vertex[8] = 
+	Vertex vertex[24] = 
 	{
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f, +1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 0.0f ) },
-		{ Vector3( +1.0f, +1.0f, -1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( +1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 0.0f, 1.0f ) },
-		{ Vector3( -1.0f, -1.0f, +1.0f ), 0xffffff00, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f, +1.0f, +1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
-		{ Vector3( +1.0f, +1.0f, +1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( +1.0f, -1.0f, +1.0f ), 0xff22ffff, Vector2( 1.0f, 0.0f ) },
+		// X +.
+		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, },
+
+		// X -.
+		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, },
+
+		// Y +.
+		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, },
+
+		// Y -.
+		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff,},
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, },
+
+		// Z +.
+		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, },
+
+		// Z -.
+		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff,},
+		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, },
 	};
 
-	uint vcount = 8;
 	uint vsize = sizeof( Vertex );
-	uint vlen = vcount * vsize;
+	uint vlen = sizeof( vertex );
 	byte* vbuffer = new byte[ vlen ];
 	memcpy( vbuffer, vertex, vlen );
 
 	ushort indices[36] =
 	{
-		0, 1, 2,
-		0, 2, 3,
+		0, 2, 1,
+		0, 3, 2,
 		4, 6, 5,
 		4, 7, 6,
-		4, 5, 1,
-		4, 1, 0,
-		3, 2, 6,
-		3, 6, 7,
-		1, 5, 6,
-		1, 6, 2,
-		4, 0, 3,
-		4, 3, 7,
+		8, 10, 9,
+		8, 11, 10,
+		12, 14, 13,
+		12, 15, 14,
+		16, 18, 17,
+		16, 19, 18,
+		20, 22, 21,
+		20, 23, 22,
 	};
 	
 	uint ilen = sizeof( indices );
