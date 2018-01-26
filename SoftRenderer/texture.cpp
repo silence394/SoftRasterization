@@ -25,8 +25,8 @@ uint Texture::GetPixel( uint x, uint y )
 uint Texture::GetPixelbyUV( float x, float y )
 {
 	// TODO.Clamp is default.
-	x = Math::Clamp( x, 0.0f, 1.0f ) * (float) mWidth;
-	y = Math::Clamp( y, 0.0f, 1.0f ) * (float) mHeight;
+	x *= (float) mWidth;
+	y *= (float) mHeight;
 
-	return *( (uint*) mBuffer + mWidth * (uint) y + (uint) x );
+	return *( (uint*) mBuffer + mWidth * Math::Clamp( (uint) y, (uint) 0, mHeight - 1 ) + Math::Clamp( (uint) x, (uint) 0, mWidth - 1 ) );
 }
