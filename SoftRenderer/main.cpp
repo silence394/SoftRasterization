@@ -15,9 +15,9 @@ class PixelShader : public IPixelShader
 {
 	virtual void Execute( Vector4* regs, Color& color, float& depth )
 	{
-		color = Color( regs[1].x, regs[1].y, regs[1].z, regs[1].w );
+		//color = Color( regs[1].x, regs[1].y, regs[1].z, regs[1].w );
 // 		if ( regs[2].x )
-// 		color = gTexture->GetPixelbyUV( regs[2].x, regs[2].y );
+		color = gTexture->GetPixelbyUV( regs[2].x, regs[2].y );
 // 		color = Color( regs[2].x, regs[2].x, regs[2].x, regs[2].x );
 	}
 };
@@ -52,7 +52,7 @@ public:
 void DemoApp::OnCreate( )
 {
 	mRenderDevice = GetRenderDevice( );
-	mCamera.eye = Vector3( 5.0f, 4.0f, 3.0f );
+	mCamera.eye = Vector3( 5.0f, 4.0f, -3.0f );
 	mCamera.look = Vector3( 0.0f, 0.0f, 0.0f );
 	mCamera.up = Vector3( 0.0f, 0.0f, 1.0f );
 
@@ -101,40 +101,40 @@ void DemoApp::OnCreate( )
 	Vertex vertex[24] = 
 	{
 		// X +.
-		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, },
-		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, Vector2( 0.0f, 1.0f ) },
 
 		// X -.
-		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, },
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, },
-		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, },
-		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f )},
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, Vector2( 0.0f, 1.0f ) },
 
 		// Y +.
-		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, },
-		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, },
-		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
 
 		// Y -.
-		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff,},
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, },
-		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, Vector2( 0.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 0.0f ) },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, Vector2( 0.0f, 1.0f ) },
 
 		// Z +.
-		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, },
-		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, },
-		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, },
-		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, Vector2( 0.0f, 1.0f ) },
 
 		// Z -.
-		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, },
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff,},
-		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, Vector2( 0.0f, 1.0f ) },
 	};
 
 	uint vsize = sizeof( Vertex );
