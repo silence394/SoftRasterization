@@ -5,6 +5,9 @@
 
 class ShaderBase
 {
+protected:
+	RenderDevice*	mRenderDevice;
+
 public:
 	enum _REGISTER_COUNT
 	{
@@ -19,11 +22,16 @@ public:
 		_CT_WVP_TRANSFORM			= 3,
 	};
 
+	Matrix4	mMatrixConstants[ _RC_VERTEX ];
+
+public:
+	ShaderBase( ) : mRenderDevice( nullptr )
+		{ }
+
 	const Matrix4&	GetMatrix( uint index ) const;
 	void			SetMatrix( uint index, const Matrix4& mat );
 
-public:
-	Matrix4	mMatrixConstants[ _RC_VERTEX ];
+	void			SetDevice( RenderDevice* rd );
 };
 
 class IVertexShader : public ShaderBase
@@ -36,4 +44,5 @@ class IPixelShader : public ShaderBase
 {
 public:
 	virtual void Execute( Vector4* regs, Color& color, float& depth ) = 0;
+	virtual uint SampleTexture( uint index, float u, float v );
 };

@@ -1,6 +1,5 @@
 #include "libengine.h"
 #include <string>
-Texture* gTexture = nullptr;
 
 class VertexShader : public IVertexShader
 {
@@ -15,10 +14,7 @@ class PixelShader : public IPixelShader
 {
 	virtual void Execute( Vector4* regs, Color& color, float& depth )
 	{
-		//color = Color( regs[1].x, regs[1].y, regs[1].z, regs[1].w );
-// 		if ( regs[2].x )
-		color = gTexture->GetPixelbyUV( regs[2].x, regs[2].y );
-// 		color = Color( regs[2].x, regs[2].x, regs[2].x, regs[2].x );
+		color = SampleTexture( 0, regs[2].x, regs[2].y );
 	}
 };
 
@@ -76,7 +72,6 @@ void DemoApp::OnCreate( )
 	}
 
 	mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
-	gTexture = mTexture;
 
 	mPixelShader = new PixelShader( );
 	mRenderDevice->SetPixelShader( mPixelShader );
@@ -183,20 +178,16 @@ bool CheckInCVV( const Vector4& v )
 
 void DemoApp::OnRender( )
 {
+	mRenderDevice->BeginScene( );
 	mRenderDevice->SetClearColor( 0xFF808080 );
 	mRenderDevice->Clear( );
 
+	mRenderDevice->SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	mRenderDevice->SetInputLayout( mInputLayout );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
 	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
-
-	for ( uint j = 0; j < mTexture->GetHeight( ); j ++ )
-	{
-		for ( uint i = 0; i < mTexture->GetWidth( ); i ++ )
-			mRenderDevice->DrawPixel( i, j, mTexture->GetPixel( i, j ) );
-	}
 }
 
 int main( )

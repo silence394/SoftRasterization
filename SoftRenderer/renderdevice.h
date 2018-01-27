@@ -24,7 +24,8 @@ class RenderDevice
 private:
 	enum
 	{
-		_VertexCache_Size	= 64,
+		_MAX_VERTEXCACHE_COUNT	= 64,
+		_MAX_TEXTURE_COUNT		= 8,
 	};
 
 	uint						mWidth;
@@ -37,8 +38,9 @@ private:
 	GraphicsBuffer*				mVertexBuffer;
 	GraphicsBuffer*				mIndexBuffer;
 
-	std::pair< uint, PSInput* >	mVertexCache[ _VertexCache_Size ];
+	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
 	std::vector< PSInput >		mVertexPool;
+	Texture*					mTextures[ _MAX_TEXTURE_COUNT ];
 
 public:
 	RenderDevice( HWND window, uint * framebuffer );
@@ -50,6 +52,8 @@ public:
 	void	DrawScanline( const PSInput* input1, const PSInput* input2 );
 	void	DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
 	void	DrawStandardBottomTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
+
+	uint	SampleTexture( uint index, float u, float v );
 
 public:
 	inline int GetDeviceWidth( ) const
@@ -83,6 +87,10 @@ public:
 
 	GraphicsBuffer*	CreateBuffer( void* buffer, uint length, uint size );
 	void			Releasebuffer( GraphicsBuffer*& buffer );
+
+	void			BeginScene( );
+
+	void			SetTexture( uint i, Texture* tex );
 
 	void			DrawIndex( uint indexcount, uint startindex, uint startvertex );
 };

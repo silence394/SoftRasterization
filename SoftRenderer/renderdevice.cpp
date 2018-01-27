@@ -4,6 +4,7 @@
 #include "color.h"
 #include "graphicsbuffer.h"
 #include "vector2.h"
+#include "texture.h"
 
 RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr )
 {
@@ -16,6 +17,8 @@ RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ),
 	mFrameBuffer = new uint* [ mHeight ];
 	for ( uint i = 0; i < mHeight; i ++ )
 		mFrameBuffer[i] = (uint*) ( framebuffer + mWidth * i );
+
+	memset( mTextures, 0, sizeof( mTextures ) );
 }
 
 RenderDevice::~RenderDevice( )
@@ -174,6 +177,14 @@ void RenderDevice::DrawStandardBottomTriangle( const PSInput* top, const PSInput
 	}
 }
 
+uint RenderDevice::SampleTexture( uint index, float u, float v )
+{
+	if ( index < _MAX_TEXTURE_COUNT && mTextures[ index ] != nullptr )
+		return mTextures[index]->GetPixelbyUV( u, v );
+
+	return 0;
+}
+
 void RenderDevice::Clear( )
 {
 	for ( uint i = 0; i < mHeight; i ++ )
@@ -256,13 +267,27 @@ void RenderDevice::Releasebuffer( GraphicsBuffer*& buffer )
 	buffer = nullptr;
 }
 
+void RenderDevice::BeginScene( )
+{
+	if ( mVertexShader != nullptr )
+		mVertexShader->SetDevice( this );
+	if ( mPixelShader != nullptr )
+		mPixelShader->SetDevice( this );
+}
+
+void RenderDevice::SetTexture( uint index, Texture* tex )
+{
+	if ( index < _MAX_TEXTURE_COUNT )
+		mTextures[index] = tex;
+}
+
 void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex )
 {
 	if ( mVertexBuffer == nullptr || mIndexBuffer == nullptr )
 		return;
 
 	// Prepare vertexpool;
-	for ( uint i = 0; i < _VertexCache_Size; i ++ )
+	for ( uint i = 0; i < _MAX_VERTEXCACHE_COUNT; i ++ )
 		mVertexCache[i] = std::make_pair( -1, nullptr );
 
 	uint vlen = mVertexBuffer->GetLength( );
@@ -282,7 +307,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		for ( uint k = 0; k < 3; k ++ )
 		{
 			uint index = *( ibegin + k );
-			uint key = index % _VertexCache_Size;
+			uint key = index % _MAX_VERTEXCACHE_COUNT;
 			auto& cache = mVertexCache[ key ];
 			if ( cache.first == index )
 			{
