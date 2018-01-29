@@ -1,6 +1,7 @@
 #include "libengine.h"
 #include <string>
-
+#include "stdio.h"
+#include "stdlib.h"
 class VertexShader : public IVertexShader
 {
 	virtual void Execute( Vector4* regs )
@@ -48,12 +49,11 @@ public:
 void DemoApp::OnCreate( )
 {
 	mRenderDevice = GetRenderDevice( );
-	mCamera.eye = Vector3( 5.0f, 4.0f, -3.0f );
-	mCamera.look = Vector3( 0.0f, 0.0f, 0.0f );
-	mCamera.up = Vector3( 0.0f, 0.0f, 1.0f );
+	mCamera.SetPosition( Vector3( 5.0f, 4.0f, -3.0f ) );
+	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mWorldTransform = Matrix4::identity;
-	mViewTransform = Matrix4::View( mCamera.eye, mCamera.look, mCamera.up );
+	mViewTransform = mCamera.GetViewMatrix( );
 	mPerspectTransform = Matrix4::Perspective( 1.57f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 0.001f, 1000.0f );
 
 	// Create texture.

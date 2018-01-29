@@ -29,7 +29,6 @@ public:
 	float operator[](uint index) const
 		{ assert( index < 16 ); return m[index]; }
 
-	static Matrix4 View( const Vector3& eye, const Vector3& look, const Vector3& up );
 	static Matrix4 Perspective( float fov, float aspect, float znear, float zfar );
 
 public:

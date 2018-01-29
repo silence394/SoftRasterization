@@ -6,22 +6,6 @@ const Matrix4 Matrix4::identity(1.0f, 0.0f, 0.0f, 0.0f,
 								0.0f, 0.0f, 1.0f, 0.0f, 
 								0.0f, 0.0f, 0.0f, 1.0f);
 
-Matrix4 Matrix4::View( const Vector3& eye, const Vector3& look, const Vector3& up )
-{
-	Vector3 zaxis = ( look - eye ).Normalize( );
-	Vector3 xaxis = Vector3::Cross( up, zaxis ).Normalize( );
-	Vector3 yaxis = Vector3::Cross( zaxis, xaxis );
-
-	float xeye = - Vector3::Dot( xaxis, eye );
-	float yeye = - Vector3::Dot( yaxis, eye );
-	float zeye = - Vector3::Dot( zaxis, eye );
-
-	return Matrix4( xaxis.x, yaxis.x, zaxis.x, 0.0f,
-					xaxis.y, yaxis.y, zaxis.y, 0.0f,
-					xaxis.z, yaxis.z, zaxis.z, 0.0f,
-					xeye,    yeye,    zeye,	   1.0f );
-}
-
 Matrix4 Matrix4::Perspective( float fov, float aspect, float znear, float zfar )
 {
 	float ys = 1.0f / ::tan( fov / 2.0f );
