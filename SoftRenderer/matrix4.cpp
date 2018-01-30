@@ -67,6 +67,11 @@ Matrix4& Matrix4::Transpose( )
 	return *this;
 }
 
+Matrix4& Matrix4::SetTrans( const Vector3& v )
+{
+	return *this;
+}
+
 Matrix4 Matrix4::operator * ( const Matrix4& mat )
 {
 	Matrix4 ret( *this );

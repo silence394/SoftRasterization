@@ -37,6 +37,8 @@ public:
 	Matrix4& RotationY( float r );
 	Matrix4& RotationZ( float r );
 	Matrix4& Transpose( );
+
+	Matrix4& SetTrans( const Vector3& v );
 };
 
 inline Vector4 operator *( const Vector4& v, const Matrix4& mat )
