@@ -1,5 +1,6 @@
 #include "matrix4.h"
 #include "vector3.h"
+#include "math.h"
 
 const Matrix4 Matrix4::identity(1.0f, 0.0f, 0.0f, 0.0f,
 								0.0f, 1.0f, 0.0f, 0.0f,
@@ -72,7 +73,77 @@ Matrix4& Matrix4::SetTrans( const Vector3& v )
 	return *this;
 }
 
-Matrix4 Matrix4::operator * ( const Matrix4& mat )
+Matrix4& Matrix4::SetRotation( const Vector3& v, float r )
+{
+	float sin = Math::Sin( r ), cos = Math::Cos( r );
+	float cosreverse = 1 - cos;
+
+	Vector3 n( v );
+	n.Normalize( );
+
+	m[0] = cosreverse * n.x * n.x + cos;
+	m[1] = cosreverse * n.x * n.y + sin * n.z;
+	m[2] = cosreverse * n.x * n.z - sin * n.y;
+	m[3] = 0.0f;
+
+	m[4] = cosreverse * n.x * n.y - sin * n.z;
+	m[5] = cosreverse * n.y * n.y + cos;
+	m[6] = cosreverse * n.y * n.z + sin * n.x;
+	m[7] = 0.0f;
+
+	m[8] = cosreverse * n.x * n.z + sin * n.y;
+	m[9] = cosreverse * n.y * n.z - sin * n.x;
+	m[10] = cosreverse * n.z * n.z + cos;
+	m[11] = 0.0f;
+
+	m[12] = 0.0f;
+	m[13] = 0.0f;
+	m[14] = 0.0f;
+	m[15] = 1.0f;
+
+	return *this;
+}
+
+Matrix4 Matrix4::operator + ( const Matrix4& mat ) const
+{
+	Matrix4 ret( *this );
+	return ret -= mat;
+}
+
+Matrix4& Matrix4::operator += ( const Matrix4& mat )
+{
+	m[0] += mat[0];
+	m[1] += mat[1];
+	m[2] += mat[2];
+	m[3] += mat[3];
+	m[4] += mat[4];
+	m[5] += mat[5];
+	m[6] += mat[6];
+	m[7] += mat[7];
+	m[8] += mat[8];
+	m[9] += mat[9];
+	m[10] += mat[10];
+	m[11] += mat[11];
+	m[12] += mat[12];
+	m[13] += mat[13];
+	m[14] += mat[14];
+	m[15] += mat[15];
+
+	return *this;
+}
+
+Matrix4 Matrix4::operator - ( const Matrix4& mat ) const
+{
+	Matrix4 ret( *this );
+	return ret -= mat;
+}
+
+Matrix4& Matrix4::operator -= ( const Matrix4& mat )
+{
+	return operator += ( - mat );
+}
+
+Matrix4 Matrix4::operator * ( const Matrix4& mat ) const
 {
 	Matrix4 ret( *this );
 	return ret *= mat;

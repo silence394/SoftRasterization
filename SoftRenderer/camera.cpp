@@ -4,13 +4,13 @@
 Camera::Camera( )
 {
 	mPos = Vector3( 0.0f, 0.0f, 0.0f );
-	mLookAt = Vector3( 0.0f, 1.0f, 0.0f );
+	mLookDir = Vector3( 0.0f, 1.0f, 0.0f );
 	mUp = Vector3( 0.0f, 0.0f, 1.0f );
 }
 
 Matrix4 Camera::GetViewMatrix( )
 {
-	Vector3 zaxis = mLookAt.Normalize( );
+	Vector3 zaxis = mLookDir.Normalize( );
 	Vector3 xaxis = Vector3::Cross( mUp, zaxis ).Normalize( );
 	Vector3 yaxis = Vector3::Cross( zaxis, xaxis );
 
@@ -41,7 +41,8 @@ void Camera::Roll( float units )
 
 void Camera::Theta( float r )
 {
-
+	Vector3 lookat = mPos + mLookDir;
+	mPos *= Matrix4( ).SetTrans( - lookat ) * Matrix4( ).SetRotation( mUp, r ) * Matrix4( ).SetTrans( lookat );
 }
 
 void Camera::Rotate( const Vector3& axis, float r )

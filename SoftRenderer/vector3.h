@@ -1,5 +1,6 @@
 #pragma once
 
+#include "prerequisites.h"
 #include "math.h"
 
 class Vector3
@@ -10,6 +11,16 @@ public:
 public:
 	Vector3( ) : x( 0.0f ), y( 0.0f ), z( 0.0f ) { }
 	Vector3( float xx, float yy, float zz ) : x( xx ), y( yy ), z( zz ) { }
+
+	inline Vector3 operator + ( ) const
+	{
+		return Vector3( x, y, z );
+	}
+
+	inline Vector3 operator - ( ) const
+	{
+		return Vector3( -x, -y, -z );
+	}
 
 	Vector3 operator + ( const Vector3& v ) const
 	{

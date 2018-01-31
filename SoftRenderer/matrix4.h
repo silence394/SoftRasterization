@@ -24,10 +24,30 @@ public:
 			}
 	static const Matrix4 identity;
 
-	Matrix4 operator * ( const Matrix4& mat );
+	inline Matrix4 operator + ( ) const
+	{
+		return Matrix4( m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15] );
+	}
+
+	inline Matrix4 operator - ( ) const
+	{
+		return Matrix4( -m[0], -m[1], -m[2], -m[3], -m[4], -m[5], -m[6], -m[7], -m[8], -m[9], -m[10], -m[11], -m[12], -m[13], -m[14], -m[15] );
+	}
+
+	Matrix4 operator + ( const Matrix4& mat ) const;
+	Matrix4& operator += ( const Matrix4& mat );
+
+	Matrix4 operator - ( const Matrix4& mat ) const;
+	Matrix4& operator -= ( const Matrix4& mat );
+
+	Matrix4 operator * ( const Matrix4& mat ) const;
 	Matrix4& operator *= ( const Matrix4& mat );
+
 	float operator[](uint index) const
-		{ assert( index < 16 ); return m[index]; }
+	{
+		assert( index < 16 );
+		return m[index];
+	}
 
 	static Matrix4 Perspective( float fov, float aspect, float znear, float zfar );
 
@@ -39,6 +59,7 @@ public:
 	Matrix4& Transpose( );
 
 	Matrix4& SetTrans( const Vector3& v );
+	Matrix4& SetRotation( const Vector3& v, float r );
 };
 
 inline Vector4 operator *( const Vector4& v, const Matrix4& mat )

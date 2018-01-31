@@ -16,7 +16,7 @@ Vector3& Vector3::operator *= ( const Matrix4& mat )
 		x *= invw;
 		y *= invw;
 		z *= invw;
-	}
+	}  
 
 	return *this;
 }

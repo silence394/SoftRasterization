@@ -7,7 +7,7 @@ class Camera
 {
 private:
 	Vector3	mPos;
-	Vector3	mLookAt;
+	Vector3	mLookDir;
 	Vector3	mUp;
 
 public:
@@ -19,7 +19,7 @@ public:
 		{ return mPos; }
 
 	inline void LookAt( const Vector3& target )
-		{ mLookAt = ( target - mPos ).Normalize( ); }
+		{ mLookDir = ( target - mPos ).Normalize( ); }
 
 	Matrix4	GetViewMatrix( );
 
