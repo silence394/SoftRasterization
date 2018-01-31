@@ -3,15 +3,26 @@
 
 LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-	int c;
 	switch( msg )
 	{
-	case WM_KEYDOWN:
-		break;
+		case WM_KEYDOWN:
+		{
+			break;
+		}
+			
+		case WM_MOUSEMOVE:
+		{
+			static uint last = 0;
+			if ( last != lparam )
+			{
+				last = lparam;
+				int x = (int) LOWORD (lparam);
+				int y = (int) HIWORD (lparam);
+				GStaticWindow->OnMouseMove(x, y);
+			}
 
-	case WM_PAINT:
-		c = 1;
-		break;
+			break;
+		}
 	}
 
 	if ( msg == WM_CLOSE )
@@ -29,7 +40,7 @@ App::App( int width, int height, LPCWSTR name )
 {
 	WNDCLASS winclass;
 
-	winclass.style			= CS_BYTEALIGNCLIENT;
+	winclass.style			= CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	winclass.lpfnWndProc	= WindowProc;
 	winclass.cbClsExtra		= 0;
 	winclass.cbWndExtra		= 0;
@@ -49,6 +60,8 @@ App::App( int width, int height, LPCWSTR name )
 	DWORD style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;
 	DWORD exstyle = 0;
 	mWindow = CreateWindowEx( exstyle, name, name, style, 0, 0, width, height, NULL, NULL, winclass.hInstance, NULL );
+
+	GStaticWindow = this;
 
 	RECT rect = { 0 };
 	GetClientRect( mWindow, &rect );
@@ -81,8 +94,6 @@ App::App( int width, int height, LPCWSTR name )
 	SelectObject( mWindowDC, mBITMAP );
 
 	ShowWindow( mWindow, SW_SHOWNORMAL );
-
-	OnCreate( );
 }
 
 App::~App()

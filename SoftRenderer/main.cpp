@@ -44,6 +44,8 @@ public:
 	virtual void OnCreate( );
 	virtual void OnRender( );
 	virtual void OnClose( );
+
+	virtual void OnMouseMove( int x, int y );
 };
 
 void DemoApp::OnCreate( )
@@ -168,12 +170,18 @@ void DemoApp::OnClose( )
 	delete mPixelShader;
 }
 
-bool CheckInCVV( const Vector4& v )
+void DemoApp::OnMouseMove( int x, int y )
 {
-	if ( v.x < -1.0f || v.x > 1.0f || v.y < -1.0f || v.y > 1.0f || v.z < 0 || v.w > 1.0f )
-		return false;
+	static int lastx = x, lasty = y;
 
-	return true;
+	if ( ( GetKeyState( 32 ) & 0x80 ) != 0 )
+	{
+		mCamera.Phi( ( x - lastx ) * 0.005f );
+		mCamera.Theta( ( y- lasty ) * 0.005f );
+		mViewTransform = mCamera.GetViewMatrix( );
+	}
+
+	lastx = x; lasty = y;
 }
 
 void DemoApp::OnRender( )

@@ -3,6 +3,8 @@
 #include "prerequisites.h"
 #include "windows.h"
 
+static App*	GStaticWindow = nullptr;
+
 class App
 {
 private:
@@ -24,6 +26,8 @@ public:
 	virtual void	OnCreate( ) { };
 	virtual void	OnRender( ) { };
 	virtual void	OnClose( ) { };
+
+	virtual void	OnMouseMove( int x, int y ) { };
 
 public:
 	inline RenderDevice* GetRenderDevice( )

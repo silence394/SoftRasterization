@@ -26,6 +26,7 @@ public:
 	void	Pitch( float uints );
 	void	Yaw( float uints );
 	void	Roll( float units );
+	void	Phi( float r );
 	void	Theta( float r );
 	void	Rotate( const Vector3& axis, float r );
 };
