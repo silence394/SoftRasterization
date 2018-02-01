@@ -9,6 +9,7 @@ private:
 	Vector3	mPos;
 	Vector3	mLookDir;
 	Vector3	mUp;
+	float	mLookDistance;
 
 public:
 	Camera( );
@@ -19,7 +20,9 @@ public:
 		{ return mPos; }
 
 	inline void LookAt( const Vector3& target )
-		{ mLookDir = ( target - mPos ).Normalize( ); }
+		{ Vector3 look = target - mPos; mLookDistance = look.Magnitude( ); mLookDir = look.Normalize( ); }
+	Vector3 GetLook( )
+		{ return mPos + mLookDir; }
 
 	Matrix4	GetViewMatrix( );
 

@@ -70,6 +70,26 @@ Matrix4& Matrix4::Transpose( )
 
 Matrix4& Matrix4::SetTrans( const Vector3& v )
 {
+	m[0] = 1.0f;
+	m[1] = 0.0f;
+	m[2] = 0.0f;
+	m[3] = 0.0f;
+
+	m[4] = 0.0f;
+	m[5] = 1.0f;
+	m[6] = 0.0f;
+	m[7] = 0.0f;
+
+	m[8] = 0.0f;
+	m[9] = 0.0f;
+	m[10] = 1.0f;
+	m[11] = 0.0f;
+
+	m[12] = v.x;
+	m[13] = v.y;
+	m[14] = v.z;
+	m[15] = 1.0f;
+
 	return *this;
 }
 

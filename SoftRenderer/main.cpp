@@ -174,10 +174,10 @@ void DemoApp::OnMouseMove( int x, int y )
 {
 	static int lastx = x, lasty = y;
 
-	if ( ( GetKeyState( 32 ) & 0x80 ) != 0 )
+	if ( ( GetKeyState( 0x01 ) & 0x80 ) != 0 )
 	{
-		mCamera.Phi( ( x - lastx ) * 0.005f );
-		mCamera.Theta( ( y- lasty ) * 0.005f );
+		mCamera.Phi( ( x - lastx ) * -0.005f );
+		mCamera.Theta( ( y- lasty ) * -0.005f );
 		mViewTransform = mCamera.GetViewMatrix( );
 	}
 

@@ -1,5 +1,6 @@
 #include "camera.h"
 #include "matrix4.h"
+#include "stdio.h"
 
 Camera::Camera( )
 {
@@ -40,23 +41,30 @@ void Camera::Roll( float units )
 
 void Camera::Phi( float r )
 {
-	Vector3 right = Vector3::Cross( mUp, mLookDir ).Normalize( );
-	Vector3 v1 = Vector3::Cross( -mLookDir, right );
-
-	Vector3 look = mPos + mLookDir;
-
-	mPos *= Matrix4( ).SetTrans( - look ) * Matrix4( ).SetRotation( right, r ) * Matrix4( ).SetTrans( look );
-	Vector3 v2 = Vector3::Cross( -mLookDir, right );
-
-	if ( Vector3::Dot( v1, mUp ) * Vector3::Dot( v2, mUp ) < 0.0f )
-		mUp = - mUp;
+	Vector3 lookat = mPos + mLookDir * mLookDistance;
+	mPos *=   Matrix4( ).SetTrans( - lookat ) * Matrix4( ).SetRotation( mUp, r ) * Matrix4( ).SetTrans( lookat ); 
+	lookat -= mPos;
+	mLookDistance = lookat.Magnitude( );
+	mLookDir = lookat.Normalize( );
 }
 
 void Camera::Theta( float r )
 {
-	Vector3 lookat = mPos + mLookDir;
-	mPos *= Matrix4( ).SetTrans( - lookat ) * Matrix4( ).SetRotation( mUp, r ) * Matrix4( ).SetTrans( lookat );
-	mLookDir = lookat - mPos;
+	Vector3 right = Vector3::Cross( mUp, mLookDir ).Normalize( );
+	Vector3 v1 = Vector3::Cross( -mLookDir, right );
+
+	Vector3 look = mPos + mLookDir * mLookDistance;
+
+	mPos *= Matrix4( ).SetTrans( - look ) * Matrix4( ).SetRotation( right, r ) * Matrix4( ).SetTrans( look );
+
+	look -= mPos;
+	mLookDistance = look.Magnitude( );
+	mLookDir = look.Normalize( );
+
+	Vector3 v2 = Vector3::Cross( -mLookDir, right );
+
+	if ( Vector3::Dot( v1, mUp ) * Vector3::Dot( v2, mUp ) < 0.0f )
+		mUp = - mUp;
 }
 
 void Camera::Rotate( const Vector3& axis, float r )
