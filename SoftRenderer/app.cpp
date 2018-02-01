@@ -23,6 +23,17 @@ LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 
 			break;
 		}
+
+		case WM_MOUSEWHEEL:
+			{
+				int x = (int) LOWORD (lparam);
+				int y = (int) HIWORD (lparam);
+				int delta = (short) HIWORD (wparam);
+
+				GStaticWindow->OnMouseWheel( delta );
+
+				break;
+			}
 	}
 
 	if ( msg == WM_CLOSE )

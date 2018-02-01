@@ -67,6 +67,23 @@ void Camera::Theta( float r )
 		mUp = - mUp;
 }
 
+void Camera::Zoom( float units )
+{
+	Vector3 look = mPos + mLookDir * mLookDistance;
+	Vector3 d = -mLookDir;
+	Vector3 v = mPos + d.Normalize( ) * units;
+
+	if ( v == look )
+		return;
+
+	if ( Vector3::Dot( mLookDir, look - v ) > 0.0f )
+		mPos = v;
+
+	look -= mPos;
+	mLookDistance = look.Magnitude( );
+	mLookDir = look.Normalize( );
+}
+
 void Camera::Rotate( const Vector3& axis, float r )
 {
 

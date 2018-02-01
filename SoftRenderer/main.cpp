@@ -46,6 +46,7 @@ public:
 	virtual void OnClose( );
 
 	virtual void OnMouseMove( int x, int y );
+	virtual void OnMouseWheel( int delta );
 };
 
 void DemoApp::OnCreate( )
@@ -182,6 +183,12 @@ void DemoApp::OnMouseMove( int x, int y )
 	}
 
 	lastx = x; lasty = y;
+}
+
+void DemoApp::OnMouseWheel( int delta )
+{
+	mCamera.Zoom( - mCamera.GetLookDistance( ) / 5.0f * delta / 120.0f );
+	mViewTransform = mCamera.GetViewMatrix( );
 }
 
 void DemoApp::OnRender( )

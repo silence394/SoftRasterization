@@ -21,8 +21,10 @@ public:
 
 	inline void LookAt( const Vector3& target )
 		{ Vector3 look = target - mPos; mLookDistance = look.Magnitude( ); mLookDir = look.Normalize( ); }
-	Vector3 GetLook( )
-		{ return mPos + mLookDir; }
+	Vector3 GetDiretion( )
+		{ return mLookDir; }
+	float GetLookDistance( )
+		{ return mLookDistance; }
 
 	Matrix4	GetViewMatrix( );
 
@@ -31,5 +33,6 @@ public:
 	void	Roll( float units );
 	void	Phi( float r );
 	void	Theta( float r );
+	void	Zoom( float units );
 	void	Rotate( const Vector3& axis, float r );
 };

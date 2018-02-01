@@ -28,6 +28,7 @@ public:
 	virtual void	OnClose( ) { };
 
 	virtual void	OnMouseMove( int x, int y ) { };
+	virtual void	OnMouseWheel( int delta ) { };
 
 public:
 	inline RenderDevice* GetRenderDevice( )
