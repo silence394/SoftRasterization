@@ -52,7 +52,7 @@ public:
 void DemoApp::OnCreate( )
 {
 	mRenderDevice = GetRenderDevice( );
-	mCamera.SetPosition( Vector3( 5.0f, 4.0f, -3.0f ) );
+	mCamera.SetPosition( Vector3( 5.0f, 4.0f, 3.0f ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mWorldTransform = Matrix4::identity;
@@ -194,7 +194,7 @@ void DemoApp::OnMouseWheel( int delta )
 void DemoApp::OnRender( )
 {
 	mRenderDevice->BeginScene( );
-	mRenderDevice->SetClearColor( 0xFF808080 );
+	mRenderDevice->SetClearColor( 0 );
 	mRenderDevice->Clear( );
 
 	mRenderDevice->SetTexture( 0, mTexture );
