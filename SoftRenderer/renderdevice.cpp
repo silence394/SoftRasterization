@@ -419,8 +419,8 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 					input.mShaderRigisters[j] *= invw;
 				
 				// ToScreen.
-				input.mShaderRigisters[0].x = ( input.mShaderRigisters[0].x + 1.0f ) * 0.5f * mWidth;
-				input.mShaderRigisters[0].y = ( input.mShaderRigisters[0].y + 1.0f ) * 0.5f * mHeight;
+				input.mShaderRigisters[0].x = ( 1.0f + input.mShaderRigisters[0].x ) * 0.5f * mWidth;
+				input.mShaderRigisters[0].y = ( 1.0f - input.mShaderRigisters[0].y ) * 0.5f * mHeight;
 				 
 				cache = std::make_pair( index, &input );
 				psinputs[k] = &input;
@@ -436,7 +436,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		const Vector4& v3 = bottom->mShaderRigisters[0];
 
 		// BackCulling.
-		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) > 0 )
+		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) < 0 )
 			continue;
 
 		// top to bottom, value of y is larger.
