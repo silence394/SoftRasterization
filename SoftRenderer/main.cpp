@@ -52,7 +52,9 @@ public:
 void DemoApp::OnCreate( )
 {
 	mRenderDevice = GetRenderDevice( );
-	mCamera.SetPosition( Vector3( 5.0f, 4.0f, -3.0f ) );
+	//1.152000, 0.921600, -0.691200
+	//mCamera.SetPosition( Vector3( 0.737280, 0.589824, -0.442368 ) );
+	mCamera.SetPosition( Vector3( 3, 4, 5 ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mWorldTransform = Matrix4::identity;

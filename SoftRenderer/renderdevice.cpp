@@ -28,26 +28,71 @@ RenderDevice::~RenderDevice( )
 
 void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color )
 {
-	float k1 = (float) (int) ( p3.x - p1.x ) / (float) (int) ( p3.y - p1.y );
-	float k2 = (float) (int) ( p3.x - p2.x ) / (float) (int) ( p3.y - p2.y );
-	float xs = (float) p1.x + 0.5f;
-	float xe = (float) p2.x + 0.5f;
-	int dy = 1;
-	if ( p1.y > p3.y )
+	float xs, xe, ymin, ymax;
+	float k1 = (float) ( p3.x - p1.x ) / (float) ( p3.y - p1.y );
+	float k2 = (float) ( p3.x - p2.x ) / (float) ( p3.y - p2.y );
+	if ( p1.y < p3.y )
 	{
-		dy = -1;
-		k1 = -k1;
-		k2 = -k2;
+		ymin = (float) p1.y;
+		ymax = (float) p3.y;
+		xs = (float) p1.x;
+		xe = (float) p2.x;
+	}
+	else
+	{
+		ymin = (float) p3.y;
+		ymax = (float) p1.y;
+		xs = (float) p3.x;
+		xe = xs;
 	}
 
-	for ( uint y = p1.y; y != p3.y; y += dy )
+	int maxclipx = mWidth - 1;
+	int maxclipy = mHeight - 1;
+	int ys = (int) ymin;
+	int ye = (int) ymax;
+	if ( ymin < 0 )
 	{
-		DrawLine( (uint) xs, y, (uint) xe, y, color );
-		xs += k1;
-		xe += k2;
+		xs += k1 * -ymin;
+		xe += k2 * -ymin;
+
+		ys = 0;
 	}
 
-	mFrameBuffer[p3.y][ (uint) xs ] = color;
+	if ( ymax > maxclipy )
+		ye = maxclipy;
+
+	if ( ye < ys )
+		return;
+
+	if ( p1.x >=0 && p1.x <= maxclipx && p2.x >=0 && p2.x <= maxclipx && p3.x >= 0 && p3.x < maxclipx )
+	{
+		for ( int y = ys; y <= ye; y += 1 )
+		{
+			DrawLine( (uint) xs, y, (uint) xe, y, color );
+			xs += k1;
+			xe += k2;
+		}
+	}
+	else
+	{
+		int xleft;
+		int xright;
+		for ( int y = ys; y <= ye; y += 1 )
+		{
+			xleft = (int) xs;
+			xright = (int) xe;
+
+			if ( ( xleft < 0 && xright < 0 ) || ( xleft > maxclipx && xright > maxclipx ) )
+				continue;
+
+			xleft = Math::Clamp( xleft, 0, maxclipx );
+			xright = Math::Clamp( xright, 0, maxclipx );
+
+			DrawLine( (uint) xleft, y, (uint) xright, y, color );
+			xs += k1;
+			xe += k2;
+		}
+	}
 }
 
 void RenderDevice::DrawLine( uint x1, uint y1, uint x2, uint y2, uint color )
@@ -210,6 +255,25 @@ void RenderDevice::DrawLine( const Point& p1, const Point& p2, uint color )
 
 void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& p3, uint color )
 {
+	// Middle Point.
+	const Point* top = &p1;
+	const Point* middle1 = &p2;
+	const Point* bottom = &p3;
+	if ( top->y < middle1->y )
+		Math::Swap( top, middle1 );
+	if ( middle1->y < bottom->y )
+		Math::Swap( middle1, bottom );
+	if ( top->y < middle1->y )
+		Math::Swap( top, middle1 );
+
+	int minclipx = 0;
+	int maxclipx = mWidth - 1;
+	int minclipy = 0;
+	int maxclipy = mHeight - 1;
+
+	if ( top->y < minclipy || bottom->y > maxclipy || ( top->x < minclipx && middle1->x < minclipx && bottom->x < minclipx ) || ( top->x > maxclipx && middle1->x > maxclipx && bottom->x > maxclipx ) )
+		 return;
+
 	if ( p1.y == p2.y )
 	{
 		FillUniqueTriangle( p1, p2, p3, color );
@@ -224,17 +288,6 @@ void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& 
 	}
 	else
 	{
-		// Middle Point.
-		const Point* top = &p1;
-		const Point* middle1 = &p2;
-		const Point* bottom = &p3;
-		if ( top->y < middle1->y )
-			Math::Swap( top, middle1 );
-		if ( middle1->y < bottom->y )
-			Math::Swap( middle1, bottom );
-		if ( top->y < middle1->y )
-			Math::Swap( top, middle1 );
-
 		Point middle2;
 		middle2.y = middle1->y;
 		float k = (float) ( top->x - bottom->x ) / (float) ( top->y - bottom->y );
