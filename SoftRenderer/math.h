@@ -35,4 +35,9 @@ namespace Math
 		return cosf( r );
 	}
 
+	static float Ceil( float value )
+	{
+		return ::ceilf( value );
+	}
+
 }

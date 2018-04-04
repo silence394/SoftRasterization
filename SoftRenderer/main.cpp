@@ -204,7 +204,7 @@ void DemoApp::OnRender( )
 	mRenderDevice->SetInputLayout( mInputLayout );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
-	mRenderDevice->DrawIndex( 3, 0, 0 );
+	mRenderDevice->DrawIndex( 3, 0, 0 );//mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( )
 }
 
 int main( )

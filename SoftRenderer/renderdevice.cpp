@@ -82,6 +82,9 @@ void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Po
 			xleft = (int) xs;
 			xright = (int) xe;
 
+						xs += k1;
+			xe += k2;
+
 			if ( ( xleft < 0 && xright < 0 ) || ( xleft > maxclipx && xright > maxclipx ) )
 				continue;
 
@@ -89,8 +92,7 @@ void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Po
 			xright = Math::Clamp( xright, 0, maxclipx );
 
 			DrawLine( (uint) xleft, y, (uint) xright, y, color );
-			xs += k1;
-			xe += k2;
+
 		}
 	}
 }
@@ -194,8 +196,97 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 	}
 }
 
+// top.y < middle.y = bottom.y
+//void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
+//{
+//	uint starty = (uint) top->mShaderRigisters[0].y;
+//	uint endy = (uint) bottom->mShaderRigisters[0].y;
+//	for ( uint y = starty; y < endy; y ++ )
+//	{
+//		float factor = (float) ( y - starty ) / ( endy - starty );
+//		PSInput input1 = InterpolatePSInput( top, middle, factor );
+//		PSInput input2 = InterpolatePSInput( top, bottom, factor );
+//
+//		DrawScanline( &input1, &input2 );
+//	}
+//}
+
 void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
 {
+	int maxclipx = mWidth - 1;
+	int maxclipy = mHeight - 1;
+	float ymin, ymax;
+
+	ymin = Math::Ceil( top->mShaderRigisters[0].y );
+	ymax = Math::Ceil( bottom->mShaderRigisters[0].y );
+	float invheight = 1.0f / (ymax - ymin);
+	PSInput sxinput = *top;
+	PSInput exinput = sxinput;
+
+	int ys = (int) ymin;
+	int ye = (int) ymax;
+
+	float xs = top->mShaderRigisters[0].x;
+	float xe = xs;
+	float k1 = (middle->mShaderRigisters[0].x - top->mShaderRigisters[0].x) * invheight;
+	float k2 = (bottom->mShaderRigisters[0].x - top->mShaderRigisters[0].x) * invheight;
+	if ( ymin < 0.0 )
+	{
+		float factor = -ymin * invheight ;
+		xs += -ymin * k1;
+		xe += -ymin * k2;
+		ys = 0;
+	}
+
+	if ( ymax > maxclipy )
+		ye = maxclipy;
+
+	if ( ye < ys )
+		return;
+
+	int x1 = (int) top->mShaderRigisters[0].x;
+	int x2 = (int) middle->mShaderRigisters[0].x;
+	int x3 = (int) bottom->mShaderRigisters[0].x;
+	if ( x1 >= 0 && x1 <= maxclipx && x2 >= 0 && x2 <= maxclipx && x3 >= 0 && x3 <= maxclipx )
+	{
+		for ( int y = ys; y <= ye; y ++ )
+		{
+			float factor = (float) (y - ymin) * invheight;
+			PSInput input1 = InterpolatePSInput( top, middle, factor );;
+			PSInput input2 = InterpolatePSInput( top, bottom, factor );;
+
+			DrawScanline( &input1, &input2 );
+		}
+	}
+	else
+	{
+		int xleft, xright;
+		for ( int y = ys; y <= ye; y++ )
+		{
+			float factor = (float) (y - ymin) * invheight;
+			PSInput input1 = InterpolatePSInput( top, middle, factor );
+			PSInput input2 = InterpolatePSInput( top, bottom, factor );
+			xleft = (int) xs;
+			xright = (int) xe;
+
+			xs += k1;
+			xe += k2;
+
+			if ( ( xleft < 0 && xright < 0 ) || ( xleft > maxclipx && xright > maxclipx ) )
+				continue;
+
+			xleft = Math::Clamp( xleft, 0, maxclipx );
+			xright = Math::Clamp( xright, 9, maxclipx );
+
+			float invwidth = 1.0f / ( xe - xs );
+			PSInput draw1 = InterpolatePSInput( &input1, &input2, ( (float) xleft - xs ) * invwidth );
+			PSInput draw2 = InterpolatePSInput( &input1, &input2, ( (float) xright - xs ) * invwidth );
+
+			DrawScanline( &draw1, &draw2 );
+		}
+	}
+
+
 	uint starty = (uint) top->mShaderRigisters[0].y;
 	uint endy = (uint) bottom->mShaderRigisters[0].y;
 	for ( uint y = starty; y < endy; y ++ )
@@ -208,8 +299,11 @@ void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* m
 	}
 }
 
+
+// top.y = middle.y < bottom.y
 void RenderDevice::DrawStandardBottomTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
 {
+	return;
 	uint starty = (uint) top->mShaderRigisters[0].y;
 	uint endy = (uint) bottom->mShaderRigisters[0].y;
 	for ( uint y = starty; y < endy; y ++ )
