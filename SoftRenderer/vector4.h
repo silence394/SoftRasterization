@@ -36,6 +36,9 @@ public:
 	inline Vector4 operator / ( float div ) const
 		{ float inv = 1.0f / div; return Vector4( x * inv, y * inv, z * inv, w * inv ); }
 
+	inline Vector4 operator /= ( float div )
+		{ float inv = 1.0f / div;  x *= inv; y *= inv; z *= inv; w *= inv; return *this; }
+
 	Vector4& operator *= ( const Matrix4& mat );
 
 	float Dot( const Vector4& v ) const

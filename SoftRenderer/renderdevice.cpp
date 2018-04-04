@@ -438,7 +438,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		// BackCulling.
 		if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) < 0 )
 			continue;
-
+		
 		// top to bottom, value of y is larger.
 		if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
 			Math::Swap( top, middle );

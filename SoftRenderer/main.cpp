@@ -54,8 +54,8 @@ void DemoApp::OnCreate( )
 	mRenderDevice = GetRenderDevice( );
 	//1.152000, 0.921600, -0.691200
 	//mCamera.SetPosition( Vector3( 0.737280, 0.589824, -0.442368 ) );
-	mCamera.SetPosition( Vector3( 3, 4, 5 ) );
-	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
+	mCamera.SetPosition( Vector3( 4, 4, 0 ) );
+	mCamera.LookAt( Vector3( 4.0f, 0.0f, 0.0f ) );
 
 	mWorldTransform = Matrix4::identity;
 	mViewTransform = mCamera.GetViewMatrix( );
@@ -204,7 +204,7 @@ void DemoApp::OnRender( )
 	mRenderDevice->SetInputLayout( mInputLayout );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
-	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
+	mRenderDevice->DrawIndex( 3, 0, 0 );
 }
 
 int main( )
