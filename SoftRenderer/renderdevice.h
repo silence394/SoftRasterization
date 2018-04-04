@@ -30,6 +30,8 @@ private:
 
 	uint						mWidth;
 	uint						mHeight;
+	int							mClipXMax;
+	int							mClipYMax;
 	uint**						mFrameBuffer;
 	uint						mClearColor;
 	IVertexShader*				mVertexShader;
