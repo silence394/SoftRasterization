@@ -347,6 +347,55 @@ uint RenderDevice::SampleTexture( uint index, float u, float v )
 	return 0;
 }
 
+bool RenderDevice::ClipLine( int& x1, int& y1, int& x2, int& y2 )
+{
+	#define CLIP_CODE_LT	0x09
+	#define CLIP_CODE_CT	0x08
+	#define CLIP_CODE_RT	0x0A
+
+	#define CLIP_CODE_LM	0x01
+	#define CLIP_CODE_CM	0x00
+	#define CLIP_CODE_RM	0x02
+
+	#define CLIP_CODE_LB	0x05
+	#define CLIP_CODE_CB	0x04
+	#define CLIP_CODE_RB	0x06
+
+	int cx1 = x1, cy1 = y1, cx2 = x2, cy2 = y2;
+	int code1 = 0, code2 = 0;
+
+	if ( y1 < 0 )
+		code1 |= CLIP_CODE_CT;
+	else if ( y1 > mClipYMax )
+		code1 |= CLIP_CODE_CB;
+
+	if ( x1 < 0 )
+		code1 |= CLIP_CODE_LM;
+	else if ( x1 > mClipXMax )
+		code1 |= CLIP_CODE_RM;
+
+	if ( y2 < 0 )
+		code2 |= CLIP_CODE_CT;
+	else if ( y2 > mClipYMax )
+		code2 |= CLIP_CODE_CB;
+
+	if ( x2 < 0 )
+		code2 |= CLIP_CODE_LM;
+	else if ( x2 > mClipXMax )
+		code2 |= CLIP_CODE_RM;
+
+	if ( code1 & code2 )
+		return false;
+
+	if ( code1 == 0 && code2 == 0 )
+		return true;
+
+	switch( code1 )
+	{
+
+	}
+}
+
 void RenderDevice::Clear( )
 {
 	for ( uint i = 0; i < mHeight; i ++ )
