@@ -6,7 +6,7 @@
 #include "vector2.h"
 #include "texture.h"
 
-RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr )
+RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr ), mRenderState( 0 )
 {
 	RECT rect = { 0 };
 	GetClientRect( window, &rect  );
@@ -636,24 +636,34 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
 			Math::Swap( top, middle );
 
-		if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
+		if ( mRenderState == _RENDER_SOLID )
 		{
-			if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-				Math::Swap( top, middle );
-			if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
-				Math::Swap( middle, bottom );
-			if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-				Math::Swap( top, middle );
+			if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
+			{
+				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+					Math::Swap( top, middle );
+				if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
+					Math::Swap( middle, bottom );
+				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+					Math::Swap( top, middle );
 
-			DrawScanline( top, bottom );
+				DrawScanline( top, bottom );
+			}
+			else
+			{
+				float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
+				PSInput newmiddle = InterpolatePSInput( top, bottom, factor );
+
+				DrawStandardTopTriangle( top, &newmiddle, middle );
+				DrawStandardBottomTriangle( middle, &newmiddle, bottom );
+			}
 		}
-		else
+		else if ( mRenderState == _RENDER_WIREFRAME )
 		{
-			float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
-			PSInput newmiddle = InterpolatePSInput( top, bottom, factor );
-
-			DrawStandardTopTriangle( top, &newmiddle, middle );
-			DrawStandardBottomTriangle( middle, &newmiddle, bottom );
+			// TODO. linecolor
+			DrawLine( Point( (int) top->mShaderRigisters[0].x, (int) top->mShaderRigisters[0].y ), Point( (int) middle->mShaderRigisters[0].x, (int) middle->mShaderRigisters[0].y ), 0xff00ff00 );
+			DrawLine( Point( (int) top->mShaderRigisters[0].x, (int) top->mShaderRigisters[0].y ), Point( (int) bottom->mShaderRigisters[0].x, (int) bottom->mShaderRigisters[0].y ), 0xff00ff00 );
+			DrawLine( Point( (int) bottom->mShaderRigisters[0].x, (int) bottom->mShaderRigisters[0].y ), Point( (int) middle->mShaderRigisters[0].x, (int) middle->mShaderRigisters[0].y ), 0xff00ff00 );
 		}
 	}
 }

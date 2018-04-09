@@ -199,6 +199,7 @@ void DemoApp::OnRender( )
 	mRenderDevice->SetClearColor( 0xFF808080 );
 	mRenderDevice->Clear( );
 
+	mRenderDevice->SetRenderState( RenderDevice::_RENDER_WIREFRAME );
 	mRenderDevice->SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	mRenderDevice->SetInputLayout( mInputLayout );

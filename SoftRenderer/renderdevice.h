@@ -21,6 +21,13 @@ struct PSInput
 
 class RenderDevice
 {
+public:
+	enum
+	{
+		_RENDER_SOLID		= 0,
+		_RENDER_WIREFRAME	= 1,
+	};
+
 private:
 	enum
 	{
@@ -39,6 +46,7 @@ private:
 	InputLayout*				mInputLayout;
 	GraphicsBuffer*				mVertexBuffer;
 	GraphicsBuffer*				mIndexBuffer;
+	uint						mRenderState;
 
 	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
 	std::vector< PSInput >		mVertexPool;
@@ -80,6 +88,9 @@ public:
 		{ mVertexBuffer = buffer; }
 	inline void SetIndexBuffer( GraphicsBuffer* buffer )
 		{ mIndexBuffer = buffer; }
+
+	inline void SetRenderState( uint state )
+		{ mRenderState = state; }
 
 	void Clear( );
 	void DrawPixel( uint x, uint y, uint color );
