@@ -347,53 +347,68 @@ uint RenderDevice::SampleTexture( uint index, float u, float v )
 	return 0;
 }
 
+// Liang-Barsky
 bool RenderDevice::ClipLine( int& x1, int& y1, int& x2, int& y2 )
 {
-	#define CLIP_CODE_LT	0x09
-	#define CLIP_CODE_CT	0x08
-	#define CLIP_CODE_RT	0x0A
+	float dx = float( x2 - x1 );
+	float dy = float( y2 - y1 );
 
-	#define CLIP_CODE_LM	0x01
-	#define CLIP_CODE_CM	0x00
-	#define CLIP_CODE_RM	0x02
+	float parray[4];
+	float qarray[4];
+	parray[0] = -dx;
+	parray[1] = dx;
+	parray[2] = -dy;
+	parray[3] = dy;
+	qarray[0] = (float) x1;
+	qarray[1] = float( mClipXMax - x1 );
+	qarray[2] = (float) y1;
+	qarray[3] = float( mClipYMax - y1 );
 
-	#define CLIP_CODE_LB	0x05
-	#define CLIP_CODE_CB	0x04
-	#define CLIP_CODE_RB	0x06
-
-	int cx1 = x1, cy1 = y1, cx2 = x2, cy2 = y2;
-	int code1 = 0, code2 = 0;
-
-	if ( y1 < 0 )
-		code1 |= CLIP_CODE_CT;
-	else if ( y1 > mClipYMax )
-		code1 |= CLIP_CODE_CB;
-
-	if ( x1 < 0 )
-		code1 |= CLIP_CODE_LM;
-	else if ( x1 > mClipXMax )
-		code1 |= CLIP_CODE_RM;
-
-	if ( y2 < 0 )
-		code2 |= CLIP_CODE_CT;
-	else if ( y2 > mClipYMax )
-		code2 |= CLIP_CODE_CB;
-
-	if ( x2 < 0 )
-		code2 |= CLIP_CODE_LM;
-	else if ( x2 > mClipXMax )
-		code2 |= CLIP_CODE_RM;
-
-	if ( code1 & code2 )
-		return false;
-
-	if ( code1 == 0 && code2 == 0 )
-		return true;
-
-	switch( code1 )
+	auto ClipTest =[]( float p, float q, float& t1, float& t2 )
 	{
+		if ( p < 0.0f )
+		{
+			// 计算从外到内的t.
+			float t = q / p;
+			if ( t > t2 )
+			{
+				return false;
+			}
+			else if ( t > t1 )
+			{
+				t1 = t;
+				return true;
+			}
+		}
+		else if ( p > 0.0f )
+		{
+			// 计算从内到外的t.
+			float t = q / p;
+			if ( t < t1 )
+			{
+				return false;
+			}
+			else if ( t < t2 )
+			{
+				t2 = t;
+				return true;
+			}
+			
+		}
+		else if ( q < 0.0f )
+		{
+			return false;
+		}
+		
+		return true;
+	};
 
-	}
+	bool result = false;
+	float fx1 = float(x1);
+	float fx2 = float(x2);
+	float fx3 = float(y1);
+	float t1 = 0.0f;
+	float t2 = 1.0f;
 }
 
 void RenderDevice::Clear( )
