@@ -82,7 +82,7 @@ void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Po
 			xleft = (int) xs;
 			xright = (int) xe;
 
-						xs += k1;
+			xs += k1;
 			xe += k2;
 
 			if ( ( xleft < 0 && xright < 0 ) || ( xleft > mClipXMax && xright > mClipXMax ) )
@@ -92,7 +92,6 @@ void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Po
 			xright = Math::Clamp( xright, 0, mClipXMax );
 
 			DrawLine( (uint) xleft, y, (uint) xright, y, color );
-
 		}
 	}
 }
@@ -149,6 +148,12 @@ void RenderDevice::DrawLine( uint x1, uint y1, uint x2, uint y2, uint color )
 			}
 		}
 	}
+}
+
+void RenderDevice::DrawClipLine( int x1, int y1, int x2, int y2, uint color )
+{
+	if ( ClipLine( x1, y1, x2, y2 ) )
+		DrawLine( x1, y1, x2, y2, color );
 }
 
 PSInput RenderDevice::InterpolatePSInput( const PSInput* input1, const PSInput* input2, float factor )
@@ -350,20 +355,6 @@ uint RenderDevice::SampleTexture( uint index, float u, float v )
 // Liang-Barsky
 bool RenderDevice::ClipLine( int& x1, int& y1, int& x2, int& y2 )
 {
-	float dx = float( x2 - x1 );
-	float dy = float( y2 - y1 );
-
-	float parray[4];
-	float qarray[4];
-	parray[0] = -dx;
-	parray[1] = dx;
-	parray[2] = -dy;
-	parray[3] = dy;
-	qarray[0] = (float) x1;
-	qarray[1] = float( mClipXMax - x1 );
-	qarray[2] = (float) y1;
-	qarray[3] = float( mClipYMax - y1 );
-
 	auto ClipTest =[]( float p, float q, float& t1, float& t2 )
 	{
 		if ( p < 0.0f )
@@ -403,12 +394,34 @@ bool RenderDevice::ClipLine( int& x1, int& y1, int& x2, int& y2 )
 		return true;
 	};
 
-	bool result = false;
-	float fx1 = float(x1);
-	float fx2 = float(x2);
-	float fx3 = float(y1);
+	float dx = float( x2 - x1 );
+	float dy = float( y2 - y1 );
+
+	float parray[4];
+	float qarray[4];
+	parray[0] = -dx;
+	parray[1] = dx;
+	parray[2] = -dy;
+	parray[3] = dy;
+	qarray[0] = (float) x1;
+	qarray[1] = float( mClipXMax - x1 );
+	qarray[2] = (float) y1;
+	qarray[3] = float( mClipYMax - y1 );
 	float t1 = 0.0f;
 	float t2 = 1.0f;
+	for ( uint i = 0; i < 4; i ++ )
+	{
+		if ( ClipTest( parray[i], qarray[i], t1, t2 ) == false )
+			return false;
+	}
+	
+	int tx1 = x1, ty1 = y1, tx2 = x2, ty2 = y2;
+	x1 = int( tx1 + t1 * dx );
+	y1 = int( ty1 + t1 * dy );
+	x2 = int( tx1 + t2 * dx );
+	y2 = int( ty1 + t2 * dy );
+
+	return true;
 }
 
 void RenderDevice::Clear( )
@@ -431,7 +444,7 @@ void RenderDevice::DrawPoint( const Point& p, uint color )
 
 void RenderDevice::DrawLine( const Point& p1, const Point& p2, uint color )
 {
-	DrawLine( p1.x, p1.y, p2.x, p2.y, color );
+	DrawClipLine( p1.x, p1.y, p2.x, p2.y, color );
 }
 
 void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& p3, uint color )

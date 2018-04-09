@@ -50,6 +50,7 @@ public:
 
 	void	FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color  );
 	void	DrawLine( uint x1, uint y1, uint x2, uint y2, uint color );
+	void	DrawClipLine( int x1, int y1, int x2, int y2, uint color );
 	PSInput	InterpolatePSInput( const PSInput* input1, const PSInput* input2, float factor );
 	void	DrawScanline( const PSInput* input1, const PSInput* input2 );
 	void	DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
