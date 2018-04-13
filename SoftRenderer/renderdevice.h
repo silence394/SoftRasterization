@@ -50,6 +50,7 @@ private:
 
 	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
 	std::vector< PSInput >		mVertexPool;
+	std::vector< PSInput >		mClippedVertex;
 	Texture*					mTextures[ _MAX_TEXTURE_COUNT ];
 
 public:

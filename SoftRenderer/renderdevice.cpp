@@ -537,6 +537,8 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	uint vcount = vlen / vsize;
 	mVertexPool.resize( vcount );
 
+	mClippedVertex.clear( );
+
 	byte* vb = (byte*) mVertexBuffer->GetBuffer( );
 	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
 	
@@ -598,27 +600,39 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 				mVertexShader->Execute( input.mShaderRigisters );
 
-				float invw = 1.0f / input.mShaderRigisters[0].w;
-				input.mShaderRigisters[0].x *= invw;
-				input.mShaderRigisters[0].y *= invw;
-				input.mShaderRigisters[0].z *= invw;
-				input.mShaderRigisters[0].w = invw;
-
-				for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
-					input.mShaderRigisters[j] *= invw;
-				
-				// ToScreen.
-				input.mShaderRigisters[0].x = ( 1.0f + input.mShaderRigisters[0].x ) * 0.5f * mWidth;
-				input.mShaderRigisters[0].y = ( 1.0f - input.mShaderRigisters[0].y ) * 0.5f * mHeight;
-				 
 				cache = std::make_pair( index, &input );
 				psinputs[k] = &input;
 			}
 		}
 
-		PSInput* top = psinputs[0];
-		PSInput* middle = psinputs[1];
-		PSInput* bottom = psinputs[2];
+		// Do cull.
+		mClippedVertex.push_back( *psinputs[0] );
+		mClippedVertex.push_back( *psinputs[1] );
+		mClippedVertex.push_back( *psinputs[2] );
+	}
+
+	for ( uint i = 0; i < mClippedVertex.size( ); i ++ )
+	{
+		PSInput& input = mClippedVertex[i];
+		float invw = 1.0f / input.mShaderRigisters[0].w;
+		input.mShaderRigisters[0].x *= invw;
+		input.mShaderRigisters[0].y *= invw;
+		input.mShaderRigisters[0].z *= invw;
+		input.mShaderRigisters[0].w = invw;
+
+		for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
+			input.mShaderRigisters[j] *= invw;
+				
+		// ToScreen.
+		input.mShaderRigisters[0].x = ( 1.0f + input.mShaderRigisters[0].x ) * 0.5f * mWidth;
+		input.mShaderRigisters[0].y = ( 1.0f - input.mShaderRigisters[0].y ) * 0.5f * mHeight;
+	}
+
+	for ( uint i = 0; i < mClippedVertex.size( ); i += 3 )
+	{
+		PSInput* top = &mClippedVertex[i];
+		PSInput* middle = &mClippedVertex[i + 1];
+		PSInput* bottom = &mClippedVertex[i + 2];
 
 		const Vector4& v1 = top->mShaderRigisters[0];
 		const Vector4& v2 = middle->mShaderRigisters[0];
