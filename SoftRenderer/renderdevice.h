@@ -9,6 +9,8 @@
 #define _MAX_VSINPUT_COUNT 4
 #define _MAX_PSINPUT_COUNT 4
 
+using namespace std;
+
 struct VSInput
 {
 	Vector4	mShaderRigisters[ _MAX_VSINPUT_COUNT ];
@@ -50,7 +52,8 @@ private:
 
 	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
 	std::vector< PSInput >		mVertexPool;
-	std::vector< PSInput >		mClippedVertex;
+	std::vector<PSInput>		mClippedVertex;
+	std::vector< PSInput* >		mPtrClipedVertex;
 	Texture*					mTextures[ _MAX_TEXTURE_COUNT ];
 
 public:
