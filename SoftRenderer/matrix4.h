@@ -60,6 +60,7 @@ public:
 
 	Matrix4& SetTrans( const Vector3& v );
 	Matrix4& SetRotation( const Vector3& v, float r );
+	Matrix4& SetScaling( float s );
 };
 
 inline Vector4 operator *( const Vector4& v, const Matrix4& mat )

@@ -124,6 +124,31 @@ Matrix4& Matrix4::SetRotation( const Vector3& v, float r )
 	return *this;
 }
 
+Matrix4& Matrix4::SetScaling( float s )
+{
+	m[0] = s;
+	m[1] = 0.0f;
+	m[2] = 0.0f;
+	m[3] = 0.0f;
+
+	m[4] = 0.0f;
+	m[5] = s;
+	m[6] = 0.0f;
+	m[7] = 0.0f;
+
+	m[8] = 0.0f;
+	m[9] = 0.0f;
+	m[10] = s;
+	m[11] = 0.0f;
+
+	m[12] = 0.0f;
+	m[13] = 0.0f;
+	m[14] = 0.0f;
+	m[15] = 1.0f;
+
+	return *this;
+}
+
 Matrix4 Matrix4::operator + ( const Matrix4& mat ) const
 {
 	Matrix4 ret( *this );

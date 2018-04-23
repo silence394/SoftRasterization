@@ -5,6 +5,7 @@
 #include "vector4.h"
 #include "shaders.h"
 #include <vector>
+#include <list>
 
 #define _MAX_VSINPUT_COUNT 4
 #define _MAX_PSINPUT_COUNT 4
@@ -52,7 +53,7 @@ private:
 
 	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
 	std::vector< PSInput >		mVertexPool;
-	std::vector<PSInput>		mClippedVertex;
+	std::list<PSInput>		mClippedVertex;
 	std::vector< PSInput* >		mPtrClipedVertex;
 	Texture*					mTextures[ _MAX_TEXTURE_COUNT ];
 

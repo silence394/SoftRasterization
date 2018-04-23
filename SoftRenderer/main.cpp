@@ -54,10 +54,10 @@ void DemoApp::OnCreate( )
 	mRenderDevice = GetRenderDevice( );
 	//1.152000, 0.921600, -0.691200
 	//mCamera.SetPosition( Vector3( 0.737280, 0.589824, -0.442368 ) );
-	mCamera.SetPosition( Vector3( 4, 4, 0 ) );
-	mCamera.LookAt( Vector3( 4.0f, 0.0f, 0.0f ) );
+	mCamera.SetPosition( Vector3( 2, 2, 2 ) );
+	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
-	mWorldTransform = Matrix4::identity;
+	mWorldTransform = Matrix4( ).SetScaling( 2.0f );
 	mViewTransform = mCamera.GetViewMatrix( );
 	mPerspectTransform = Matrix4::Perspective( 1.57f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 0.001f, 1000.0f );
 
