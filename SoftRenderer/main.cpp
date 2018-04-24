@@ -10,7 +10,6 @@ class VertexShader : public IVertexShader
 	}
 };
 
-// Regs[0] - position, regs[1] = color, reg[2] = UV., reg[3] = 
 class PixelShader : public IPixelShader
 {
 	virtual void Execute( Vector4* regs, Color& color, float& depth )
@@ -59,7 +58,7 @@ void DemoApp::OnCreate( )
 
 	mWorldTransform = Matrix4( ).SetScaling( 2.0f );
 	mViewTransform = mCamera.GetViewMatrix( );
-	mPerspectTransform = Matrix4::Perspective( 1.57f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 0.001f, 1000.0f );
+	mPerspectTransform = Matrix4::Perspective( 3.141592654f / 4.0f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 1.0f, 5000.0f );
 
 	// Create texture.
 	uint width = 256;
