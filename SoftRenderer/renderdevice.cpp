@@ -540,6 +540,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 	mClippedVertex.clear( );
 	mPtrClipedVertex.clear( );
+	mWireFrameVertexs.clear( );
 
 	byte* vb = (byte*) mVertexBuffer->GetBuffer( );
 	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
@@ -632,12 +633,26 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			Vector2 v3( psinputs[2]->mShaderRigisters[0].x, psinputs[2]->mShaderRigisters[0].y );
 			v3 /= psinputs[2]->mShaderRigisters[0].w;
 
-			if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) < 0 )
+			if ( mRenderState == _RENDER_SOLID )
 			{
-				mPtrClipedVertex.push_back( psinputs[0] );
-				mPtrClipedVertex.push_back( psinputs[1] );
-				mPtrClipedVertex.push_back( psinputs[2] );
+				if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) < 0 )
+				{
+					mPtrClipedVertex.push_back( psinputs[0] );
+					mPtrClipedVertex.push_back( psinputs[1] );
+					mPtrClipedVertex.push_back( psinputs[2] );
+				}
 			}
+			else if ( mRenderState == _RENDER_WIREFRAME )
+			{
+				mWireFrameVertexs.push_back( psinputs[0] );
+				mWireFrameVertexs.push_back( psinputs[1] );
+				mWireFrameVertexs.push_back( psinputs[1] );
+				mWireFrameVertexs.push_back( psinputs[2] );
+				mWireFrameVertexs.push_back( psinputs[2] );
+				mWireFrameVertexs.push_back( psinputs[0] );
+			}
+
+
 		}
 		else
 		{
@@ -688,11 +703,25 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 			if ( clipnum >= 3 )
 			{
-				for ( uint i = 1; i < clipnum - 1; i ++ )
+				if ( mRenderState == _RENDER_SOLID )
 				{
-					mPtrClipedVertex.push_back( clippedvertexs[0] );
-					mPtrClipedVertex.push_back( clippedvertexs[ i ] );
-					mPtrClipedVertex.push_back( clippedvertexs[ i + 1] );
+					for ( uint i = 1; i < clipnum - 1; i ++ )
+					{
+						mPtrClipedVertex.push_back( clippedvertexs[0] );
+						mPtrClipedVertex.push_back( clippedvertexs[ i ] );
+						mPtrClipedVertex.push_back( clippedvertexs[ i + 1] );
+					}
+				}
+				else
+				{
+					for ( uint i = 0; i < clipnum - 1; i ++ )
+					{
+						mWireFrameVertexs.push_back( clippedvertexs[ i ] );
+						mWireFrameVertexs.push_back( clippedvertexs[ i + 1] );
+					}
+
+					mWireFrameVertexs.push_back( clippedvertexs[ clipnum - 1 ] );
+					mWireFrameVertexs.push_back( clippedvertexs[ 0 ] );
 				}
 			}
 		}
