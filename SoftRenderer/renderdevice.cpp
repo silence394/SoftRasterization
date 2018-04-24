@@ -555,8 +555,18 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	indexcount = indexcount - indexcount % 3;
 	ushort* ibegin = ib;
 	ushort* iend = ib + indexcount;
+
+	uint temcout = 0;
 	for ( ; ibegin != iend; ibegin += 3 )
 	{
+		temcout += 3;
+		if ( temcout != indexcount )
+		{
+			continue;
+			uint a = 1;
+			uint b = a + 1;
+		}
+
 		PSInput* psinputs[3];
 		for ( uint k = 0; k < 3; k ++ )
 		{

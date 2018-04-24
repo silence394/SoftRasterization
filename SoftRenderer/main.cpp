@@ -198,13 +198,16 @@ void DemoApp::OnRender( )
 	mRenderDevice->SetClearColor( 0xFF808080 );
 	mRenderDevice->Clear( );
 
-	mRenderDevice->SetRenderState( RenderDevice::_RENDER_WIREFRAME );
+	if ( GetKeyState( 0x01 ) & 0x80 )
+		mRenderDevice->SetRenderState( RenderDevice::_RENDER_WIREFRAME );
+	else
+		mRenderDevice->SetRenderState( RenderDevice::_RENDER_SOLID );
 	mRenderDevice->SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	mRenderDevice->SetInputLayout( mInputLayout );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
-	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
+	mRenderDevice->DrawIndex( 27, 0, 0 );
 }
 
 int main( )
