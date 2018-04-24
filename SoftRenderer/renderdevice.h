@@ -74,6 +74,8 @@ public:
 
 	bool	ClipLine( int& x1, int& y1, int& x2, int& y2 );
 
+	bool	IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 );
+
 public:
 	inline int GetDeviceWidth( ) const
 		{ return mWidth; }

@@ -425,6 +425,11 @@ bool RenderDevice::ClipLine( int& x1, int& y1, int& x2, int& y2 )
 	return true;
 }
 
+bool RenderDevice::IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 )
+{
+	return ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) <= 0;
+}
+
 void RenderDevice::Clear( )
 {
 	for ( uint i = 0; i < mHeight; i ++ )
@@ -623,44 +628,42 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			}
 		}
 
+		auto IsFrontFace = []( PSInput** inputs )
+		{
+			Vector2 pv_2d[3];
+			for ( uint i = 0; i < 3; i ++ )
+			{
+				float invw = 1.0f / inputs[i]->mShaderRigisters[0].w;
+				pv_2d[i].x = inputs[i]->mShaderRigisters[0].x * invw;
+				pv_2d[i].y = inputs[i]->mShaderRigisters[0].y * invw;
+			}
+
+			return ( pv_2d[2].x - pv_2d[0].x ) * ( pv_2d[2].y - pv_2d[1].y ) - ( pv_2d[2].y - pv_2d[0].y ) * ( pv_2d[2].x - pv_2d[1].x ) <= 0;
+		};
+
 		if ( infrustum )
 		{
-			// frontface;
-			Vector2 v1( psinputs[0]->mShaderRigisters[0].x, psinputs[0]->mShaderRigisters[0].y );
-			v1 /= psinputs[0]->mShaderRigisters[0].w;
-			Vector2 v2( psinputs[1]->mShaderRigisters[0].x, psinputs[1]->mShaderRigisters[0].y );
-			v2 /= psinputs[1]->mShaderRigisters[0].w;
-			Vector2 v3( psinputs[2]->mShaderRigisters[0].x, psinputs[2]->mShaderRigisters[0].y );
-			v3 /= psinputs[2]->mShaderRigisters[0].w;
-
-			if ( mRenderState == _RENDER_SOLID )
+			if ( IsFrontFace( psinputs ) )
 			{
-				if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) < 0 )
+				if ( mRenderState == _RENDER_SOLID )
 				{
 					mPtrClipedVertex.push_back( psinputs[0] );
 					mPtrClipedVertex.push_back( psinputs[1] );
 					mPtrClipedVertex.push_back( psinputs[2] );
 				}
+				else if ( mRenderState == _RENDER_WIREFRAME )
+				{
+					mWireFrameVertexs.push_back( psinputs[0] );
+					mWireFrameVertexs.push_back( psinputs[1] );
+					mWireFrameVertexs.push_back( psinputs[1] );
+					mWireFrameVertexs.push_back( psinputs[2] );
+					mWireFrameVertexs.push_back( psinputs[2] );
+					mWireFrameVertexs.push_back( psinputs[0] );
+				}
 			}
-			else if ( mRenderState == _RENDER_WIREFRAME )
-			{
-				mWireFrameVertexs.push_back( psinputs[0] );
-				mWireFrameVertexs.push_back( psinputs[1] );
-				mWireFrameVertexs.push_back( psinputs[1] );
-				mWireFrameVertexs.push_back( psinputs[2] );
-				mWireFrameVertexs.push_back( psinputs[2] );
-				mWireFrameVertexs.push_back( psinputs[0] );
-			}
-
-
 		}
 		else
 		{
-			PSInput* srcvertexs[3];
-			srcvertexs[0] = psinputs[0];
-			srcvertexs[1] = psinputs[1];
-			srcvertexs[2] = psinputs[2];
-
 			PSInput* clippedvertexs[5];
 
 			float neartest1 = psinputs[0]->mShaderRigisters[0].z;
@@ -671,68 +674,71 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 				j %= 3;
 				if ( neartest1 >= 0.0 )
 				{
-					clippedvertexs[ clipnum ++ ] = srcvertexs[i];
+					clippedvertexs[ clipnum ++ ] = psinputs[i];
 
-					if ( srcvertexs[j]->mShaderRigisters[0].z < 0 )
+					if ( psinputs[j]->mShaderRigisters[0].z < 0 )
 					{
 						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
 						PSInput* input = &mClippedVertex.back( );
 
-						float factor = neartest1 / ( neartest1 - srcvertexs[j]->mShaderRigisters[0].z );
-						*input = InterpolatePSInput( srcvertexs[i], srcvertexs[j], factor );
+						float factor = neartest1 / ( neartest1 - psinputs[j]->mShaderRigisters[0].z );
+						*input = InterpolatePSInput( psinputs[i], psinputs[j], factor );
 
 						clippedvertexs[ clipnum ++ ] = input;
 					}
 				}
 				else
 				{
-					if ( srcvertexs[j]->mShaderRigisters[0].z >= 0 )
+					if ( psinputs[j]->mShaderRigisters[0].z >= 0 )
 					{
 						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
 						PSInput* input = &mClippedVertex.back( );
 
-						float factor = srcvertexs[j]->mShaderRigisters[0].z / ( srcvertexs[j]->mShaderRigisters[0].z - neartest1 );
-						*input = InterpolatePSInput( srcvertexs[j], srcvertexs[i], factor );
+						float factor = psinputs[j]->mShaderRigisters[0].z / ( psinputs[j]->mShaderRigisters[0].z - neartest1 );
+						*input = InterpolatePSInput( psinputs[j], psinputs[i], factor );
 
 						clippedvertexs[ clipnum ++ ] = input;
 					}
 				}
 
-				neartest1 = srcvertexs[j]->mShaderRigisters[0].z; 
+				neartest1 = psinputs[j]->mShaderRigisters[0].z; 
 			}
 
 			if ( clipnum >= 3 )
 			{
-				if ( mRenderState == _RENDER_SOLID )
+				if ( IsFrontFace( clippedvertexs ) )
 				{
-					for ( uint i = 1; i < clipnum - 1; i ++ )
+					if ( mRenderState == _RENDER_SOLID )
 					{
-						mPtrClipedVertex.push_back( clippedvertexs[0] );
-						mPtrClipedVertex.push_back( clippedvertexs[ i ] );
-						mPtrClipedVertex.push_back( clippedvertexs[ i + 1] );
+						for ( uint i = 1; i < clipnum - 1; i ++ )
+						{
+							mPtrClipedVertex.push_back( clippedvertexs[0] );
+							mPtrClipedVertex.push_back( clippedvertexs[ i ] );
+							mPtrClipedVertex.push_back( clippedvertexs[ i + 1] );
+						}
 					}
-				}
-				else
-				{
-					for ( uint i = 0; i < clipnum - 1; i ++ )
+					else
 					{
-						mWireFrameVertexs.push_back( clippedvertexs[ i ] );
-						mWireFrameVertexs.push_back( clippedvertexs[ i + 1] );
-					}
+						for ( uint i = 0; i < clipnum - 1; i ++ )
+						{
+							mWireFrameVertexs.push_back( clippedvertexs[ i ] );
+							mWireFrameVertexs.push_back( clippedvertexs[ i + 1] );
+						}
 
-					mWireFrameVertexs.push_back( clippedvertexs[ clipnum - 1 ] );
-					mWireFrameVertexs.push_back( clippedvertexs[ 0 ] );
+						mWireFrameVertexs.push_back( clippedvertexs[ clipnum - 1 ] );
+						mWireFrameVertexs.push_back( clippedvertexs[ 0 ] );
+					}
 				}
 			}
 		}
-
-		// vertexpool.alloc == PsInput input; mVertexPool.push_back(input); vector<psinput*> = mVertexpool.Tail();
-		// 被cull的pass，被clip的ClippedVertexs.pushback();没有被处理的也ClippedVertexs.pushback().
-		// Fetchvertex 是一个pool, clip也是一个pool,clippedvector里存的都是pool里的指针，所以都是经过vertexshader运算过的。
 	}
 
 	vector<PSInput*> sorts;
-	sorts.insert( sorts.begin( ), mPtrClipedVertex.begin( ), mPtrClipedVertex.end( ) );
+	if ( mRenderState == _RENDER_SOLID )
+		sorts.insert( sorts.begin( ), mPtrClipedVertex.begin( ), mPtrClipedVertex.end( ) );
+	else if ( mRenderState == _RENDER_WIREFRAME )
+		sorts.insert( sorts.begin( ), mWireFrameVertexs.begin( ), mWireFrameVertexs.end( ) );
+
 	std::sort(sorts.begin(), sorts.end());
 	sorts.erase( std::unique( sorts.begin( ), sorts.end () ), sorts.end( ) );
 
@@ -753,20 +759,18 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		input.mShaderRigisters[0].y = ( 1.0f - input.mShaderRigisters[0].y ) * 0.5f * mHeight;
 	}
 
-	for ( uint i = 0; i < mPtrClipedVertex.size( ); i += 3 )
+	if ( mRenderState == _RENDER_SOLID )
+	{
+		for ( uint i = 0; i < mPtrClipedVertex.size( ); i += 3 )
 		{
 			PSInput* top = mPtrClipedVertex[i];
 			PSInput* middle = mPtrClipedVertex[i + 1];
 			PSInput* bottom = mPtrClipedVertex[i + 2];
-	
+
 			const Vector4& v1 = top->mShaderRigisters[0];
 			const Vector4& v2 = middle->mShaderRigisters[0];
 			const Vector4& v3 = bottom->mShaderRigisters[0];
-	
-			// BackCulling.
-			if ( ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) < 0 )
-				continue;
-			
+
 			// top to bottom, value of y is larger.
 			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
 				Math::Swap( top, middle );
@@ -774,35 +778,37 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 				Math::Swap( middle, bottom );
 			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
 				Math::Swap( top, middle );
-	
-			if ( mRenderState == _RENDER_SOLID )
+
+			if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
 			{
-				if ( top->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
-				{
-					if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-						Math::Swap( top, middle );
-					if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
-						Math::Swap( middle, bottom );
-					if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-						Math::Swap( top, middle );
-	
-					DrawScanline( top, bottom );
-				}
-				else
-				{
-					float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
-					PSInput newmiddle = InterpolatePSInput( top, bottom, factor );
-	
-					DrawStandardTopTriangle( top, &newmiddle, middle );
-					DrawStandardBottomTriangle( middle, &newmiddle, bottom );
-				}
+				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+					Math::Swap( top, middle );
+				if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
+					Math::Swap( middle, bottom );
+				if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
+					Math::Swap( top, middle );
+
+				DrawScanline( top, bottom );
 			}
-			else if ( mRenderState == _RENDER_WIREFRAME )
+			else
 			{
-				// TODO. linecolor
-				DrawLine( Point( (int) top->mShaderRigisters[0].x, (int) top->mShaderRigisters[0].y ), Point( (int) middle->mShaderRigisters[0].x, (int) middle->mShaderRigisters[0].y ), 0xff00ff00 );
-				DrawLine( Point( (int) top->mShaderRigisters[0].x, (int) top->mShaderRigisters[0].y ), Point( (int) bottom->mShaderRigisters[0].x, (int) bottom->mShaderRigisters[0].y ), 0xff00ff00 );
-				DrawLine( Point( (int) bottom->mShaderRigisters[0].x, (int) bottom->mShaderRigisters[0].y ), Point( (int) middle->mShaderRigisters[0].x, (int) middle->mShaderRigisters[0].y ), 0xff00ff00 );
+				float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
+				PSInput newmiddle = InterpolatePSInput( top, bottom, factor );
+
+				DrawStandardTopTriangle( top, &newmiddle, middle );
+				DrawStandardBottomTriangle( middle, &newmiddle, bottom );
 			}
 		}
+	}
+	else if ( mRenderState == _RENDER_WIREFRAME )
+	{
+		for ( uint i = 0; i < mWireFrameVertexs.size( ); i += 2 )
+		{
+			const Vector4& v1 = mWireFrameVertexs[i]->mShaderRigisters[0];
+			const Vector4& v2 = mWireFrameVertexs[ i + 1 ]->mShaderRigisters[0];
+			DrawLine( Point( (int) v1.x, (int) v1.y ), Point( (int) v2.x, (int) v2.y ), 0xff00ff00 );
+		}
+	}
+
+	
 }

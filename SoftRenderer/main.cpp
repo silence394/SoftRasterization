@@ -54,7 +54,7 @@ void DemoApp::OnCreate( )
 	mRenderDevice = GetRenderDevice( );
 	//1.152000, 0.921600, -0.691200
 	//mCamera.SetPosition( Vector3( 0.737280, 0.589824, -0.442368 ) );
-	mCamera.SetPosition( Vector3( 2, 2, 2 ) );
+	mCamera.SetPosition( Vector3( 4, 4, 4 ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mWorldTransform = Matrix4( ).SetScaling( 2.0f );
@@ -189,7 +189,7 @@ void DemoApp::OnMouseMove( int x, int y )
 
 void DemoApp::OnMouseWheel( int delta )
 {
-	mCamera.Zoom( - mCamera.GetLookDistance( ) / 5.0f * delta / 120.0f );
+	mCamera.Zoom( - mCamera.GetLookDistance( ) / 10.0f * delta / 120.0f );
 	mViewTransform = mCamera.GetViewMatrix( );
 }
 
