@@ -192,13 +192,16 @@ void DemoApp::OnMouseWheel( int delta )
 	mViewTransform = mCamera.GetViewMatrix( );
 }
 
+bool test = true;
 void DemoApp::OnRender( )
 {
 	mRenderDevice->BeginScene( );
 	mRenderDevice->SetClearColor( 0xFF808080 );
 	mRenderDevice->Clear( );
-
+		//mRenderDevice->FillTriangle( Point( 392, -90 ), Point( -133, -22 ), Point( 392, 280 ), 0xffff0000 );
 	if ( GetKeyState( 0x01 ) & 0x80 )
+		test = !test;
+	if ( test )
 		mRenderDevice->SetRenderState( RenderDevice::_RENDER_WIREFRAME );
 	else
 		mRenderDevice->SetRenderState( RenderDevice::_RENDER_SOLID );
@@ -207,7 +210,7 @@ void DemoApp::OnRender( )
 	mRenderDevice->SetInputLayout( mInputLayout );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
-	mRenderDevice->DrawIndex( 27, 0, 0 );
+	mRenderDevice->DrawIndex( 27, 0, 0 );//mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( )
 }
 
 int main( )

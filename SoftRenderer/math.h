@@ -35,6 +35,11 @@ namespace Math
 		return cosf( r );
 	}
 
+	static float Floor( float value )
+	{
+		return ::floorf( value );
+	}
+
 	static float Ceil( float value )
 	{
 		return ::ceilf( value );

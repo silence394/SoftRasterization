@@ -181,12 +181,22 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 		right = input1;
 	}
 
-	uint startx = (uint) left->mShaderRigisters[0].x;
-	uint endx = (uint) right->mShaderRigisters[0].x;
-	uint y = (uint) left->mShaderRigisters[0].y;
+	//uint startx = (uint) left->mShaderRigisters[0].x;
+	//uint endx = (uint) right->mShaderRigisters[0].x;
+	//uint y = (uint) left->mShaderRigisters[0].y;
+	//for ( uint x = startx; x < endx; x ++)
+	//{
+	//	float factor = (float) ( x - startx ) / ( endx - startx );
+
+	float xleft = Math::Ceil(  left->mShaderRigisters[0].x );
+	float xright = Math::Ceil( right->mShaderRigisters[0].x );
+	uint startx = (uint) xleft;
+	uint endx = (uint) xright;
+	float invwidth = 1.0f / ( xright - xleft );
+	uint y = (uint) Math::Ceil( left->mShaderRigisters[0].y );
 	for ( uint x = startx; x < endx; x ++)
 	{
-		float factor = (float) ( x - startx ) / ( endx - startx );
+		float factor = ( (float) x - xleft ) * invwidth;
 		PSInput psinput = InterpolatePSInput( left, right, factor );
 
 		float invw = 1.0f / psinput.mShaderRigisters[0].w;
@@ -222,7 +232,6 @@ void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* m
 	float k2 = (x3 - x1) * invheight;
 	if ( ymin < 0.0 )
 	{
-		float factor = -ymin * invheight ;
 		xs += -ymin * k1;
 		xe += -ymin * k2;
 		ys = 0;
@@ -296,7 +305,8 @@ void RenderDevice::DrawStandardBottomTriangle( const PSInput* top, const PSInput
 	if ( ymin < 0.0f )
 	{
 		xs += -ymin * k1;
-		xe += -ymax * k2;
+		xe += -ymin * k2;
+		ys = 0;
 	}
 
 	if ( ymax > mClipYMax )
@@ -560,12 +570,12 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	for ( ; ibegin != iend; ibegin += 3 )
 	{
 		temcout += 3;
-		if ( temcout != indexcount )
-		{
-			continue;
-			uint a = 1;
-			uint b = a + 1;
-		}
+		//if ( temcout != indexcount )
+		//{
+		//	continue;
+		//	uint a = 1;
+		//	uint b = a + 1;
+		//}
 
 		PSInput* psinputs[3];
 		for ( uint k = 0; k < 3; k ++ )
@@ -799,6 +809,14 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 					Math::Swap( top, middle );
 
 				DrawScanline( top, bottom );
+			}
+			else if ( top->mShaderRigisters[0].y == middle->mShaderRigisters[0].y )
+			{
+				DrawStandardBottomTriangle( top, middle, bottom );
+			}
+			else if ( middle->mShaderRigisters[0].y == bottom->mShaderRigisters[0].y )
+			{
+				DrawStandardTopTriangle( top, middle, bottom );
 			}
 			else
 			{
