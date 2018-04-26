@@ -12,7 +12,7 @@ class VertexShader : public IVertexShader
 
 class PixelShader : public IPixelShader
 {
-	virtual void Execute( Vector4* regs, Color& color, float& depth )
+	virtual void Execute( const Vector4* regs, Color& color, float& depth )
 	{
 		color = SampleTexture( 0, regs[2].x, regs[2].y );
 	}
@@ -198,19 +198,13 @@ void DemoApp::OnRender( )
 	mRenderDevice->BeginScene( );
 	mRenderDevice->SetClearColor( 0xFF808080 );
 	mRenderDevice->Clear( );
-		//mRenderDevice->FillTriangle( Point( 392, -90 ), Point( -133, -22 ), Point( 392, 280 ), 0xffff0000 );
-	if ( GetKeyState( 0x01 ) & 0x80 )
-		test = !test;
-	if ( test )
-		mRenderDevice->SetRenderState( RenderDevice::_RENDER_WIREFRAME );
-	else
-		mRenderDevice->SetRenderState( RenderDevice::_RENDER_SOLID );
+
 	mRenderDevice->SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	mRenderDevice->SetInputLayout( mInputLayout );
 	mRenderDevice->SetVertexBuffer( mVertexBuffer );
 	mRenderDevice->SetIndexBuffer( mIndexBuffer );
-	mRenderDevice->DrawIndex( 27, 0, 0 );//mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( )
+	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
 }
 
 int main( )

@@ -7,8 +7,8 @@
 #include <vector>
 #include <list>
 
-#define _MAX_VSINPUT_COUNT 4
-#define _MAX_PSINPUT_COUNT 4
+#define _MAX_VSINPUT_COUNT 3
+#define _MAX_PSINPUT_COUNT 3
 
 using namespace std;
 

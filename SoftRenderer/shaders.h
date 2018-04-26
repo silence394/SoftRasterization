@@ -43,6 +43,6 @@ public:
 class IPixelShader : public ShaderBase
 {
 public:
-	virtual void Execute( Vector4* regs, Color& color, float& depth ) = 0;
+	virtual void Execute( const Vector4* regs, Color& color, float& depth ) = 0;
 	virtual uint SampleTexture( uint index, float u, float v );
 };
