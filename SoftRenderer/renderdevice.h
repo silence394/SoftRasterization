@@ -20,6 +20,9 @@ struct VSInput
 struct PSInput
 {
 	Vector4 mShaderRigisters[ _MAX_PSINPUT_COUNT ];
+
+	Vector4& position( )
+		{ return mShaderRigisters[0]; }
 };
 
 class RenderDevice
@@ -65,15 +68,15 @@ public:
 	void	FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color  );
 	void	DrawLine( uint x1, uint y1, uint x2, uint y2, uint color );
 	void	DrawClipLine( int x1, int y1, int x2, int y2, uint color );
-	PSInput	InterpolatePSInput( const PSInput* input1, const PSInput* input2, float factor );
-	void	DrawScanline( const PSInput* input1, const PSInput* input2 );
-	void	DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
-	void	DrawStandardBottomTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom );
+
+	PSInput	InterpolatePSInput( const PSInput& input1, const PSInput& input2, float factor );
+	void	DrawScanline( PSInput& input1, PSInput& input2 );
+	void	DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
+	void	DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
 
 	uint	SampleTexture( uint index, float u, float v );
 
 	bool	ClipLine( int& x1, int& y1, int& x2, int& y2 );
-
 	bool	IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 );
 
 public:

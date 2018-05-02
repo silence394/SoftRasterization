@@ -157,42 +157,35 @@ void RenderDevice::DrawClipLine( int x1, int y1, int x2, int y2, uint color )
 		DrawLine( x1, y1, x2, y2, color );
 }
 
-PSInput RenderDevice::InterpolatePSInput( const PSInput* input1, const PSInput* input2, float factor )
+PSInput RenderDevice::InterpolatePSInput( const PSInput& input1, const PSInput& input2, float factor )
 {
 	PSInput input;
 	for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
-		input.mShaderRigisters[i] = Vector4::Lerp( input1->mShaderRigisters[i], input2->mShaderRigisters[i], factor );
+		input.mShaderRigisters[i] = Vector4::Lerp( input1.mShaderRigisters[i], input2.mShaderRigisters[i], factor );
 
 	return input;
 }
 
-void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
+void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 {
-	const PSInput* left = nullptr;
-	const PSInput* right = nullptr;
-	if ( input1->mShaderRigisters[0].x < input2->mShaderRigisters[0].x )
+	PSInput* left = nullptr;
+	PSInput* right = nullptr;
+	if ( input1.position( ).x < input2.position( ).x )
 	{
-		left = input1;
-		right = input2;
+		left = &input1;
+		right = &input2;
 	}
 	else
 	{
-		left = input2;
-		right = input1;
+		left = &input2;
+		right = &input1;
 	}
 
-	//uint startx = (uint) left->mShaderRigisters[0].x;
-	//uint endx = (uint) right->mShaderRigisters[0].x;
-	//uint y = (uint) left->mShaderRigisters[0].y;
-	//for ( uint x = startx; x < endx; x ++)
-	//{
-	//	float factor = (float) ( x - startx ) / ( endx - startx );
-
-	float xleft = Math::Ceil(  left->mShaderRigisters[0].x );
-	float xright = Math::Ceil( right->mShaderRigisters[0].x );
+	float xleft = Math::Ceil( left->position( ).x );
+	float xright = Math::Ceil( right->position( ).x );
 	uint startx = (uint) xleft;
 	uint endx = (uint) xright;
-	uint y = (uint) Math::Ceil( left->mShaderRigisters[0].y );
+	uint y = (uint) Math::Ceil( left->position( ).y );
 
 	Color color;
 	float depth = 0.0f;
@@ -208,44 +201,44 @@ void RenderDevice::DrawScanline( const PSInput* input1, const PSInput* input2 )
 		for ( uint x = startx; x < endx; x ++)
 		{
 			float factor = ( (float) x - xleft ) * invwidth;
-			PSInput psinput = InterpolatePSInput( left, right, factor );
+			PSInput psinput = InterpolatePSInput( *left, *right, factor );
 
-			float invw = 1.0f / psinput.mShaderRigisters[0].w;
+			float invw = 1.0f / psinput.position( ).w;
 			for ( uint i = 1; i < _MAX_PSINPUT_COUNT; i ++ )
 				psinput.mShaderRigisters[i] *= invw;
 
 			mPixelShader->Execute( psinput.mShaderRigisters, color, depth );
 			DrawPixel( x, y, color );
-			//mFrameBuffer[y][x] = color;
 		}
 	}
-
-	
 }
 
 // top.y < middle.y = bottom.y
-void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
+void RenderDevice::DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInput& bottom )
 {
 	float ymin, ymax;
-	ymin = Math::Ceil( top->mShaderRigisters[0].y );
-	ymax = Math::Ceil( bottom->mShaderRigisters[0].y );
+	ymin = Math::Ceil( top.position( ).y );
+	ymax = Math::Ceil( bottom.position( ).y );
 
 	if ( ymin == ymax )
 	{
-		if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-			Math::Swap( top, middle );
-		if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
-			Math::Swap( middle, bottom );
-		if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-			Math::Swap( top, middle );
+		PSInput* left = &top;
+		PSInput* center = &middle;
+		PSInput* right = &bottom;
+		if ( left->position( ).x > center->position( ).x )
+			Math::Swap( left, center );
+		if ( center->position( ).x > right->position( ).x )
+			Math::Swap( center, right );
+		if ( left->position( ).x > middle.position( ).x )
+			Math::Swap( left, center );
 
-		DrawScanline( top, bottom );
+		DrawScanline( *left, *center );
 	}
 	else
 	{
-		float x1 = Math::Ceil( top->mShaderRigisters[0].x );
-		float x2 = Math::Ceil( middle->mShaderRigisters[0].x );
-		float x3 = Math::Ceil( bottom->mShaderRigisters[0].x );
+		float x1 = Math::Ceil( top.position( ).x );
+		float x2 = Math::Ceil( middle.position( ).x );
+		float x3 = Math::Ceil( bottom.position( ).x );
 		float invheight = 1.0f / (ymax - ymin);
 
 		int ys = (int) ymin;
@@ -276,7 +269,7 @@ void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* m
 				PSInput input1 = InterpolatePSInput( top, middle, factor );;
 				PSInput input2 = InterpolatePSInput( top, bottom, factor );;
 
-				DrawScanline( &input1, &input2 );
+				DrawScanline( input1, input2 );
 			}
 		}
 		else
@@ -296,10 +289,10 @@ void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* m
 					float xright = Math::Clamp( xe, 0.0f, (float) mClipXMax );
 
 					float invwidth = 1.0f / ( xe - xs );
-					PSInput draw1 = InterpolatePSInput( &input1, &input2, ( xleft - xs ) * invwidth );
-					PSInput draw2 = InterpolatePSInput( &input1, &input2, ( xright - xs ) * invwidth );
+					PSInput draw1 = InterpolatePSInput( input1, input2, ( xleft - xs ) * invwidth );
+					PSInput draw2 = InterpolatePSInput( input1, input2, ( xright - xs ) * invwidth );
 
-					DrawScanline( &draw1, &draw2 );
+					DrawScanline( draw1, draw2 );
 				}
 
 				xs += k1;
@@ -310,27 +303,30 @@ void RenderDevice::DrawStandardTopTriangle( const PSInput* top, const PSInput* m
 }
 
 // top.y = middle.y < bottom.y
-void RenderDevice::DrawStandardBottomTriangle( const PSInput* top, const PSInput* middle, const PSInput* bottom )
+void RenderDevice::DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PSInput& bottom )
 {
-	float ymin = Math::Ceil( top->mShaderRigisters[0].y );
-	float ymax = Math::Ceil( bottom->mShaderRigisters[0].y );
+	float ymin = Math::Ceil( top.position( ).y );
+	float ymax = Math::Ceil( bottom.position( ).y );
 
 	if ( ymin == ymax )
 	{
-		if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-			Math::Swap( top, middle );
-		if ( middle->mShaderRigisters[0].x > bottom->mShaderRigisters[0].x )
-			Math::Swap( middle, bottom );
-		if ( top->mShaderRigisters[0].x > middle->mShaderRigisters[0].x )
-			Math::Swap( top, middle );
+		PSInput* left = &top;
+		PSInput* center = &middle;
+		PSInput* right = &bottom;
+		if ( left->position( ).x > center->position( ).x )
+			Math::Swap( left, center );
+		if ( center->position( ).x > right->position( ).x )
+			Math::Swap( center, right );
+		if ( left->position( ).x > middle.position( ).x )
+			Math::Swap( left, center );
 
-		DrawScanline( top, bottom );
+		DrawScanline( *left, *center );
 	}
 	else
 	{
-		float x1 = Math::Ceil( top->mShaderRigisters[0].x );
-		float x2 = Math::Ceil( middle->mShaderRigisters[0].x );
-		float x3 = Math::Ceil( bottom->mShaderRigisters[0].x );
+		float x1 = Math::Ceil( top.position( ).x );
+		float x2 = Math::Ceil( middle.position( ).x );
+		float x3 = Math::Ceil( bottom.position( ).x );
 
 		float invheight = 1.0f / ( ymax - ymin );
 
@@ -362,7 +358,7 @@ void RenderDevice::DrawStandardBottomTriangle( const PSInput* top, const PSInput
 				PSInput input1 = InterpolatePSInput( top, bottom, factor );;
 				PSInput input2 = InterpolatePSInput( middle, bottom, factor );;
 
-				DrawScanline( &input1, &input2 );
+				DrawScanline( input1, input2 );
 			}
 		}
 		else
@@ -382,10 +378,10 @@ void RenderDevice::DrawStandardBottomTriangle( const PSInput* top, const PSInput
 					float xright = Math::Clamp( xe, 0.0f, (float) mClipXMax );
 
 					float invwidth = 1.0f / ( xe - xs );
-					PSInput draw1 = InterpolatePSInput( &input1, &input2, ( xleft - xs ) * invwidth );
-					PSInput draw2 = InterpolatePSInput( &input1, &input2, ( xright - xs ) * invwidth );
+					PSInput draw1 = InterpolatePSInput( input1, input2, ( xleft - xs ) * invwidth );
+					PSInput draw2 = InterpolatePSInput( input1, input2, ( xright - xs ) * invwidth );
 
-					DrawScanline( &draw1, &draw2 );
+					DrawScanline( draw1, draw2 );
 				}
 
 				xs += k1;
@@ -671,7 +667,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		bool infrustum = true;
 		for ( uint i = 0; i < 3; i ++ )
 		{
-			if ( psinputs[i]->mShaderRigisters[0].z < 0 )
+			if ( psinputs[i]->position( ).z < 0 )
 			{
 				infrustum = false;
 				break;
@@ -683,9 +679,9 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			Vector2 pv_2d[3];
 			for ( uint i = 0; i < 3; i ++ )
 			{
-				float invw = 1.0f / inputs[i]->mShaderRigisters[0].w;
-				pv_2d[i].x = inputs[i]->mShaderRigisters[0].x * invw;
-				pv_2d[i].y = inputs[i]->mShaderRigisters[0].y * invw;
+				float invw = 1.0f / inputs[i]->position( ).w;
+				pv_2d[i].x = inputs[i]->position( ).x * invw;
+				pv_2d[i].y = inputs[i]->position( ).y * invw;
 			}
 
 			return ( pv_2d[2].x - pv_2d[0].x ) * ( pv_2d[2].y - pv_2d[1].y ) - ( pv_2d[2].y - pv_2d[0].y ) * ( pv_2d[2].x - pv_2d[1].x ) <= 0;
@@ -716,7 +712,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		{
 			PSInput* clippedvertexs[5];
 
-			float neartest1 = psinputs[0]->mShaderRigisters[0].z;
+			float neartest1 = psinputs[0]->position( ).z;
 			uint clipnum = 0;
 
 			for ( uint i = 0, j = 1; i < 3; i ++, j ++ )
@@ -726,32 +722,32 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 				{
 					clippedvertexs[ clipnum ++ ] = psinputs[i];
 
-					if ( psinputs[j]->mShaderRigisters[0].z < 0 )
+					if ( psinputs[j]->position( ).z < 0 )
 					{
 						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
 						PSInput* input = &mClippedVertex.back( );
 
-						float factor = neartest1 / ( neartest1 - psinputs[j]->mShaderRigisters[0].z );
-						*input = InterpolatePSInput( psinputs[i], psinputs[j], factor );
+						float factor = neartest1 / ( neartest1 - psinputs[j]->position( ).z );
+						*input = InterpolatePSInput( *psinputs[i], *psinputs[j], factor );
 
 						clippedvertexs[ clipnum ++ ] = input;
 					}
 				}
 				else
 				{
-					if ( psinputs[j]->mShaderRigisters[0].z >= 0 )
+					if ( psinputs[j]->position( ).z >= 0 )
 					{
 						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
 						PSInput* input = &mClippedVertex.back( );
 
-						float factor = psinputs[j]->mShaderRigisters[0].z / ( psinputs[j]->mShaderRigisters[0].z - neartest1 );
-						*input = InterpolatePSInput( psinputs[j], psinputs[i], factor );
+						float factor = psinputs[j]->position( ).z / ( psinputs[j]->position( ).z - neartest1 );
+						*input = InterpolatePSInput( *psinputs[j], *psinputs[i], factor );
 
 						clippedvertexs[ clipnum ++ ] = input;
 					}
 				}
 
-				neartest1 = psinputs[j]->mShaderRigisters[0].z; 
+				neartest1 = psinputs[j]->position( ).z; 
 			}
 
 			if ( clipnum >= 3 )
@@ -795,18 +791,18 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	for ( uint i = 0; i < sorts.size( ); i ++ )
 	{
 		PSInput& input = *sorts[i];
-		float invw = 1.0f / input.mShaderRigisters[0].w;
-		input.mShaderRigisters[0].x *= invw;
-		input.mShaderRigisters[0].y *= invw;
-		input.mShaderRigisters[0].z *= invw;
-		input.mShaderRigisters[0].w = invw;
+		float invw = 1.0f / input.position( ).w;
+		input.position( ).x *= invw;
+		input.position( ).y *= invw;
+		input.position( ).z *= invw;
+		input.position( ).w = invw;
 
 		for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
 			input.mShaderRigisters[j] *= invw;
 				
 		// ToScreen.
-		input.mShaderRigisters[0].x = ( 1.0f + input.mShaderRigisters[0].x ) * 0.5f * mWidth;
-		input.mShaderRigisters[0].y = ( 1.0f - input.mShaderRigisters[0].y ) * 0.5f * mHeight;
+		input.position( ).x = ( 1.0f + input.position( ).x ) * 0.5f * mWidth;
+		input.position( ).y = ( 1.0f - input.position( ).y ) * 0.5f * mHeight;
 	}
 
 	if ( mRenderState == _RENDER_SOLID )
@@ -817,31 +813,27 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			PSInput* middle = mPtrClipedVertex[i + 1];
 			PSInput* bottom = mPtrClipedVertex[i + 2];
 
-			const Vector4& v1 = top->mShaderRigisters[0];
-			const Vector4& v2 = middle->mShaderRigisters[0];
-			const Vector4& v3 = bottom->mShaderRigisters[0];
-
 			// top to bottom, value of y is larger.
-			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
+			if ( top->position( ).y > middle->position( ).y )
 				Math::Swap( top, middle );
-			if ( middle->mShaderRigisters[0].y > bottom->mShaderRigisters[0].y )
+			if ( middle->position( ).y > bottom->position( ).y )
 				Math::Swap( middle, bottom );
-			if ( top->mShaderRigisters[0].y > middle->mShaderRigisters[0].y )
+			if ( top->position( ).y > middle->position( ).y )
 				Math::Swap( top, middle );
 
-			float factor = ( middle->mShaderRigisters[0].y - top->mShaderRigisters[0].y ) / ( bottom->mShaderRigisters[0].y - top->mShaderRigisters[0].y );
-			PSInput newmiddle = InterpolatePSInput( top, bottom, factor );
+			float factor = ( middle->position( ).y - top->position( ).y ) / ( bottom->position( ).y - top->position( ).y );
+			PSInput newmiddle = InterpolatePSInput( *top, *bottom, factor );
 
-			DrawStandardTopTriangle( top, &newmiddle, middle );
-			DrawStandardBottomTriangle( middle, &newmiddle, bottom );
+			DrawStandardTopTriangle( *top, newmiddle, *middle );
+			DrawStandardBottomTriangle( *middle, newmiddle, *bottom );
 		}
 	}
 	else if ( mRenderState == _RENDER_WIREFRAME )
 	{
 		for ( uint i = 0; i < mWireFrameVertexs.size( ); i += 2 )
 		{
-			const Vector4& v1 = mWireFrameVertexs[i]->mShaderRigisters[0];
-			const Vector4& v2 = mWireFrameVertexs[ i + 1 ]->mShaderRigisters[0];
+			const Vector4& v1 = mWireFrameVertexs[i]->position( );
+			const Vector4& v2 = mWireFrameVertexs[ i + 1 ]->position( );
 			DrawLine( Point( (int) v1.x, (int) v1.y ), Point( (int) v2.x, (int) v2.y ), 0xff00ff00 );
 		}
 	}
