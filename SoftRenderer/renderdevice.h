@@ -6,24 +6,7 @@
 #include "shaders.h"
 #include <vector>
 #include <list>
-
-#define _MAX_VSINPUT_COUNT 3
-#define _MAX_PSINPUT_COUNT 3
-
 using namespace std;
-
-struct VSInput
-{
-	Vector4	mShaderRigisters[ _MAX_VSINPUT_COUNT ];
-};
-
-struct PSInput
-{
-	Vector4 mShaderRigisters[ _MAX_PSINPUT_COUNT ];
-
-	Vector4& position( )
-		{ return mShaderRigisters[0]; }
-};
 
 class RenderDevice
 {

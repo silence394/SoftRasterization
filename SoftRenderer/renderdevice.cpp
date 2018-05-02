@@ -160,8 +160,9 @@ void RenderDevice::DrawClipLine( int x1, int y1, int x2, int y2, uint color )
 PSInput RenderDevice::InterpolatePSInput( const PSInput& input1, const PSInput& input2, float factor )
 {
 	PSInput input;
+	input.position( ) = Vector4::Lerp( input1.position( ), input2.position( ), factor );
 	for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
-		input.mShaderRigisters[i] = Vector4::Lerp( input1.mShaderRigisters[i], input2.mShaderRigisters[i], factor );
+		input.attribute( i ) = Vector4::Lerp( input1.attribute( i ), input2.attribute( i ), factor );
 
 	return input;
 }
@@ -192,8 +193,9 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 
 	if ( startx == endx )
 	{
-		mPixelShader->Execute( left->mShaderRigisters, color, depth );
-		DrawPixel( startx, y, color );
+		PSOutput psout;
+		mPixelShader->Execute( *left, psout, depth );
+		DrawPixel( startx, y, psout.color );
 	}
 	else
 	{
@@ -204,11 +206,12 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 			PSInput psinput = InterpolatePSInput( *left, *right, factor );
 
 			float invw = 1.0f / psinput.position( ).w;
-			for ( uint i = 1; i < _MAX_PSINPUT_COUNT; i ++ )
-				psinput.mShaderRigisters[i] *= invw;
+			for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
+				psinput.attribute( i ) *= invw;
 
-			mPixelShader->Execute( psinput.mShaderRigisters, color, depth );
-			DrawPixel( x, y, color );
+			PSOutput psout;
+			mPixelShader->Execute( psinput, psout, depth );
+			DrawPixel( x, y, psout.color );
 		}
 	}
 }
@@ -618,7 +621,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			else
 			{
 				// Execute vertex shader.
-				PSInput& input = mVertexPool[ index ];
+				VSInput vsinput;
 				count ++;
 				// Fetch vertex.
 				{
@@ -633,34 +636,35 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 						if ( format == GraphicsBuffer::BF_R32B32G32_FLOAT )
 						{
 							Vector3& vec3 = *(Vector3*) vbase;
-							input.mShaderRigisters[i] = Vector4( vec3.x, vec3.y, vec3.z, 1.0f );
+							vsinput.attribute( i ) = Vector4( vec3.x, vec3.y, vec3.z, 1.0f );
 							vbase += 12;
 						}
 						else if ( format == GraphicsBuffer::BF_A8R8G8B8 )
 						{
 							Color c = *(uint*) vbase;
-							input.mShaderRigisters[i] = Vector4( c.r, c.g, c.b, c.a );
+							vsinput.attribute( i ) = Vector4( c.r, c.g, c.b, c.a );
 							vbase += 4;
 						}
 						else if ( format == GraphicsBuffer::BF_R32G32_FLOAT )
 						{
 							Vector2& vec2 = *(Vector2*) vbase;
-							input.mShaderRigisters[i] = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
+							vsinput.attribute( i ) = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
 							vbase += 8;
 						}
 					}
 
 					while ( i < _MAX_VSINPUT_COUNT )
 					{
-						input.mShaderRigisters[i] = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
+						vsinput.attribute( i ) = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
 						i ++;
 					}
 				}
 
-				mVertexShader->Execute( input.mShaderRigisters );
+				PSInput& psinput = mVertexPool[ index ];
+				mVertexShader->Execute( vsinput, psinput );
 
-				cache = std::make_pair( index, &input );
-				psinputs[k] = &input;
+				cache = std::make_pair( index, &psinput );
+				psinputs[k] = &psinput;
 			}
 		}
 
@@ -791,18 +795,19 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	for ( uint i = 0; i < sorts.size( ); i ++ )
 	{
 		PSInput& input = *sorts[i];
-		float invw = 1.0f / input.position( ).w;
-		input.position( ).x *= invw;
-		input.position( ).y *= invw;
-		input.position( ).z *= invw;
-		input.position( ).w = invw;
+		Vector4& pos = input.position( );
+		float invw = 1.0f / pos.w;
+		pos.x *= invw;
+		pos.y *= invw;
+		pos.z *= invw;
+		pos.w = invw;
 
 		for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
-			input.mShaderRigisters[j] *= invw;
+			input.attribute( j ) *= invw;
 				
 		// ToScreen.
-		input.position( ).x = ( 1.0f + input.position( ).x ) * 0.5f * mWidth;
-		input.position( ).y = ( 1.0f - input.position( ).y ) * 0.5f * mHeight;
+		pos.x = ( 1.0f + input.position( ).x ) * 0.5f * mWidth;
+		pos.y = ( 1.0f - input.position( ).y ) * 0.5f * mHeight;
 	}
 
 	if ( mRenderState == _RENDER_SOLID )

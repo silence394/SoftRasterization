@@ -4,17 +4,19 @@
 #include "stdlib.h"
 class VertexShader : public IVertexShader
 {
-	virtual void Execute( Vector4* regs )
+	virtual void Execute( VSInput& in, PSInput& out )
 	{
-		regs[0] *= GetMatrix( _CT_WVP_TRANSFORM );
+		out.position( ) = in.attribute( 0 ) * GetMatrix( _CT_WVP_TRANSFORM );
+		out.attribute( 0 ) = in.attribute( 1 );
+		out.attribute( 1 ) = in.attribute( 2 );
 	}
 };
 
 class PixelShader : public IPixelShader
 {
-	virtual void Execute( const Vector4* regs, Color& color, float& depth )
+	virtual void Execute( PSInput& in, PSOutput& out, float& depth )
 	{
-		color = SampleTexture( 0, regs[2].x, regs[2].y );
+		out.color = SampleTexture( 0, in.attribute( 1 ).x, in.attribute( 1 ).y );
 	}
 };
 

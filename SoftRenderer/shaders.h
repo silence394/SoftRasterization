@@ -2,6 +2,45 @@
 
 #include "prerequisites.h"
 #include "matrix4.h"
+#include "color.h"
+
+#define _MAX_VSINPUT_COUNT 2
+#define _MAX_PSINPUT_COUNT 2
+
+class VSInput
+{
+private:
+	Vector4 mShaderRigisters[ _MAX_VSINPUT_COUNT + 1 ];
+
+public:
+	Vector4& attribute( uint index )
+		{ return mShaderRigisters[ index ]; }
+};
+
+class PSInput
+{
+private:
+	Vector4 mShaderRigisters[ _MAX_PSINPUT_COUNT + 1 ];
+
+public:
+	Vector4& position( )
+		{ return mShaderRigisters[0]; }
+
+	const Vector4& position( ) const
+		{ return mShaderRigisters[0]; }
+
+	Vector4& attribute( uint index )
+		{ return mShaderRigisters[ index + 1 ]; }
+
+	const Vector4& attribute( uint index ) const
+		{ return mShaderRigisters[ index + 1 ]; }
+};
+
+class PSOutput
+{
+public:
+	Color color;
+};
 
 class ShaderBase
 {
@@ -37,12 +76,12 @@ public:
 class IVertexShader : public ShaderBase
 {
 public:
-	virtual void Execute( Vector4* regs ) = 0;
+	virtual void Execute( VSInput& in, PSInput& out ) = 0;
 };
 
 class IPixelShader : public ShaderBase
 {
 public:
-	virtual void Execute( const Vector4* regs, Color& color, float& depth ) = 0;
+	virtual void Execute( PSInput& in, PSOutput& out, float& depth ) = 0;
 	virtual uint SampleTexture( uint index, float u, float v );
 };
