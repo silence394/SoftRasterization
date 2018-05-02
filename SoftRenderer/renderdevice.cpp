@@ -21,12 +21,19 @@ RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ),
 	for ( uint i = 0; i < mHeight; i ++ )
 		mFrameBuffer[i] = (uint*) ( framebuffer + mWidth * i );
 
+	mDepthBuffer = new float* [ mHeight ];
+	for ( uint i = 0; i < mHeight; i ++ )
+		mDepthBuffer[i] = new float[ mWidth ];
+
 	memset( mTextures, 0, sizeof( mTextures ) );
 }
 
 RenderDevice::~RenderDevice( )
 {
 	delete[] mFrameBuffer;
+
+	for ( uint i = 0; i < mHeight; i ++ )
+		delete[] mDepthBuffer[i];
 }
 
 void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color )
@@ -195,7 +202,9 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 	{
 		PSOutput psout;
 		mPixelShader->Execute( *left, psout, depth );
-		DrawPixel( startx, y, psout.color );
+
+		if ( DepthTestAndWrite( startx, y, left->position( ).w ) )
+			DrawPixel( startx, y, psout.color );
 	}
 	else
 	{
@@ -211,7 +220,9 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 
 			PSOutput psout;
 			mPixelShader->Execute( psinput, psout, depth );
-			DrawPixel( x, y, psout.color );
+
+			if ( DepthTestAndWrite( x, y, psinput.position( ).w ) )
+				DrawPixel( x, y, psout.color );
 		}
 	}
 }
@@ -394,6 +405,17 @@ void RenderDevice::DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PS
 	}
 }
 
+bool RenderDevice::DepthTestAndWrite( uint x, uint y, float depth )
+{
+	if ( mDepthBuffer[ y ][ x ] >= depth )
+		return false;
+
+	// DepthWrite
+	mDepthBuffer[y][x] = depth;
+
+	return true;
+}
+
 uint RenderDevice::SampleTexture( uint index, float u, float v )
 {
 	if ( index < _MAX_TEXTURE_COUNT && mTextures[ index ] != nullptr )
@@ -483,6 +505,13 @@ void RenderDevice::Clear( )
 {
 	for ( uint i = 0; i < mHeight; i ++ )
 		memset( mFrameBuffer[i], mClearColor, mWidth * 4 );
+
+	for ( uint j = 0; j < mHeight; j ++ )
+	{
+		for ( uint i = 0; i < mWidth; i ++ )
+			mDepthBuffer[j][i] = 0.0f;
+	}
+		
 }
 
 void RenderDevice::DrawPixel( uint x, uint y, uint color )

@@ -58,7 +58,6 @@ void DemoApp::OnCreate( )
 	mCamera.SetPosition( Vector3( 4, 4, 4 ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
-	mWorldTransform = Matrix4( ).SetScaling( 2.0f );
 	mViewTransform = mCamera.GetViewMatrix( );
 	mPerspectTransform = Matrix4::Perspective( 3.141592654f / 4.0f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 1.0f, 5000.0f );
 
@@ -201,6 +200,15 @@ void DemoApp::OnRender( )
 	mRenderDevice->SetClearColor( 0xFF808080 );
 	mRenderDevice->Clear( );
 
+	mWorldTransform = Matrix4( ).SetScaling( 1.3f );
+	mRenderDevice->SetTexture( 0, mTexture );
+	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
+	mRenderDevice->SetInputLayout( mInputLayout );
+	mRenderDevice->SetVertexBuffer( mVertexBuffer );
+	mRenderDevice->SetIndexBuffer( mIndexBuffer );
+	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
+
+	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, -1.0f, 0.0f ) );
 	mRenderDevice->SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	mRenderDevice->SetInputLayout( mInputLayout );

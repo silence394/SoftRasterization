@@ -29,6 +29,7 @@ private:
 	int							mClipXMax;
 	int							mClipYMax;
 	uint**						mFrameBuffer;
+	float**						mDepthBuffer;
 	uint						mClearColor;
 	IVertexShader*				mVertexShader;
 	IPixelShader*				mPixelShader;
@@ -56,6 +57,7 @@ public:
 	void	DrawScanline( PSInput& input1, PSInput& input2 );
 	void	DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
 	void	DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
+	bool	DepthTestAndWrite( uint x, uint y, float depth );
 
 	uint	SampleTexture( uint index, float u, float v );
 
