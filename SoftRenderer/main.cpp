@@ -2,6 +2,8 @@
 #include <string>
 #include "stdio.h"
 #include "stdlib.h"
+#include "FreeImage.h"
+
 class VertexShader : public IVertexShader
 {
 	virtual void Execute( VSInput& in, PSInput& out )
@@ -76,7 +78,29 @@ void DemoApp::OnCreate( )
 		}
 	}
 
-	mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
+	//mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
+	{
+		FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+		FIBITMAP *dib(0);
+		BYTE* bits(0);
+		uint width, height;
+		char filename[30] = "../Media/stone_color.jpg";
+		fif = FreeImage_GetFileType(filename, 0);
+		if(fif == FIF_UNKNOWN) 
+			fif = FreeImage_GetFIFFromFilename(filename);
+
+		dib = FreeImage_Load(fif, filename);
+
+		dib = FreeImage_ConvertTo32Bits(dib);
+		bits = FreeImage_GetBits(dib);
+		//get the image width and height
+		width = FreeImage_GetWidth(dib);
+		height = FreeImage_GetHeight(dib);
+
+		mTexture = new Texture( bits, width, height, Texture::TF_ARGB8 );
+	//	FreeImage_Unload(dib);
+	}
+
 
 	mPixelShader = new PixelShader( );
 	mRenderDevice->SetPixelShader( mPixelShader );
