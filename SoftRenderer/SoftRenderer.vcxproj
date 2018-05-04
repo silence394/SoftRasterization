@@ -99,6 +99,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="FreeImageColor.h" />
     <ClInclude Include="libengine.h" />
     <ClInclude Include="shaders.h" />
     <ClInclude Include="prerequisites.h" />

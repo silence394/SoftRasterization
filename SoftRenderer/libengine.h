@@ -16,3 +16,5 @@
 
 #include "window.h"
 #include "app.h"
+
+#include "FreeImageColor.h"

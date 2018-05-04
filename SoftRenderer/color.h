@@ -42,4 +42,45 @@ public:
 	}
 
 	operator Vector4( ) const;
+
+	Color& ToColor( )
+	{
+		return *this;
+	}
+
+	template <typename T>
+	Color& operator = ( const T& c )
+	{
+		*this = c.ToColor( );
+		return *this;
+	}
+};
+
+class RGBA8
+{
+public:
+	byte r;
+	byte g;
+	byte b;
+	byte a;
+
+	Color ToColor( ) const
+	{
+		const float inv255 = 1.0f / 255;
+		return Color( r * inv255, g * inv255, b * inv255, a * inv255 );
+	}
+};
+
+class RGB8
+{
+public:
+	byte r;
+	byte g;
+	byte b;
+
+	Color ToColor( ) const
+	{
+		const float inv255 = 1.0f / 255;
+		return Color( r * inv255, g * inv255, b * inv255, 1.0f );
+	}
 };

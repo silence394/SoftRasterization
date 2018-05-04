@@ -7,7 +7,8 @@ class Texture
 public:
 	enum TextureFormat
 	{
-		TF_ARGB8 = 1,
+		TF_ARGB8	= 1,
+		TF_RGB8		= 2,
 	};
 
 private:
