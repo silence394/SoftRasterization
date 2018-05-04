@@ -11,7 +11,7 @@ RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ),
 {
 	RECT rect = { 0 };
 	GetClientRect( window, &rect  );
-	
+
 	mWidth = rect.right;
 	mHeight = rect.bottom;
 	mClipXMax = mWidth - 1;

@@ -14,6 +14,8 @@
 #include "graphicsbuffer.h"
 #include "renderdevice.h"
 
+#include "TextureManager.h"
+
 #include "window.h"
 #include "app.h"
 

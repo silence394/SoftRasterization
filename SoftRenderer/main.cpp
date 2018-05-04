@@ -123,7 +123,6 @@ void DemoApp::OnCreate( )
 		int a = 1;
 	}
 
-
 	mPixelShader = new PixelShader( );
 	mRenderDevice->SetPixelShader( mPixelShader );
 
