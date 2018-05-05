@@ -83,6 +83,8 @@ void DemoApp::OnCreate( )
 		}
 	}
 
+	TextureManager::Load( L"../Media/stone_color.jpg" );
+
 	//mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
 	{
 		FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;

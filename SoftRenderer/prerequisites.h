@@ -20,3 +20,7 @@ class RenderDevice;
 
 class Window;
 class App;
+
+#include <string>
+#include <vector>
+using namespace std;

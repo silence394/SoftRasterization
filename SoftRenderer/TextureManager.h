@@ -4,5 +4,6 @@
 
 class TextureManager
 {
-
+public:
+	static Texture*	Load( const wstring& resname );
 };

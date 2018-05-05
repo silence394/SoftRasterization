@@ -91,6 +91,7 @@
     <ClCompile Include="renderdevice.cpp" />
     <ClCompile Include="app.cpp" />
     <ClCompile Include="shaders.cpp" />
+    <ClCompile Include="String.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="vector3.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="point.h" />
     <ClInclude Include="renderdevice.h" />
     <ClInclude Include="app.h" />
+    <ClInclude Include="String.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="vector2.h" />
