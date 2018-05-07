@@ -50,11 +50,11 @@ public:
 	virtual void OnMouseWheel( int delta );
 };
 
-template <typename T>
-Color ToColor( void* c )
-{
-	return ( (T*) c )->ToColor( );
-}
+//template <typename T>
+//Color ToColor( void* c )
+//{
+//	return ( (T*) c )->ToColor( );
+//}
 
 void DemoApp::OnCreate( )
 {
@@ -107,22 +107,22 @@ void DemoApp::OnCreate( )
 		mTexture = new Texture( bits, width, height, Texture::TF_ARGB8 );
 	//	FreeImage_Unload(dib);
 
-		typedef Color (*FunToColor) ( void* color );
-		FunToColor pToColor;
+		//typedef Color (*FunToColor) ( void* color );
+		//FunToColor pToColor;
 
-		pToColor = ToColor<RGB8>;
-		uint fuck = 0xffeeddaa;
-		byte* pfuck = (byte*)&fuck;
-		FreeImageColor<RGB8> fc( pfuck );
-		byte fuck1 = pfuck[0];
-		byte fuck2 = pfuck[1];
-		byte fuck3 = pfuck[2];
-		byte fuck4 = pfuck[3];
+		//pToColor = ToColor<RGB8>;
+		//uint fuck = 0xffeeddaa;
+		//byte* pfuck = (byte*)&fuck;
+		//FreeImageColor<RGB8> fc( pfuck );
+		//byte fuck1 = pfuck[0];
+		//byte fuck2 = pfuck[1];
+		//byte fuck3 = pfuck[2];
+		//byte fuck4 = pfuck[3];
 
 
 
-		Color c = pToColor( (void*)&fc );
-		int a = 1;
+		//Color c = pToColor( (void*)&fc );
+		//int a = 1;
 	}
 
 	mPixelShader = new PixelShader( );
