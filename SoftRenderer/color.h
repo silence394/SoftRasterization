@@ -78,6 +78,8 @@ public:
 	byte g;
 	byte b;
 
+	RGB8( byte rr, byte gg, byte bb, byte aa ) : r( rr ), g( gg ), b( bb ) { }
+
 	Color ToColor( ) const
 	{
 		const float inv255 = 1.0f / 255;

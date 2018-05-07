@@ -1,6 +1,8 @@
 #pragma once
 
 #include "prerequisites.h"
+#include "surface.h"
+#include <vector>
 
 class Texture
 {
@@ -12,10 +14,12 @@ public:
 	};
 
 private:
-	void*	mBuffer;
-	uint	mWidth;
-	uint	mHeight;
-	uint	mFormat;
+	void*					mBuffer;
+	uint					mWidth;
+	uint					mHeight;
+	uint					mBPP;
+	uint					mFormat;
+	std::vector<Surface*>	mSurfaces;
 
 public:
 	Texture( )
@@ -23,6 +27,8 @@ public:
 
 	Texture( void* buffer, uint width, uint height, uint format )
 		: mBuffer( buffer ), mWidth( width ), mHeight( height ), mFormat( format ) { }
+
+	Texture( uint width, uint height, uint format );
 
 	~Texture( )
 		{ delete[] mBuffer; }

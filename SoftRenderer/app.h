@@ -11,7 +11,6 @@ private:
 	HWND			mWindow;
 	HDC				mWindowDC;
 	HBITMAP			mBITMAP;
-	RenderDevice*	mRenderDevice;
 	void*			mScreenBuffer;
 
 private:
@@ -31,9 +30,6 @@ public:
 	virtual void	OnMouseWheel( int delta ) { };
 
 public:
-	inline RenderDevice* GetRenderDevice( )
-		{ return mRenderDevice; }
-
 	void			Create( );
 	void			Run();
 };

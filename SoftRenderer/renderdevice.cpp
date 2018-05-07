@@ -7,7 +7,21 @@
 #include "texture.h"
 #include <algorithm>
 
-RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr ), mRenderState( 0 )
+std::unique_ptr<RenderDevice> RenderDevice::mInstance = nullptr;
+RenderDevice::RenderDevice( ) : mClearColor( 0 ), mWidth( 0 ), mHeight( 0 ), mClipXMax( 0 ), mClipYMax( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr ), mRenderState( 0 )
+{
+	memset( mTextures, 0, sizeof( mTextures ) );
+}
+
+RenderDevice::~RenderDevice( )
+{
+	delete[] mFrameBuffer;
+
+	for ( uint i = 0; i < mHeight; i ++ )
+		delete[] mDepthBuffer[i];
+}
+
+bool RenderDevice::Init( HWND window, uint * framebuffer )
 {
 	RECT rect = { 0 };
 	GetClientRect( window, &rect  );
@@ -25,15 +39,7 @@ RenderDevice::RenderDevice( HWND window, uint* framebuffer ) : mClearColor( 0 ),
 	for ( uint i = 0; i < mHeight; i ++ )
 		mDepthBuffer[i] = new float[ mWidth ];
 
-	memset( mTextures, 0, sizeof( mTextures ) );
-}
-
-RenderDevice::~RenderDevice( )
-{
-	delete[] mFrameBuffer;
-
-	for ( uint i = 0; i < mHeight; i ++ )
-		delete[] mDepthBuffer[i];
+	return true;
 }
 
 void RenderDevice::FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color )
@@ -501,6 +507,14 @@ bool RenderDevice::IsFrontFace( const Vector4& v1, const Vector4& v2, const Vect
 	return ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) <= 0;
 }
 
+RenderDevice& RenderDevice::Instance( )
+{
+	if ( mInstance == nullptr )
+		mInstance = unique_ptr<RenderDevice>( new RenderDevice( ) );
+
+	return *mInstance;
+}
+
 void RenderDevice::Clear( )
 {
 	for ( uint i = 0; i < mHeight; i ++ )
@@ -595,10 +609,6 @@ void RenderDevice::Releasebuffer( GraphicsBuffer*& buffer )
 
 void RenderDevice::BeginScene( )
 {
-	if ( mVertexShader != nullptr )
-		mVertexShader->SetDevice( this );
-	if ( mPixelShader != nullptr )
-		mPixelShader->SetDevice( this );
 }
 
 void RenderDevice::SetTexture( uint index, Texture* tex )
@@ -873,4 +883,9 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	}
 
 	
+}
+
+Texture* RenderDevice::CreateTexture2D( uint width, uint height, uint format )
+{
+	return new Texture( width, height, format );
 }

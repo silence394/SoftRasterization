@@ -24,7 +24,6 @@ class PixelShader : public IPixelShader
 class DemoApp : public App
 {
 private:
-	RenderDevice*	mRenderDevice;
 	Camera			mCamera;
 	Matrix4			mWorldTransform;
 	Matrix4			mViewTransform;
@@ -59,14 +58,15 @@ Color ToColor( void* c )
 
 void DemoApp::OnCreate( )
 {
-	mRenderDevice = GetRenderDevice( );
 	//1.152000, 0.921600, -0.691200
 	//mCamera.SetPosition( Vector3( 0.737280, 0.589824, -0.442368 ) );
+	RenderDevice& rd = RenderDevice::Instance( );
+
 	mCamera.SetPosition( Vector3( 4, 4, 4 ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mViewTransform = mCamera.GetViewMatrix( );
-	mPerspectTransform = Matrix4::Perspective( 3.141592654f / 4.0f, (float) mRenderDevice->GetDeviceWidth( ) / (float) mRenderDevice->GetDeviceHeight( ), 1.0f, 5000.0f );
+	mPerspectTransform = Matrix4::Perspective( 3.141592654f / 4.0f, (float) rd.GetDeviceWidth( ) / (float) rd.GetDeviceHeight( ), 1.0f, 5000.0f );
 
 	// Create texture.
 	uint width = 256;
@@ -126,17 +126,17 @@ void DemoApp::OnCreate( )
 	}
 
 	mPixelShader = new PixelShader( );
-	mRenderDevice->SetPixelShader( mPixelShader );
+	rd.SetPixelShader( mPixelShader );
 
 	mVertexShader = new VertexShader( );
-	mRenderDevice->SetVertexShader( mVertexShader );
+	rd.SetVertexShader( mVertexShader );
 
 	std::vector<InputElementDesc> descs;
 	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT ) );
 	descs.push_back( InputElementDesc( "COLOR", GraphicsBuffer::BF_A8R8G8B8 ) );
 	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT ) );
 
-	mInputLayout = mRenderDevice->CreateInputLayout( &descs[0], descs.size( ) );
+	mInputLayout = rd.CreateInputLayout( &descs[0], descs.size( ) );
 
 	struct Vertex
 	{
@@ -209,8 +209,8 @@ void DemoApp::OnCreate( )
 	byte* ibuffer = new byte[ ilen ];
 	memcpy( ibuffer, indices, ilen );
 
-	mVertexBuffer = mRenderDevice->CreateBuffer( vbuffer, vlen, vsize );
-	mIndexBuffer = mRenderDevice->CreateBuffer( ibuffer, ilen, sizeof( ushort ) );
+	mVertexBuffer = rd.CreateBuffer( vbuffer, vlen, vsize );
+	mIndexBuffer = rd.CreateBuffer( ibuffer, ilen, sizeof( ushort ) );
 }
 
 void DemoApp::OnClose( )
@@ -243,25 +243,26 @@ void DemoApp::OnMouseWheel( int delta )
 bool test = true;
 void DemoApp::OnRender( )
 {
-	mRenderDevice->BeginScene( );
-	mRenderDevice->SetClearColor( 0xFF808080 );
-	mRenderDevice->Clear( );
+	RenderDevice& rd = RenderDevice::Instance( );
+	rd.BeginScene( );
+	rd.SetClearColor( 0xFF808080 );
+	rd.Clear( );
 
 	mWorldTransform = Matrix4( ).SetScaling( 1.3f );
-	mRenderDevice->SetTexture( 0, mTexture );
+	rd.SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
-	mRenderDevice->SetInputLayout( mInputLayout );
-	mRenderDevice->SetVertexBuffer( mVertexBuffer );
-	mRenderDevice->SetIndexBuffer( mIndexBuffer );
-	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
+	rd.SetInputLayout( mInputLayout );
+	rd.SetVertexBuffer( mVertexBuffer );
+	rd.SetIndexBuffer( mIndexBuffer );
+	rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
 
 	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, -1.0f, 0.0f ) );
-	mRenderDevice->SetTexture( 0, mTexture );
+	rd.SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
-	mRenderDevice->SetInputLayout( mInputLayout );
-	mRenderDevice->SetVertexBuffer( mVertexBuffer );
-	mRenderDevice->SetIndexBuffer( mIndexBuffer );
-	mRenderDevice->DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
+	rd.SetInputLayout( mInputLayout );
+	rd.SetVertexBuffer( mVertexBuffer );
+	rd.SetIndexBuffer( mIndexBuffer );
+	rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
 }
 
 int main( )

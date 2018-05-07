@@ -6,6 +6,7 @@
 #include "shaders.h"
 #include <vector>
 #include <list>
+#include <memory>
 using namespace std;
 
 class RenderDevice
@@ -23,6 +24,8 @@ private:
 		_MAX_VERTEXCACHE_COUNT	= 64,
 		_MAX_TEXTURE_COUNT		= 8,
 	};
+
+	static std::unique_ptr<RenderDevice>	mInstance;
 
 	uint						mWidth;
 	uint						mHeight;
@@ -45,9 +48,13 @@ private:
 	std::vector< PSInput* >		mWireFrameVertexs;
 	Texture*					mTextures[ _MAX_TEXTURE_COUNT ];
 
+private:
+	RenderDevice( );
+
 public:
-	RenderDevice( HWND window, uint * framebuffer );
 	~RenderDevice( );
+
+	bool	Init( HWND window, uint * framebuffer );
 
 	void	FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color  );
 	void	DrawLine( uint x1, uint y1, uint x2, uint y2, uint color );
@@ -65,6 +72,8 @@ public:
 	bool	IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 );
 
 public:
+	static RenderDevice& Instance( );
+
 	inline int GetDeviceWidth( ) const
 		{ return mWidth; }
 	inline int GetDeviceHeight( ) const
@@ -105,4 +114,6 @@ public:
 	void			SetTexture( uint i, Texture* tex );
 
 	void			DrawIndex( uint indexcount, uint startindex, uint startvertex );
+
+	Texture*		CreateTexture2D( uint width, uint height, uint format );
 };

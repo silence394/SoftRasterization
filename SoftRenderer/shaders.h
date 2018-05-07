@@ -44,9 +44,6 @@ public:
 
 class ShaderBase
 {
-protected:
-	RenderDevice*	mRenderDevice;
-
 public:
 	enum _REGISTER_COUNT
 	{
@@ -64,13 +61,8 @@ public:
 	Matrix4	mMatrixConstants[ _RC_VERTEX ];
 
 public:
-	ShaderBase( ) : mRenderDevice( nullptr )
-		{ }
-
 	const Matrix4&	GetMatrix( uint index ) const;
 	void			SetMatrix( uint index, const Matrix4& mat );
-
-	void			SetDevice( RenderDevice* rd );
 };
 
 class IVertexShader : public ShaderBase

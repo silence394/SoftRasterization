@@ -117,12 +117,9 @@ App::~App()
 
 void App::Create()
 {
-	if ( mRenderDevice == nullptr )
-	{
-		RECT rect = { 0 };
-		GetClientRect( mWindow, &rect );
-		mRenderDevice = new RenderDevice( mWindow, (uint *) mScreenBuffer );
-	}
+	RECT rect = { 0 };
+	GetClientRect( mWindow, &rect );
+	RenderDevice::Instance( ).Init( mWindow, (uint *) mScreenBuffer );
 
 	OnCreate( );
 }

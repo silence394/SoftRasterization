@@ -2,6 +2,11 @@
 #include <string>
 #include "math.h"
 
+Texture::Texture( uint width, uint height, uint format )
+{
+
+}
+
 uint Texture::GetBpp( uint format )
 {
 	switch ( format )
