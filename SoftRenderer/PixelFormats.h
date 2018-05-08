@@ -7,6 +7,8 @@
 #undef PF_MAX
 #endif
 
+typedef int PixelFormat;
+
 enum EPixelFormat
 {
 	PF_A8R8G8B8	= 0,

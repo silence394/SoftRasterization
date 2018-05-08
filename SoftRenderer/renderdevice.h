@@ -46,7 +46,7 @@ private:
 	std::list<PSInput>			mClippedVertex;
 	std::vector< PSInput* >		mPtrClipedVertex;
 	std::vector< PSInput* >		mWireFrameVertexs;
-	Texture*					mTextures[ _MAX_TEXTURE_COUNT ];
+	TexturePtr					mTextures[ _MAX_TEXTURE_COUNT ];
 
 private:
 	RenderDevice( );
@@ -111,9 +111,9 @@ public:
 
 	void			BeginScene( );
 
-	void			SetTexture( uint i, Texture* tex );
+	void			SetTexture( uint i, TexturePtr tex );
 
 	void			DrawIndex( uint indexcount, uint startindex, uint startvertex );
 
-	Texture*		CreateTexture2D( uint width, uint height, uint format );
+	TexturePtr		CreateTexture2D( uint width, uint height, uint format );
 };

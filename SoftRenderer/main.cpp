@@ -2,6 +2,7 @@
 #include <string>
 #include "stdio.h"
 #include "stdlib.h"
+#include <memory>
 
 class VertexShader : public IVertexShader
 {
@@ -28,7 +29,7 @@ private:
 	Matrix4			mWorldTransform;
 	Matrix4			mViewTransform;
 	Matrix4			mPerspectTransform;
-	Texture*		mTexture;
+	TexturePtr		mTexture;
 
 	InputLayout*	mInputLayout;
 	IVertexShader*	mVertexShader;
@@ -104,7 +105,7 @@ void DemoApp::OnCreate( )
 		width = FreeImage_GetWidth(dib);
 		height = FreeImage_GetHeight(dib);
 
-		mTexture = new Texture( bits, width, height, Texture::TF_ARGB8 );
+		mTexture = TexturePtr( new Texture( bits, width, height, Texture::TF_ARGB8 ) );
 	//	FreeImage_Unload(dib);
 
 		//typedef Color (*FunToColor) ( void* color );
@@ -215,7 +216,6 @@ void DemoApp::OnCreate( )
 
 void DemoApp::OnClose( )
 {
-	delete mTexture;
 	delete mVertexShader;
 	delete mPixelShader;
 }

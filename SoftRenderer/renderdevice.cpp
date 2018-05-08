@@ -10,7 +10,6 @@
 std::unique_ptr<RenderDevice> RenderDevice::mInstance = nullptr;
 RenderDevice::RenderDevice( ) : mClearColor( 0 ), mWidth( 0 ), mHeight( 0 ), mClipXMax( 0 ), mClipYMax( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr ), mRenderState( 0 )
 {
-	memset( mTextures, 0, sizeof( mTextures ) );
 }
 
 RenderDevice::~RenderDevice( )
@@ -611,7 +610,7 @@ void RenderDevice::BeginScene( )
 {
 }
 
-void RenderDevice::SetTexture( uint index, Texture* tex )
+void RenderDevice::SetTexture( uint index, TexturePtr tex )
 {
 	if ( index < _MAX_TEXTURE_COUNT )
 		mTextures[index] = tex;
@@ -881,11 +880,9 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			DrawLine( Point( (int) v1.x, (int) v1.y ), Point( (int) v2.x, (int) v2.y ), 0xff00ff00 );
 		}
 	}
-
-	
 }
 
-Texture* RenderDevice::CreateTexture2D( uint width, uint height, uint format )
+TexturePtr RenderDevice::CreateTexture2D( uint width, uint height, uint format )
 {
-	return new Texture( width, height, format );
+	return TexturePtr( new Texture( width, height, format ) );
 }

@@ -1,7 +1,7 @@
 #include "String.h"
 #include "windows.h"
 
-bool WStr2Str( const wstring& wstr, string& str )
+bool WStr2Str( const std::wstring& wstr, std::string& str )
 {
 	uint len = wstr.length( );
 	str.resize( len );

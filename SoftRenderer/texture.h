@@ -30,9 +30,6 @@ public:
 
 	Texture( uint width, uint height, uint format );
 
-	~Texture( )
-		{ delete[] mBuffer; }
-
 	static uint Texture::GetBpp( uint format );
 
 	uint GetPixel( uint x, uint y );
@@ -42,4 +39,7 @@ public:
 		{ return mWidth; }
 	uint GetHeight( ) const
 		{ return mHeight; }
+
+	Surface* GetSurface( uint index )
+		{ return mSurfaces[index]; }
 };

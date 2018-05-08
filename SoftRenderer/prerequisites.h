@@ -12,6 +12,7 @@ class Matrix4;
 
 class Camera;
 class Color;
+class Surface;
 class Texture;
 class GraphicsBuffer;
 struct InputElementDesc;
@@ -23,4 +24,7 @@ class App;
 
 #include <string>
 #include <vector>
-using namespace std;
+#include <memory>
+
+typedef std::shared_ptr<Texture> TexturePtr;
+typedef std::shared_ptr<Surface> SurfacePtr;
