@@ -6,10 +6,12 @@
 #include "vector2.h"
 #include "texture.h"
 #include <algorithm>
+#include "RenderStates.h"
 
 std::unique_ptr<RenderDevice> RenderDevice::mInstance = nullptr;
 RenderDevice::RenderDevice( ) : mClearColor( 0 ), mWidth( 0 ), mHeight( 0 ), mClipXMax( 0 ), mClipYMax( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr ), mRenderState( 0 )
 {
+	mDefaultSampler = SamplerStatePtr( new SamplerState( SamplerStateDesc( ) ) );
 }
 
 RenderDevice::~RenderDevice( )
@@ -885,4 +887,26 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 TexturePtr RenderDevice::CreateTexture2D( uint width, uint height, uint format )
 {
 	return TexturePtr( new Texture( width, height, format ) );
+}
+
+SamplerStatePtr RenderDevice::CreateSamplerState( const SamplerStateDesc& desc )
+{
+	return SamplerStatePtr( new SamplerState( desc ) );
+}
+
+Color RenderDevice::Texture2D( uint index, float u, float v )
+{
+	assert( index < _MAX_TEXTURE_COUNT && mTextures[index] != nullptr );
+
+	// Address.
+	SamplerStateDesc& desc = mSamplers[index] != nullptr ? mSamplers[index]->mDesc : mDefaultSampler->mDesc;
+
+	if ( desc.filter == ESamplerFilter::SF_POINT )
+	{
+	}
+	else if ( desc.filter == ESamplerFilter::SF_Linear )
+	{
+	}
+
+	return Color( );
 }

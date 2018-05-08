@@ -2,12 +2,12 @@
 #include <string>
 #include "math.h"
 
-Texture::Texture( uint width, uint height, uint format )
+Texture::Texture( uint width, uint height, PixelFormat format ) : mWidth( width ), mHeight( height ), mFormat( format )
 {
-
+	mSurfaces.push_back( SurfacePtr( new Surface( width, height, format ) ) );
 }
 
-uint Texture::GetBpp( uint format )
+uint Texture::GetBpp( PixelFormat format )
 {
 	switch ( format )
 	{

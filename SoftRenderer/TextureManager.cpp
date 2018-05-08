@@ -6,7 +6,7 @@
 #include "FreeImageColor.h"
 
 template <typename T>
-void ConvertColor( FIBITMAP* image, Surface* suf )
+void ConvertColor( FIBITMAP* image, SurfacePtr suf )
 {
 	if ( image == nullptr || suf == nullptr )
 		return;
@@ -14,6 +14,25 @@ void ConvertColor( FIBITMAP* image, Surface* suf )
 	uint width = FreeImage_GetWidth( image );
 	uint height = FreeImage_GetHeight( image );
 	byte* bits = FreeImage_GetBits( image );
+
+	uint pitch = FreeImage_GetPitch( image );
+	uint bpp = FreeImage_GetBPP( image ) >> 3;
+
+	byte* src = bits;
+
+	for ( uint j = 0; j < height; j ++ )
+	{
+		for ( uint i = 0; i < width; i ++ )
+		{
+			byte* temp = src + i * bpp;
+			FreeImageColor<T> fc( src + i * bpp );
+
+			T c( fc.r, fc.g, fc.b, fc.a );
+			* reinterpret_cast<T*> ( suf->Address( i, j ) ) = c;
+		}
+
+		src += pitch;
+	}
 }
 
 Texture* TextureManager::Load( const std::wstring& resname )
@@ -33,7 +52,7 @@ Texture* TextureManager::Load( const std::wstring& resname )
 	dib = FreeImage_ConvertTo32Bits( dib );
 
 	FREE_IMAGE_TYPE imagetype = FreeImage_GetImageType( dib );
-	PixelFormat format = 0;
+	PixelFormat format = PF_UNKNOWN;
 	if ( imagetype == FIT_BITMAP )
 	{
 		uint bpp = FreeImage_GetBPP( dib );
@@ -59,7 +78,7 @@ Texture* TextureManager::Load( const std::wstring& resname )
 		}
 	}
 
-	if ( format == 0 )
+	if ( format == PF_UNKNOWN )
 		return nullptr;
 
 	uint width = FreeImage_GetWidth( dib );

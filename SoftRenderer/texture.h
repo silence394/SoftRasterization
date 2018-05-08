@@ -17,29 +17,39 @@ private:
 	void*					mBuffer;
 	uint					mWidth;
 	uint					mHeight;
-	uint					mBPP;
-	uint					mFormat;
-	std::vector<Surface*>	mSurfaces;
+	PixelFormat				mFormat;
+	std::vector<SurfacePtr>	mSurfaces;
 
 public:
-	Texture( )
-		: mBuffer( nullptr ), mWidth( 0 ), mHeight( 0 ), mFormat( 0 ) { }
+	Texture( ) : mBuffer( nullptr ), mWidth( 0 ), mHeight( 0 ), mFormat( 0 ) { }
 
-	Texture( void* buffer, uint width, uint height, uint format )
-		: mBuffer( buffer ), mWidth( width ), mHeight( height ), mFormat( format ) { }
+	Texture( void* buffer, uint width, uint height, PixelFormat format ) : mBuffer( buffer ), mWidth( width ), mHeight( height ), mFormat( format ) { }
 
-	Texture( uint width, uint height, uint format );
+	Texture( uint width, uint height, PixelFormat format );
 
-	static uint Texture::GetBpp( uint format );
+	static uint Texture::GetBpp( PixelFormat format );
 
+public:
 	uint GetPixel( uint x, uint y );
 	uint GetPixelbyUV( float u, float v );
 
 	uint GetWidth( ) const
-		{ return mWidth; }
-	uint GetHeight( ) const
-		{ return mHeight; }
+	{
+		return mWidth;
+	}
 
-	Surface* GetSurface( uint index )
-		{ return mSurfaces[index]; }
+	uint GetHeight( ) const
+	{
+		return mHeight;
+	}
+
+	SurfacePtr	GetSurface( uint index )
+	{
+		return mSurfaces[index];
+	}
+
+	Color		Sample( )
+	{
+
+	}
 };

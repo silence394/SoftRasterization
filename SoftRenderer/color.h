@@ -9,28 +9,36 @@ public:
 	float r, g, b, a;
 
 public:
-	Color( )
-		: r( 0.0f ), g( 0.0f ), b( 0.0f ), a( 0.0f ) { }
+	Color( ) : r( 0.0f ), g( 0.0f ), b( 0.0f ), a( 0.0f ) { }
 
-	Color( float red, float green, float blue, float alpha )
-		: r( red ), g( green ), b( blue ), a( alpha ) { }
+	Color( float red, float green, float blue, float alpha ) : r( red ), g( green ), b( blue ), a( alpha ) { }
 
 	Color( uint color );
 
 	static Color Lerp( const Color& c1, const Color& c2, float f )
-		{ return c1 + ( c2 - c1 ) * f; }
+	{
+		return c1 + ( c2 - c1 ) * f;
+	}
 
 	Color operator + ( const Color& c ) const
-		{ return Color( r + c.r, g + c.g, b + c.b, a + c.a ); }
+	{
+		return Color( r + c.r, g + c.g, b + c.b, a + c.a );
+	}
 
 	Color operator - ( const Color& c ) const
-	{ return Color( r - c.r, g - c.g, b - c.b, a - c.a ); }
+	{
+		return Color( r - c.r, g - c.g, b - c.b, a - c.a );
+	}
 
 	Color operator * ( float f ) const
-		{ return Color ( r * f, g * f, b * f, a * f ); }
+	{
+		return Color ( r * f, g * f, b * f, a * f );
+	}
 
 	Color& operator*= ( float f )
-		{ r *= f; g *= f; b *= f; a *= f; return *this; }
+	{
+		r *= f; g *= f; b *= f; a *= f; return *this;
+	}
 
 	inline operator uint( ) const
 	{
@@ -63,6 +71,8 @@ public:
 	byte g;
 	byte b;
 	byte a;
+
+	RGBA8( byte rr, byte gg, byte bb, byte aa ) : r( rr ), g( gg ), b( bb ), a( aa ) { }
 
 	Color ToColor( ) const
 	{

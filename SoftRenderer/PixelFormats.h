@@ -14,6 +14,7 @@ enum EPixelFormat
 	PF_A8R8G8B8	= 0,
 	PF_R8G8B8	= 1,
 	PF_MAX		= 2,
+	PF_UNKNOWN	= 0xffffffff,
 };
 
 struct PixelFormatInfo

@@ -46,7 +46,13 @@ private:
 	std::list<PSInput>			mClippedVertex;
 	std::vector< PSInput* >		mPtrClipedVertex;
 	std::vector< PSInput* >		mWireFrameVertexs;
+
+	// Textures and samplers.
 	TexturePtr					mTextures[ _MAX_TEXTURE_COUNT ];
+	SamplerStatePtr				mSamplers[ _MAX_TEXTURE_COUNT ];
+
+	// Default settings.
+	SamplerStatePtr				mDefaultSampler;
 
 private:
 	RenderDevice( );
@@ -116,4 +122,7 @@ public:
 	void			DrawIndex( uint indexcount, uint startindex, uint startvertex );
 
 	TexturePtr		CreateTexture2D( uint width, uint height, uint format );
+	SamplerStatePtr	CreateSamplerState( const SamplerStateDesc& desc );
+
+	Color			Texture2D( uint index, float u, float v );
 };

@@ -91,6 +91,7 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="renderdevice.cpp" />
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="shaders.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Surface.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="FreeImageColor.h" />
     <ClInclude Include="libengine.h" />
     <ClInclude Include="PixelFormats.h" />
+    <ClInclude Include="RenderStates.h" />
     <ClInclude Include="shaders.h" />
     <ClInclude Include="prerequisites.h" />
     <ClInclude Include="graphicsbuffer.h" />

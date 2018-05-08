@@ -17,6 +17,8 @@ class Texture;
 class GraphicsBuffer;
 struct InputElementDesc;
 class InputLayout;
+struct SamplerStateDesc;
+class SamplerState;
 class RenderDevice;
 
 class Window;
@@ -28,3 +30,4 @@ class App;
 
 typedef std::shared_ptr<Texture> TexturePtr;
 typedef std::shared_ptr<Surface> SurfacePtr;
+typedef std::shared_ptr<SamplerState> SamplerStatePtr;

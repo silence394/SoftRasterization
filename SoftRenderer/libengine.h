@@ -12,6 +12,7 @@
 #include "color.h"
 #include "texture.h"
 #include "graphicsbuffer.h"
+#include "RenderStates.h"
 #include "renderdevice.h"
 
 #include "TextureManager.h"
