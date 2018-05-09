@@ -894,6 +894,13 @@ SamplerStatePtr RenderDevice::CreateSamplerState( const SamplerStateDesc& desc )
 	return SamplerStatePtr( new SamplerState( desc ) );
 }
 
+void RenderDevice::SetSamplerState( uint index, SamplerStatePtr sampler )
+{
+	assert( index < _MAX_TEXTURE_COUNT );
+
+	mSamplers[index] = sampler;
+}
+
 Color RenderDevice::Texture2D( uint index, float u, float v )
 {
 	assert( index < _MAX_TEXTURE_COUNT && mTextures[index] != nullptr );
@@ -919,8 +926,10 @@ Color RenderDevice::Texture2D( uint index, float u, float v )
 	SurfacePtr suf = mTextures[index]->GetSurface( 0 );
 	uint sufw = suf->Width( );
 	uint sufh = suf->Height( );
-	u *= suf->Width( ) - 1;
-	v *= suf->Height( ) - 1;
+	uint mulw = sufw - 1;
+	uint mulh = sufh - 1;
+	u *= mulw;
+	v *= mulh;
 
 	Color samplecolor;
 
@@ -930,7 +939,25 @@ Color RenderDevice::Texture2D( uint index, float u, float v )
 	}
 	else if ( desc.filter == ESamplerFilter::SF_Linear )
 	{
-		
+		int pos0x, pos0y;
+		float du, dv, invdu, invdv;
+		du = (float) Math::Modf( (double) u, pos0x );
+		dv = (float) Math::Modf( (double) v, pos0y );
+		invdu = 1.0f - du;
+		invdv = 1.0f - dv;
+
+		int pos1x = ( pos0x + 1 ) % sufw;
+		int pos1y = ( pos0y + 1 ) % sufh;
+
+		Color c0 = suf->Sample( pos0x, pos0y );
+		Color c1 = suf->Sample( pos0x + 1, pos0y );
+		Color c2 = suf->Sample( pos0x, pos0y + 1 );
+		Color c3 = suf->Sample( pos0x + 1, pos0y + 1 );
+		float w0 = invdu * invdv;
+		float w1 = du * invdv;
+		float w2 = invdu * dv;
+		float w3 = du * dv;
+		samplecolor = c0 * w0  + c1 * w1 + c2 * w2  + c3 * w3; 
 	}
 
 	return samplecolor;

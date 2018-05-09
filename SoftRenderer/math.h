@@ -48,8 +48,10 @@ namespace Math
 	static double Modf( double num, int& intpart )
 	{
 		double i;
-		return ::modf( num, &i );
+		double frac = ::modf( num, &i );
 		intpart = (int) i;
+
+		return frac;
 	}
 
 	static float FMod( float x, float y )

@@ -30,6 +30,7 @@ private:
 	Matrix4			mViewTransform;
 	Matrix4			mPerspectTransform;
 	TexturePtr		mTexture;
+	SamplerStatePtr	mSampler;
 
 	InputLayout*	mInputLayout;
 	IVertexShader*	mVertexShader;
@@ -77,6 +78,11 @@ void DemoApp::OnCreate( )
 	}
 
 	mTexture = TextureManager::Load( L"../Media/stone_color.jpg" );
+
+	SamplerStateDesc desc;
+	desc.address = EAddressMode::AM_CLAMP;
+	desc.filter = ESamplerFilter::SF_Linear;
+	mSampler = rd.CreateSamplerState( desc );
 
 	mPixelShader = new PixelShader( );
 	rd.SetPixelShader( mPixelShader );
@@ -202,6 +208,7 @@ void DemoApp::OnRender( )
 
 	mWorldTransform = Matrix4( ).SetScaling( 1.3f );
 	rd.SetTexture( 0, mTexture );
+	rd.SetSamplerState( 0, mSampler );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	rd.SetInputLayout( mInputLayout );
 	rd.SetVertexBuffer( mVertexBuffer );
@@ -219,9 +226,11 @@ void DemoApp::OnRender( )
 
 int main( )
 {
-	float x = -3.2f;
-	float mod = fmodf( fmodf( x, 1.0f ) + 1.0f, 1.0f );
-
+	float x = 0.0;
+	//float mod = fmodf( fmodf( x, 1.0f ) + 1.0f, 1.0f );
+			double i;
+		::modf( 0.0, &i );
+		int intpart = (int) i;
 	DemoApp app( 800, 600 );
 	app.Create( );
 	app.Run( );

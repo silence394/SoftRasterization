@@ -123,6 +123,7 @@ public:
 
 	TexturePtr		CreateTexture2D( uint width, uint height, uint format );
 	SamplerStatePtr	CreateSamplerState( const SamplerStateDesc& desc );
+	void			SetSamplerState( uint index, SamplerStatePtr sampler );
 
 	Color			Texture2D( uint index, float u, float v );
 };
