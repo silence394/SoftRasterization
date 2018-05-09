@@ -10,6 +10,9 @@ class Vector3;
 class Vector4;
 class Matrix4;
 
+class Material;
+class Light;
+
 class Camera;
 class Color;
 class Surface;
