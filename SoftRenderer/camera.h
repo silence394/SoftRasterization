@@ -14,17 +14,31 @@ private:
 public:
 	Camera( );
 
-	inline void SetPosition( const Vector3& pos )
-		{ mPos = pos; }
-	inline const Vector3& GetPosition( ) const
-		{ return mPos; }
+	void SetPosition( const Vector3& pos )
+	{
+		mPos = pos;
+	}
+
+	const Vector3& GetPosition( ) const
+	{
+		return mPos;
+	}
 
 	inline void LookAt( const Vector3& target )
-		{ Vector3 look = target - mPos; mLookDistance = look.Magnitude( ); mLookDir = look.Normalize( ); }
+	{
+		Vector3 look = target - mPos;
+		mLookDistance = look.Magnitude( );
+		mLookDir = look.Normalize( );
+	}
+
 	Vector3 GetDiretion( )
-		{ return mLookDir; }
+	{
+		return mLookDir;
+	}
 	float GetLookDistance( )
-		{ return mLookDistance; }
+	{
+		return mLookDistance;
+	}
 
 	Matrix4	GetViewMatrix( );
 

@@ -80,28 +80,48 @@ public:
 public:
 	static RenderDevice& Instance( );
 
-	inline int GetDeviceWidth( ) const
-		{ return mWidth; }
-	inline int GetDeviceHeight( ) const
-		{ return mHeight; }
+	int GetDeviceWidth( ) const
+	{
+		return mWidth;
+	}
+	
+	int GetDeviceHeight( ) const
+	{
+		return mHeight;
+	}
 
-	inline void SetClearColor( uint color )
-		{ mClearColor = color; }
+	void SetClearColor( uint color )
+	{
+		mClearColor = color;
+	}
 
-	inline void SetVertexShader( IVertexShader* vs )
-		{ mVertexShader = vs; }
-	inline void SetPixelShader( IPixelShader* ps )
-		{ mPixelShader = ps; }
+	void SetVertexShader( IVertexShader* vs )
+	{
+		mVertexShader = vs;
+	}
+	
+	void SetPixelShader( IPixelShader* ps )
+	{
+		mPixelShader = ps;
+	}
 
-	inline void SetInputLayout( InputLayout* layout )
-		{ mInputLayout = layout; }
-	inline void SetVertexBuffer( GraphicsBuffer* buffer )
-		{ mVertexBuffer = buffer; }
-	inline void SetIndexBuffer( GraphicsBuffer* buffer )
-		{ mIndexBuffer = buffer; }
+	void SetInputLayout( InputLayout* layout )
+	{
+		mInputLayout = layout;
+	}
+	void SetVertexBuffer( GraphicsBuffer* buffer )
+	{
+		mVertexBuffer = buffer;
+	}
+	void SetIndexBuffer( GraphicsBuffer* buffer )
+	{
+		mIndexBuffer = buffer;
+	}
 
 	inline void SetRenderState( uint state )
-		{ mRenderState = state; }
+	{
+		mRenderState = state;
+	}
 
 	void Clear( );
 	void DrawPixel( uint x, uint y, uint color );

@@ -49,7 +49,5 @@ public:
 	}
 
 	Color		Sample( )
-	{
-
-	}
+	{}
 };

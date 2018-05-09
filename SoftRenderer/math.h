@@ -58,4 +58,10 @@ namespace Math
 	{
 		return ::fmodf( x, y );
 	}
+
+	template< typename T >
+	static T Abs( T val )
+	{
+		return val >= 0 ? val : -val;
+	}
 }

@@ -20,21 +20,29 @@ private:
 	uint	mSize;
 
 public:
-	GraphicsBuffer( )
-		: mBuffer( nullptr ), mLength( 0 ), mSize( 0 ){ }
+	GraphicsBuffer( ) : mBuffer( nullptr ), mLength( 0 ), mSize( 0 ){ }
 
-	GraphicsBuffer( void* buffer, uint len, uint size )
-		: mBuffer( buffer ), mLength( len ), mSize( size ) { }
+	GraphicsBuffer( void* buffer, uint len, uint size ) : mBuffer( buffer ), mLength( len ), mSize( size ) { }
 
 	~GraphicsBuffer( )
-		{ delete[] mBuffer; }
+	{
+		delete[] mBuffer;
+	}
 
-	inline void* GetBuffer( ) const
-		{ return mBuffer; }
-	inline uint GetLength( ) const
-		{ return mLength; }
-	inline uint GetSize( ) const
-		{ return mSize; }
+	void* GetBuffer( ) const
+	{
+		return mBuffer;
+	}
+
+	uint GetLength( ) const
+	{
+		return mLength;
+	}
+
+	uint GetSize( ) const
+	{
+		return mSize;
+	}
 };
 
 struct InputElementDesc
@@ -43,8 +51,7 @@ struct InputElementDesc
 	uint		mFormat;
 	uint		mOffset;
 
-	InputElementDesc( std::string name, uint format )
-		: mName( name ), mFormat( format ) { }
+	InputElementDesc( std::string name, uint format ) : mName( name ), mFormat( format ) { }
 };
 
 class InputLayout
@@ -56,8 +63,12 @@ public:
 	InputLayout( ) { }
 
 	InputLayout( InputElementDesc const* desc, uint count )
-		{ mDescs.assign( desc, desc + count ); }
+	{
+		mDescs.assign( desc, desc + count );
+	}
 
 	const std::vector<InputElementDesc>& GetElementDescs( ) const
-		{ return mDescs; }
+	{
+		return mDescs;
+	}
 };
