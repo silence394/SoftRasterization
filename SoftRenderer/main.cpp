@@ -18,7 +18,7 @@ class PixelShader : public IPixelShader
 {
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth )
 	{
-		out.color = Color( SampleTexture( 0, in.attribute( 1 ).x, in.attribute( 1 ).y ) );
+		out.color = Texture2D( 0, in.attribute( 1 ).x, in.attribute( 1 ).y );
 	}
 };
 
@@ -51,16 +51,8 @@ public:
 	virtual void OnMouseWheel( int delta );
 };
 
-//template <typename T>
-//Color ToColor( void* c )
-//{
-//	return ( (T*) c )->ToColor( );
-//}
-
 void DemoApp::OnCreate( )
 {
-	//1.152000, 0.921600, -0.691200
-	//mCamera.SetPosition( Vector3( 0.737280, 0.589824, -0.442368 ) );
 	RenderDevice& rd = RenderDevice::Instance( );
 
 	mCamera.SetPosition( Vector3( 4, 4, 4 ) );
@@ -84,47 +76,7 @@ void DemoApp::OnCreate( )
 		}
 	}
 
-	TextureManager::Load( L"../Media/stone_color.jpg" );
-
-	//mTexture = new Texture( texbuffer, width, height, Texture::TF_ARGB8 );
-	{
-		FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
-		FIBITMAP *dib(0);
-		BYTE* bits(0);
-		uint width, height;
-		char filename[30] = "../Media/stone_color.jpg";
-		fif = FreeImage_GetFileType(filename, 0);
-		if(fif == FIF_UNKNOWN) 
-			fif = FreeImage_GetFIFFromFilename(filename);
-
-		dib = FreeImage_Load(fif, filename);
-
-		dib = FreeImage_ConvertTo32Bits(dib);
-		bits = FreeImage_GetBits(dib);
-		//get the image width and height
-		width = FreeImage_GetWidth(dib);
-		height = FreeImage_GetHeight(dib);
-
-		mTexture = TexturePtr( new Texture( bits, width, height, Texture::TF_ARGB8 ) );
-	//	FreeImage_Unload(dib);
-
-		//typedef Color (*FunToColor) ( void* color );
-		//FunToColor pToColor;
-
-		//pToColor = ToColor<RGB8>;
-		//uint fuck = 0xffeeddaa;
-		//byte* pfuck = (byte*)&fuck;
-		//FreeImageColor<RGB8> fc( pfuck );
-		//byte fuck1 = pfuck[0];
-		//byte fuck2 = pfuck[1];
-		//byte fuck3 = pfuck[2];
-		//byte fuck4 = pfuck[3];
-
-
-
-		//Color c = pToColor( (void*)&fc );
-		//int a = 1;
-	}
+	mTexture = TextureManager::Load( L"../Media/stone_color.jpg" );
 
 	mPixelShader = new PixelShader( );
 	rd.SetPixelShader( mPixelShader );
@@ -267,6 +219,9 @@ void DemoApp::OnRender( )
 
 int main( )
 {
+	float x = -3.2f;
+	float mod = fmodf( fmodf( x, 1.0f ) + 1.0f, 1.0f );
+
 	DemoApp app( 800, 600 );
 	app.Create( );
 	app.Run( );

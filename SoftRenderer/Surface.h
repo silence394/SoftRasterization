@@ -24,7 +24,7 @@ public:
 
 	inline uint Offset( int x, int y ) const
 	{
-		return y * Pitch( );
+		return y * Pitch( ) + x * mBPP;
 	}
 
 public:
@@ -36,5 +36,15 @@ public:
 	Color	Sample( uint x, uint y )
 	{
 		return mConvertor( Address( x, y ) );
+	}
+
+	uint	Width( ) const
+	{
+		return mWidth;
+	}
+
+	uint	Height( ) const
+	{
+		return mHeight;
 	}
 };

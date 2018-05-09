@@ -899,14 +899,39 @@ Color RenderDevice::Texture2D( uint index, float u, float v )
 	assert( index < _MAX_TEXTURE_COUNT && mTextures[index] != nullptr );
 
 	// Address.
+	auto Address = [] ( EAddressMode mode, float& texelu, float& texelv )
+	{
+		if ( mode == EAddressMode::AM_CLAMP )
+		{
+			texelu = Math::Clamp( texelu, 0.0f, 1.0f );
+			texelv = Math::Clamp( texelv, 0.0f, 1.0f );
+		}
+		else if ( mode == EAddressMode::AM_WRAP )
+		{
+			texelu = Math::FMod( Math::FMod( texelu, 1.0f ) + 1.0f, 1.0f );
+			texelv = Math::FMod( Math::FMod( texelv, 1.0f ) + 1.0f, 1.0f );
+		}
+	};
+
 	SamplerStateDesc& desc = mSamplers[index] != nullptr ? mSamplers[index]->mDesc : mDefaultSampler->mDesc;
+	Address( desc.address, u, v );
+
+	SurfacePtr suf = mTextures[index]->GetSurface( 0 );
+	uint sufw = suf->Width( );
+	uint sufh = suf->Height( );
+	u *= suf->Width( ) - 1;
+	v *= suf->Height( ) - 1;
+
+	Color samplecolor;
 
 	if ( desc.filter == ESamplerFilter::SF_POINT )
 	{
+		samplecolor = suf->Sample( (uint) u, (uint) v );
 	}
 	else if ( desc.filter == ESamplerFilter::SF_Linear )
 	{
+		
 	}
 
-	return Color( );
+	return samplecolor;
 }

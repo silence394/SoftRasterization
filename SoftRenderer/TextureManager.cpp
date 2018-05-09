@@ -35,7 +35,7 @@ void ConvertColor( FIBITMAP* image, SurfacePtr suf )
 	}
 }
 
-Texture* TextureManager::Load( const std::wstring& resname )
+TexturePtr TextureManager::Load( const std::wstring& resname )
 {
 	string filename;
 	WStr2Str( resname, filename );
@@ -123,5 +123,5 @@ Texture* TextureManager::Load( const std::wstring& resname )
 	}
 	}
 	*/
-	return nullptr;
+	return tex;
 }

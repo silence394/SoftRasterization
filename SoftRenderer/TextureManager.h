@@ -5,5 +5,5 @@
 class TextureManager
 {
 public:
-	static Texture*	Load( const std::wstring& resname );
+	static TexturePtr Load( const std::wstring& resname );
 };

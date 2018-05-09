@@ -76,4 +76,5 @@ class IPixelShader : public ShaderBase
 public:
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth ) = 0;
 	virtual uint SampleTexture( uint index, float u, float v );
+	virtual Color Texture2D( uint index, float u, float v );
 };

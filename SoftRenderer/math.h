@@ -45,4 +45,15 @@ namespace Math
 		return ::ceilf( value );
 	}
 
+	static double Modf( double num, int& intpart )
+	{
+		double i;
+		return ::modf( num, &i );
+		intpart = (int) i;
+	}
+
+	static float FMod( float x, float y )
+	{
+		return ::fmodf( x, y );
+	}
 }
