@@ -17,6 +17,9 @@ class Camera;
 class Color;
 class Surface;
 class Texture;
+
+class ConstantBuffer;
+
 class GraphicsBuffer;
 struct InputElementDesc;
 class InputLayout;
@@ -30,7 +33,9 @@ class App;
 #include <string>
 #include <vector>
 #include <memory>
+#include <assert.h>
 
 typedef std::shared_ptr<Texture> TexturePtr;
 typedef std::shared_ptr<Surface> SurfacePtr;
 typedef std::shared_ptr<SamplerState> SamplerStatePtr;
+typedef std::shared_ptr<ConstantBuffer> ConstantBufferPtr;

@@ -21,8 +21,9 @@ public:
 private:
 	enum
 	{
-		_MAX_VERTEXCACHE_COUNT	= 64,
-		_MAX_TEXTURE_COUNT		= 8,
+		_MAX_VERTEXCACHE_COUNT		= 64,
+		_MAX_TEXTURE_COUNT			= 8,
+		_MAX_CONSTANTBUFFER_COUNT	= 4,
 	};
 
 	static std::unique_ptr<RenderDevice>	mInstance;
@@ -53,6 +54,9 @@ private:
 
 	// Default settings.
 	SamplerStatePtr				mDefaultSampler;
+
+	ConstantBufferPtr			mVSConstantBuffer[ _MAX_CONSTANTBUFFER_COUNT ];
+	ConstantBufferPtr			mPSConstantBuffer[ _MAX_CONSTANTBUFFER_COUNT ];
 
 private:
 	RenderDevice( );
@@ -146,4 +150,8 @@ public:
 	void			SetSamplerState( uint index, SamplerStatePtr sampler );
 
 	Color			Texture2D( uint index, float u, float v );
+
+	ConstantBufferPtr	CreateConstantBuffer( );
+	void				VSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr );
+	void				PSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr );
 };

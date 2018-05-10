@@ -106,6 +106,8 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="FreeImageColor.h" />
     <ClInclude Include="libengine.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="PixelFormats.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="shaders.h" />

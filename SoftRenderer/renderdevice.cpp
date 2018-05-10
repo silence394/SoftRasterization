@@ -701,7 +701,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 				}
 
 				PSInput& psinput = mVertexPool[ index ];
-				mVertexShader->Execute( vsinput, psinput );
+				mVertexShader->Execute( vsinput, psinput, mVSConstantBuffer );
 
 				cache = std::make_pair( index, &psinput );
 				psinputs[k] = &psinput;
@@ -961,4 +961,23 @@ Color RenderDevice::Texture2D( uint index, float u, float v )
 	}
 
 	return samplecolor;
+}
+
+ConstantBufferPtr RenderDevice::CreateConstantBuffer( )
+{
+	return ConstantBufferPtr( new ConstantBuffer( ) );
+}
+
+void RenderDevice::VSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr )
+{
+	assert( index < _MAX_CONSTANTBUFFER_COUNT );
+
+	mVSConstantBuffer[index] = bufferptr;
+}
+
+void RenderDevice::PSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr )
+{
+	assert( index < _MAX_CONSTANTBUFFER_COUNT );
+
+	mPSConstantBuffer[index] = bufferptr;
 }

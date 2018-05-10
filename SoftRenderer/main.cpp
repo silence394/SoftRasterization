@@ -6,9 +6,9 @@
 
 class VertexShader : public IVertexShader
 {
-	virtual void Execute( VSInput& in, PSInput& out )
+	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb )
 	{
-		out.position( ) = in.attribute( 0 ) * GetMatrix( _CT_WVP_TRANSFORM );
+		out.position( ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "wvp" );
 		out.attribute( 0 ) = in.attribute( 1 );
 		out.attribute( 1 ) = in.attribute( 2 );
 	}
@@ -38,6 +38,9 @@ private:
 
 	GraphicsBuffer*	mVertexBuffer;
 	GraphicsBuffer*	mIndexBuffer;
+
+	ConstantBufferPtr	mVSContantBuffer;
+	ConstantBufferPtr	mPSConstantBuffer;
 
 public:
 	DemoApp( int width = 800, int height = 600, LPCWSTR name = L"Demo" )
@@ -170,6 +173,9 @@ void DemoApp::OnCreate( )
 
 	mVertexBuffer = rd.CreateBuffer( vbuffer, vlen, vsize );
 	mIndexBuffer = rd.CreateBuffer( ibuffer, ilen, sizeof( ushort ) );
+
+	mVSContantBuffer = rd.CreateConstantBuffer( );
+	mPSConstantBuffer = rd.CreateConstantBuffer( );
 }
 
 void DemoApp::OnClose( )
@@ -198,7 +204,6 @@ void DemoApp::OnMouseWheel( int delta )
 	mViewTransform = mCamera.GetViewMatrix( );
 }
 
-bool test = true;
 void DemoApp::OnRender( )
 {
 	RenderDevice& rd = RenderDevice::Instance( );
@@ -210,6 +215,8 @@ void DemoApp::OnRender( )
 	rd.SetTexture( 0, mTexture );
 	rd.SetSamplerState( 0, mSampler );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
+	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 	rd.SetInputLayout( mInputLayout );
 	rd.SetVertexBuffer( mVertexBuffer );
 	rd.SetIndexBuffer( mIndexBuffer );
@@ -218,6 +225,8 @@ void DemoApp::OnRender( )
 	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, -1.0f, 0.0f ) );
 	rd.SetTexture( 0, mTexture );
 	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
+	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 	rd.SetInputLayout( mInputLayout );
 	rd.SetVertexBuffer( mVertexBuffer );
 	rd.SetIndexBuffer( mIndexBuffer );
@@ -226,11 +235,6 @@ void DemoApp::OnRender( )
 
 int main( )
 {
-	float x = 0.0;
-	//float mod = fmodf( fmodf( x, 1.0f ) + 1.0f, 1.0f );
-			double i;
-		::modf( 0.0, &i );
-		int intpart = (int) i;
 	DemoApp app( 800, 600 );
 	app.Create( );
 	app.Run( );
