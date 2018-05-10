@@ -208,7 +208,7 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 	if ( startx == endx )
 	{
 		PSOutput psout;
-		mPixelShader->Execute( *left, psout, depth );
+		mPixelShader->Execute( *left, psout, depth, mPSConstantBuffer );
 
 		if ( DepthTestAndWrite( startx, y, left->position( ).w ) )
 			DrawPixel( startx, y, psout.color );
@@ -226,7 +226,7 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 				psinput.attribute( i ) *= invw;
 
 			PSOutput psout;
-			mPixelShader->Execute( psinput, psout, depth );
+			mPixelShader->Execute( psinput, psout, depth, mPSConstantBuffer );
 
 			if ( DepthTestAndWrite( x, y, psinput.position( ).w ) )
 				DrawPixel( x, y, psout.color );

@@ -18,6 +18,8 @@ class Color;
 class Surface;
 class Texture;
 
+class IVertexShader;
+class IPixelShader;
 class ConstantBuffer;
 
 class GraphicsBuffer;
@@ -39,3 +41,5 @@ typedef std::shared_ptr<Texture> TexturePtr;
 typedef std::shared_ptr<Surface> SurfacePtr;
 typedef std::shared_ptr<SamplerState> SamplerStatePtr;
 typedef std::shared_ptr<ConstantBuffer> ConstantBufferPtr;
+typedef std::shared_ptr<IVertexShader> VertexShaderPtr;
+typedef std::shared_ptr<IPixelShader> PixelShaderPtr;

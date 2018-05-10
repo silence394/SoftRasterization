@@ -97,39 +97,16 @@ public:
 	}
 };
 
-class ShaderBase
-{
-public:
-	enum _REGISTER_COUNT
-	{
-		_RC_VERTEX	= 4,
-	};
-
-	enum _CONSTANT_TYPE
-	{
-		_CT_WORLD_TRANSFORM			= 0,
-		_CT_VIEW_TRANSFORM			= 1,
-		_CT_PERSPECTIVE_TRANSFORM	= 2,
-		_CT_WVP_TRANSFORM			= 3,
-	};
-
-	Matrix4	mMatrixConstants[ _RC_VERTEX ];
-
-public:
-	const Matrix4&	GetMatrix( uint index ) const;
-	void			SetMatrix( uint index, const Matrix4& mat );
-};
-
-class IVertexShader : public ShaderBase
+class IVertexShader
 {
 public:
 	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb ) = 0;
 };
 
-class IPixelShader : public ShaderBase
+class IPixelShader
 {
 public:
-	virtual void Execute( PSInput& in, PSOutput& out, float& depth ) = 0;
+	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb ) = 0;
 	virtual uint SampleTexture( uint index, float u, float v );
 	virtual Color Texture2D( uint index, float u, float v );
 };

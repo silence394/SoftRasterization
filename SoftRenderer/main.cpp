@@ -16,7 +16,7 @@ class VertexShader : public IVertexShader
 
 class PixelShader : public IPixelShader
 {
-	virtual void Execute( PSInput& in, PSOutput& out, float& depth )
+	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb )
 	{
 		out.color = Texture2D( 0, in.attribute( 1 ).x, in.attribute( 1 ).y );
 	}
@@ -214,7 +214,6 @@ void DemoApp::OnRender( )
 	mWorldTransform = Matrix4( ).SetScaling( 1.3f );
 	rd.SetTexture( 0, mTexture );
 	rd.SetSamplerState( 0, mSampler );
-	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 	rd.SetInputLayout( mInputLayout );
@@ -224,7 +223,6 @@ void DemoApp::OnRender( )
 
 	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, -1.0f, 0.0f ) );
 	rd.SetTexture( 0, mTexture );
-	mVertexShader->SetMatrix( ShaderBase::_CT_WVP_TRANSFORM, mWorldTransform * mViewTransform * mPerspectTransform );
 	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 	rd.SetInputLayout( mInputLayout );
