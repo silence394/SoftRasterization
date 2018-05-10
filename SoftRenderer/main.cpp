@@ -33,8 +33,8 @@ private:
 	SamplerStatePtr	mSampler;
 
 	InputLayout*	mInputLayout;
-	IVertexShader*	mVertexShader;
-	IPixelShader*	mPixelShader;
+	VertexShaderPtr	mVertexShader;
+	PixelShaderPtr	mPixelShader;
 
 	GraphicsBuffer*	mVertexBuffer;
 	GraphicsBuffer*	mIndexBuffer;
@@ -87,11 +87,10 @@ void DemoApp::OnCreate( )
 	desc.filter = ESamplerFilter::SF_Linear;
 	mSampler = rd.CreateSamplerState( desc );
 
-	mPixelShader = new PixelShader( );
+	mPixelShader = PixelShaderPtr( new PixelShader( ) );
 	rd.SetPixelShader( mPixelShader );
 
-	mVertexShader = new VertexShader( );
-	rd.SetVertexShader( mVertexShader );
+	mVertexShader = VertexShaderPtr( new VertexShader( ) );
 
 	std::vector<InputElementDesc> descs;
 	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT ) );
@@ -179,9 +178,7 @@ void DemoApp::OnCreate( )
 }
 
 void DemoApp::OnClose( )
-{
-	delete mVertexShader;
-	delete mPixelShader;
+{;
 }
 
 void DemoApp::OnMouseMove( int x, int y )
@@ -211,9 +208,11 @@ void DemoApp::OnRender( )
 	rd.SetClearColor( 0xFF808080 );
 	rd.Clear( );
 
-	mWorldTransform = Matrix4( ).SetScaling( 1.3f );
 	rd.SetTexture( 0, mTexture );
 	rd.SetSamplerState( 0, mSampler );
+	rd.SetVertexShader( mVertexShader );
+	rd.SetPixelShader( mPixelShader );
+	mWorldTransform = Matrix4( ).SetScaling( 1.3f );
 	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 	rd.SetInputLayout( mInputLayout );
@@ -221,8 +220,10 @@ void DemoApp::OnRender( )
 	rd.SetIndexBuffer( mIndexBuffer );
 	rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
 
-	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, -1.0f, 0.0f ) );
 	rd.SetTexture( 0, mTexture );
+	rd.SetVertexShader( mVertexShader );
+	rd.SetPixelShader( mPixelShader );
+	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, -1.0f, 0.0f ) );
 	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 	rd.SetInputLayout( mInputLayout );

@@ -35,8 +35,8 @@ private:
 	uint**						mFrameBuffer;
 	float**						mDepthBuffer;
 	uint						mClearColor;
-	IVertexShader*				mVertexShader;
-	IPixelShader*				mPixelShader;
+	VertexShaderPtr				mVertexShader;
+	PixelShaderPtr				mPixelShader;
 	InputLayout*				mInputLayout;
 	GraphicsBuffer*				mVertexBuffer;
 	GraphicsBuffer*				mIndexBuffer;
@@ -99,12 +99,12 @@ public:
 		mClearColor = color;
 	}
 
-	void SetVertexShader( IVertexShader* vs )
+	void SetVertexShader( VertexShaderPtr vs )
 	{
 		mVertexShader = vs;
 	}
 	
-	void SetPixelShader( IPixelShader* ps )
+	void SetPixelShader( PixelShaderPtr ps )
 	{
 		mPixelShader = ps;
 	}
