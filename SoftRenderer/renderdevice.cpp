@@ -205,8 +205,11 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 	Color color;
 	float depth = 0.0f;
 
+	uint regcount = mInputLayout->GetElementDescs( ).size( );
 	if ( startx == endx )
 	{
+		left->InHomogen( regcount );
+
 		PSOutput psout;
 		mPixelShader->Execute( *left, psout, depth, mPSConstantBuffer );
 
@@ -221,9 +224,7 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 			float factor = ( (float) x - xleft ) * invwidth;
 			PSInput psinput = InterpolatePSInput( *left, *right, factor );
 
-			float invw = 1.0f / psinput.position( ).w;
-			for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
-				psinput.varying( i ) *= invw;
+			psinput.InHomogen( regcount );
 
 			PSOutput psout;
 			mPixelShader->Execute( psinput, psout, depth, mPSConstantBuffer );
@@ -623,6 +624,8 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	if ( mVertexBuffer == nullptr || mIndexBuffer == nullptr )
 		return;
 
+	uint regcount = mInputLayout->GetElementDescs( ).size( );
+
 	// Prepare vertexpool;
 	for ( uint i = 0; i < _MAX_VERTEXCACHE_COUNT; i ++ )
 		mVertexCache[i] = std::make_pair( -1, nullptr );
@@ -660,7 +663,6 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			}
 			else
 			{
-				// Execute vertex shader.
 				VSInput vsinput;
 				count ++;
 				// Fetch vertex.
@@ -677,19 +679,16 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 						{
 							Vector3& vec3 = *(Vector3*) ( vbase + iterbegin->mOffset );
 							vsinput.attribute( i ) = Vector4( vec3.x, vec3.y, vec3.z, 1.0f );
-							//vbase += 12;
 						}
 						else if ( format == GraphicsBuffer::BF_A8R8G8B8 )
 						{
 							Color c = *(uint*) ( vbase + iterbegin->mOffset );
 							vsinput.attribute( i ) = Vector4( c.r, c.g, c.b, c.a );
-						//	vbase += 4;
 						}
 						else if ( format == GraphicsBuffer::BF_R32G32_FLOAT )
 						{
 							Vector2& vec2 = *(Vector2*) ( vbase + iterbegin->mOffset );
 							vsinput.attribute( i ) = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
-							//vbase += 8;
 						}
 					}
 
@@ -834,20 +833,12 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 	for ( uint i = 0; i < sorts.size( ); i ++ )
 	{
-		PSInput& input = *sorts[i];
-		Vector4& pos = input.position( );
-		float invw = 1.0f / pos.w;
-		pos.x *= invw;
-		pos.y *= invw;
-		pos.z *= invw;
-		pos.w = invw;
-
-		for ( uint j = 0; j < _MAX_VSINPUT_COUNT; j ++ )
-			input.varying( j ) *= invw;
+		sorts[i]->Homogen( regcount );
 				
-		// ToScreen.
-		pos.x = ( 1.0f + input.position( ).x ) * 0.5f * mWidth;
-		pos.y = ( 1.0f - input.position( ).y ) * 0.5f * mHeight;
+		// Viewport transformation.
+		Vector4& pos = sorts[i]->position( );
+		pos.x = ( 1.0f + pos.x ) * 0.5f * mWidth;
+		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;
 	}
 
 	if ( mRenderState == _RENDER_SOLID )

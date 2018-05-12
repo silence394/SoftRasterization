@@ -35,6 +35,27 @@ public:
 
 	const Vector4& varying( uint index ) const
 		{ return mShaderRigisters[ index + 1 ]; }
+
+	void Homogen( uint regcount )
+	{
+		Vector4& pos = position( );
+		float invw = 1.0f / pos.w;
+
+		pos.x *= invw;
+		pos.y *= invw;
+		pos.z *= invw;
+		pos.w = invw;
+
+		for ( uint i = 1; i < regcount; i ++ )
+			mShaderRigisters[i] *= invw;
+	}
+
+	void InHomogen( uint regcount )
+	{
+		float invw = 1.0f / position( ).w;
+		for ( uint i = 1; i < regcount; i ++ )
+			mShaderRigisters[i] *= invw;
+	}
 };
 
 class PSOutput

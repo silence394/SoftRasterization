@@ -232,18 +232,8 @@ void DemoApp::OnRender( )
 	rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
 }
 
-template < int size >
-void Fun( )
-{
-	int tex[size];
-	std::cout << "size: " << size << endl;
-	tex[0] = 0;
-}
-
 int main( )
-{
-	Fun<1>();
-	Fun<5>();
+{ 
 	DemoApp app( 800, 600 );
 	app.Create( );
 	app.Run( );
