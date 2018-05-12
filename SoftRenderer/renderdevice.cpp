@@ -176,7 +176,7 @@ PSInput RenderDevice::InterpolatePSInput( const PSInput& input1, const PSInput& 
 	PSInput input;
 	input.position( ) = Vector4::Lerp( input1.position( ), input2.position( ), factor );
 	for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
-		input.attribute( i ) = Vector4::Lerp( input1.attribute( i ), input2.attribute( i ), factor );
+		input.varying( i ) = Vector4::Lerp( input1.varying( i ), input2.varying( i ), factor );
 
 	return input;
 }
@@ -223,7 +223,7 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 
 			float invw = 1.0f / psinput.position( ).w;
 			for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
-				psinput.attribute( i ) *= invw;
+				psinput.varying( i ) *= invw;
 
 			PSOutput psout;
 			mPixelShader->Execute( psinput, psout, depth, mPSConstantBuffer );
@@ -675,21 +675,21 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 						uint format = iterbegin->mFormat;
 						if ( format == GraphicsBuffer::BF_R32B32G32_FLOAT )
 						{
-							Vector3& vec3 = *(Vector3*) vbase;
+							Vector3& vec3 = *(Vector3*) ( vbase + iterbegin->mOffset );
 							vsinput.attribute( i ) = Vector4( vec3.x, vec3.y, vec3.z, 1.0f );
-							vbase += 12;
+							//vbase += 12;
 						}
 						else if ( format == GraphicsBuffer::BF_A8R8G8B8 )
 						{
-							Color c = *(uint*) vbase;
+							Color c = *(uint*) ( vbase + iterbegin->mOffset );
 							vsinput.attribute( i ) = Vector4( c.r, c.g, c.b, c.a );
-							vbase += 4;
+						//	vbase += 4;
 						}
 						else if ( format == GraphicsBuffer::BF_R32G32_FLOAT )
 						{
-							Vector2& vec2 = *(Vector2*) vbase;
+							Vector2& vec2 = *(Vector2*) ( vbase + iterbegin->mOffset );
 							vsinput.attribute( i ) = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
-							vbase += 8;
+							//vbase += 8;
 						}
 					}
 
@@ -842,8 +842,8 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		pos.z *= invw;
 		pos.w = invw;
 
-		for ( uint j = 1; j < _MAX_VSINPUT_COUNT; j ++ )
-			input.attribute( j ) *= invw;
+		for ( uint j = 0; j < _MAX_VSINPUT_COUNT; j ++ )
+			input.varying( j ) *= invw;
 				
 		// ToScreen.
 		pos.x = ( 1.0f + input.position( ).x ) * 0.5f * mWidth;

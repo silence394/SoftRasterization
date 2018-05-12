@@ -3,14 +3,14 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include <memory>
+#include <iostream>
 
 class VertexShader : public IVertexShader
 {
 	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb )
 	{
 		out.position( ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "wvp" );
-		out.attribute( 0 ) = in.attribute( 1 );
-		out.attribute( 1 ) = in.attribute( 2 );
+		out.varying( 0 ) = in.attribute( 1 );
 	}
 };
 
@@ -18,7 +18,7 @@ class PixelShader : public IPixelShader
 {
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb )
 	{
-		out.color = Texture2D( 0, in.attribute( 1 ).x, in.attribute( 1 ).y );
+		out.color = Texture2D( 0, in.varying( 0 ).x, in.varying( 0 ).y );
 	}
 };
 
@@ -93,9 +93,9 @@ void DemoApp::OnCreate( )
 	mVertexShader = VertexShaderPtr( new VertexShader( ) );
 
 	std::vector<InputElementDesc> descs;
-	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT ) );
-	descs.push_back( InputElementDesc( "COLOR", GraphicsBuffer::BF_A8R8G8B8 ) );
-	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT ) );
+	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
+	//descs.push_back( InputElementDesc( "COLOR", GraphicsBuffer::BF_A8R8G8B8 ) );
+	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT, sizeof( Vector3 ) + sizeof( uint ) ) );
 
 	mInputLayout = rd.CreateInputLayout( &descs[0], descs.size( ) );
 
@@ -232,8 +232,18 @@ void DemoApp::OnRender( )
 	rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
 }
 
+template < int size >
+void Fun( )
+{
+	int tex[size];
+	std::cout << "size: " << size << endl;
+	tex[0] = 0;
+}
+
 int main( )
 {
+	Fun<1>();
+	Fun<5>();
 	DemoApp app( 800, 600 );
 	app.Create( );
 	app.Run( );

@@ -30,10 +30,10 @@ public:
 	const Vector4& position( ) const
 		{ return mShaderRigisters[0]; }
 
-	Vector4& attribute( uint index )
+	Vector4& varying( uint index )
 		{ return mShaderRigisters[ index + 1 ]; }
 
-	const Vector4& attribute( uint index ) const
+	const Vector4& varying( uint index ) const
 		{ return mShaderRigisters[ index + 1 ]; }
 };
 

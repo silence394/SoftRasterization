@@ -51,7 +51,7 @@ struct InputElementDesc
 	uint		mFormat;
 	uint		mOffset;
 
-	InputElementDesc( std::string name, uint format ) : mName( name ), mFormat( format ) { }
+	InputElementDesc( std::string name, uint format, uint offset ) : mName( name ), mFormat( format ), mOffset( offset ) { }
 };
 
 class InputLayout
