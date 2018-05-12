@@ -1,5 +1,5 @@
 #pragma once
 
-#include "prerequisites.h"
+#include "Prerequisites.h"
 
 bool WStr2Str( const std::wstring& wstr, std::string& str );

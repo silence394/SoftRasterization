@@ -1,6 +1,6 @@
 #pragma once
 
-#include "prerequisites.h"
+#include "Prerequisites.h"
 #include "PixelFormats.h"
 
 class Surface

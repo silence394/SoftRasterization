@@ -1,23 +1,23 @@
 #pragma once
 
-#include "prerequisites.h"
-#include "math.h"
-#include "point.h"
-#include "vector2.h"
-#include "vector3.h"
-#include "vector4.h"
-#include "matrix4.h"
+#include "Prerequisites.h"
+#include "Math.h"
+#include "Point.h"
+#include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
+#include "Matrix4.h"
 
-#include "camera.h"
-#include "color.h"
-#include "texture.h"
-#include "graphicsbuffer.h"
+#include "Camera.h"
+#include "Color.h"
+#include "Texture.h"
+#include "GraphicsBuffer.h"
 #include "RenderStates.h"
-#include "renderdevice.h"
+#include "RenderDevice.h"
 
 #include "TextureManager.h"
 
-#include "window.h"
-#include "app.h"
+#include "Window.h"
+#include "App.h"
 
 #include "FreeImageColor.h"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "prerequisites.h"
-#include "vector3.h"
+#include "Prerequisites.h"
+#include "Vector3.h"
 
 class Camera
 {

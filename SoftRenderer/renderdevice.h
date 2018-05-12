@@ -1,8 +1,8 @@
 #pragma once
 
-#include "prerequisites.h"
-#include "windows.h"
-#include "vector4.h"
+#include "Prerequisites.h"
+#include "Windows.h"
+#include "Vector4.h"
 #include "shaders.h"
 #include <vector>
 #include <list>
@@ -37,9 +37,9 @@ private:
 	uint						mClearColor;
 	VertexShaderPtr				mVertexShader;
 	PixelShaderPtr				mPixelShader;
-	InputLayout*				mInputLayout;
-	GraphicsBuffer*				mVertexBuffer;
-	GraphicsBuffer*				mIndexBuffer;
+	InputLayoutPtr				mInputLayout;
+	GraphicsBufferPtr			mVertexBuffer;
+	GraphicsBufferPtr			mIndexBuffer;
 	uint						mRenderState;
 
 	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
@@ -109,15 +109,15 @@ public:
 		mPixelShader = ps;
 	}
 
-	void SetInputLayout( InputLayout* layout )
+	void SetInputLayout( InputLayoutPtr layout )
 	{
 		mInputLayout = layout;
 	}
-	void SetVertexBuffer( GraphicsBuffer* buffer )
+	void SetVertexBuffer( GraphicsBufferPtr buffer )
 	{
 		mVertexBuffer = buffer;
 	}
-	void SetIndexBuffer( GraphicsBuffer* buffer )
+	void SetIndexBuffer( GraphicsBufferPtr buffer )
 	{
 		mIndexBuffer = buffer;
 	}
@@ -133,25 +133,26 @@ public:
 	void DrawLine( const Point& p1, const Point& p2, uint color );
 	void FillTriangle( const Point& p1, const Point& p2, const Point& p3, uint color );
 
-	InputLayout*	CreateInputLayout( InputElementDesc const * desc, uint count );
-	void			ReleaseInputLayout( InputLayout*& layout );
+	InputLayoutPtr		CreateInputLayout( InputElementDesc const * desc, uint count );
 
-	GraphicsBuffer*	CreateBuffer( void* buffer, uint length, uint size );
-	void			Releasebuffer( GraphicsBuffer*& buffer );
+	GraphicsBufferPtr	CreateBuffer( void* buffer, uint length, uint size );
 
-	void			BeginScene( );
+	void				BeginScene( );
 
-	void			SetTexture( uint i, TexturePtr tex );
+	void				SetTexture( uint i, TexturePtr tex );
 
-	void			DrawIndex( uint indexcount, uint startindex, uint startvertex );
+	void				DrawIndex( uint indexcount, uint startindex, uint startvertex );
 
-	TexturePtr		CreateTexture2D( uint width, uint height, uint format );
-	SamplerStatePtr	CreateSamplerState( const SamplerStateDesc& desc );
-	void			SetSamplerState( uint index, SamplerStatePtr sampler );
+	TexturePtr			CreateTexture2D( uint width, uint height, uint format );
+	SamplerStatePtr		CreateSamplerState( const SamplerStateDesc& desc );
+	void				SetSamplerState( uint index, SamplerStatePtr sampler );
 
-	Color			Texture2D( uint index, float u, float v );
+	Color				Texture2D( uint index, float u, float v );
 
 	ConstantBufferPtr	CreateConstantBuffer( );
 	void				VSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr );
 	void				PSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr );
+
+	RasterizerStatePtr	CreateRasterizerState( const RasterizerDesc& desc );
+	void				SetRasterizerState( RasterizerStatePtr rs );
 };

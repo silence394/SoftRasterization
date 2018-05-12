@@ -1,10 +1,10 @@
-#include "renderdevice.h"
-#include "point.h"
-#include "vector4.h"
-#include "color.h"
-#include "graphicsbuffer.h"
-#include "vector2.h"
-#include "texture.h"
+#include "RenderDevice.h"
+#include "Point.h"
+#include "Vector4.h"
+#include "Color.h"
+#include "GraphicsBuffer.h"
+#include "Vector2.h"
+#include "Texture.h"
 #include <algorithm>
 #include "RenderStates.h"
 
@@ -587,26 +587,14 @@ void RenderDevice::FillTriangle( const Point& p1, const Point& p2, const Point& 
 	}
 }
 
-InputLayout* RenderDevice::CreateInputLayout( InputElementDesc const * desc, uint count )
+InputLayoutPtr RenderDevice::CreateInputLayout( InputElementDesc const * desc, uint count )
 {
-	return new InputLayout( desc, count );
+	return InputLayoutPtr( new InputLayout( desc, count ) );
 }
 
-void RenderDevice::ReleaseInputLayout( InputLayout*& layout )
+GraphicsBufferPtr RenderDevice::CreateBuffer( void* buffer, uint length, uint size )
 {
-	delete layout;
-	layout = nullptr;
-}
-
-GraphicsBuffer* RenderDevice::CreateBuffer( void* buffer, uint length, uint size )
-{
-	return new GraphicsBuffer( buffer, length, size );
-}
-
-void RenderDevice::Releasebuffer( GraphicsBuffer*& buffer )
-{
-	delete buffer;
-	buffer = nullptr;
+	return GraphicsBufferPtr( new GraphicsBuffer( buffer, length, size ) );
 }
 
 void RenderDevice::BeginScene( )
@@ -639,10 +627,11 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	mPtrClipedVertex.clear( );
 	mWireFrameVertexs.clear( );
 
-	byte* vb = (byte*) mVertexBuffer->GetBuffer( );
+	byte* vb = (byte*) mVertexBuffer->GetBuffer( ) + startvertex * vsize;
+
+	uint icount = mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( );
+	indexcount = Math::Clamp( indexcount, (uint) 0, icount - startindex );
 	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
-	
-	uint count = 0;
 
 	indexcount = indexcount - indexcount % 3;
 	ushort* ibegin = ib;
@@ -664,7 +653,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			else
 			{
 				VSInput vsinput;
-				count ++;
+
 				// Fetch vertex.
 				{
 					auto& descs = mInputLayout->GetElementDescs( );
@@ -690,12 +679,6 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 							Vector2& vec2 = *(Vector2*) ( vbase + iterbegin->mOffset );
 							vsinput.attribute( i ) = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
 						}
-					}
-
-					while ( i < _MAX_VSINPUT_COUNT )
-					{
-						vsinput.attribute( i ) = Vector4( 0.0f, 0.0f, 0.0f, 0.0f );
-						i ++;
 					}
 				}
 

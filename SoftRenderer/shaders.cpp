@@ -1,5 +1,5 @@
 #include "shaders.h"
-#include "renderdevice.h"
+#include "RenderDevice.h"
 #include "assert.h"
 
 uint IPixelShader::SampleTexture( uint index, float u, float v )

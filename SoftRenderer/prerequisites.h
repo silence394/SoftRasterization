@@ -27,6 +27,9 @@ struct InputElementDesc;
 class InputLayout;
 struct SamplerStateDesc;
 class SamplerState;
+struct RasterizerDesc;
+class RasterizerState;
+
 class RenderDevice;
 
 class Window;
@@ -43,3 +46,6 @@ typedef std::shared_ptr<SamplerState> SamplerStatePtr;
 typedef std::shared_ptr<ConstantBuffer> ConstantBufferPtr;
 typedef std::shared_ptr<IVertexShader> VertexShaderPtr;
 typedef std::shared_ptr<IPixelShader> PixelShaderPtr;
+typedef std::shared_ptr<GraphicsBuffer> GraphicsBufferPtr;
+typedef std::shared_ptr<InputLayout> InputLayoutPtr;
+typedef std::shared_ptr<RasterizerState> RasterizerStatePtr;

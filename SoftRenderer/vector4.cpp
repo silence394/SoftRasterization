@@ -1,6 +1,6 @@
-#include "vector4.h"
-#include "color.h"
-#include "matrix4.h"
+#include "Vector4.h"
+#include "Color.h"
+#include "Matrix4.h"
 
 Vector4::operator Color( ) const
 {

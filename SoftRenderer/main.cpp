@@ -25,19 +25,19 @@ class PixelShader : public IPixelShader
 class DemoApp : public App
 {
 private:
-	Camera			mCamera;
-	Matrix4			mWorldTransform;
-	Matrix4			mViewTransform;
-	Matrix4			mPerspectTransform;
-	TexturePtr		mTexture;
-	SamplerStatePtr	mSampler;
+	Camera				mCamera;
+	Matrix4				mWorldTransform;
+	Matrix4				mViewTransform;
+	Matrix4				mPerspectTransform;
+	TexturePtr			mTexture;
+	SamplerStatePtr		mSampler;
 
-	InputLayout*	mInputLayout;
-	VertexShaderPtr	mVertexShader;
-	PixelShaderPtr	mPixelShader;
+	InputLayoutPtr		mInputLayout;
+	VertexShaderPtr		mVertexShader;
+	PixelShaderPtr		mPixelShader;
 
-	GraphicsBuffer*	mVertexBuffer;
-	GraphicsBuffer*	mIndexBuffer;
+	GraphicsBufferPtr	mVertexBuffer;
+	GraphicsBufferPtr	mIndexBuffer;
 
 	ConstantBufferPtr	mVSContantBuffer;
 	ConstantBufferPtr	mPSConstantBuffer;

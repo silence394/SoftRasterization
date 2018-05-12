@@ -1,6 +1,6 @@
 #pragma once
 
-#include "prerequisites.h"
+#include "Prerequisites.h"
 
 class TextureManager
 {

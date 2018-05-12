@@ -1,6 +1,6 @@
 #pragma once
 
-#include "prerequisites.h"
+#include "Prerequisites.h"
 #include <vector>
 
 class GraphicsBuffer
@@ -15,15 +15,15 @@ public:
 	};
 
 private:
+	friend class RenderDevice;
+
 	void*	mBuffer;
 	uint	mLength;
 	uint	mSize;
 
-public:
-	GraphicsBuffer( ) : mBuffer( nullptr ), mLength( 0 ), mSize( 0 ){ }
-
 	GraphicsBuffer( void* buffer, uint len, uint size ) : mBuffer( buffer ), mLength( len ), mSize( size ) { }
 
+public:
 	~GraphicsBuffer( )
 	{
 		delete[] mBuffer;
@@ -57,16 +57,16 @@ struct InputElementDesc
 class InputLayout
 {
 private:
-	std::vector<InputElementDesc>	mDescs;
+	friend class RenderDevice;
 
-public:
-	InputLayout( ) { }
+	std::vector<InputElementDesc>	mDescs;
 
 	InputLayout( InputElementDesc const* desc, uint count )
 	{
 		mDescs.assign( desc, desc + count );
 	}
 
+public:
 	const std::vector<InputElementDesc>& GetElementDescs( ) const
 	{
 		return mDescs;

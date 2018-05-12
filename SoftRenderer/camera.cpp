@@ -1,6 +1,5 @@
-#include "camera.h"
-#include "matrix4.h"
-#include "stdio.h"
+#include "Camera.h"
+#include "Matrix4.h"
 
 Camera::Camera( )
 {

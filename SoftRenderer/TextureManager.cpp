@@ -1,6 +1,6 @@
 #include "TextureManager.h"
 #include "RenderDevice.h"
-#include "texture.h"
+#include "Texture.h"
 #include "Surface.h"
 #include "String.h"
 #include "FreeImageColor.h"

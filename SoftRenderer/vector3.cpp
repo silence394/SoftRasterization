@@ -1,5 +1,5 @@
-#include "vector3.h"
-#include "matrix4.h"
+#include "Vector3.h"
+#include "Matrix4.h"
 
 Vector3& Vector3::operator *= ( const Matrix4& mat )
 {

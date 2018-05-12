@@ -1,8 +1,8 @@
 #pragma once
 
-#include "prerequisites.h"
-#include "matrix4.h"
-#include "color.h"
+#include "Prerequisites.h"
+#include "Matrix4.h"
+#include "Color.h"
 #include <unordered_map>
 
 #define _MAX_VSINPUT_COUNT 2

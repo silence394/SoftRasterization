@@ -1,6 +1,6 @@
-#include "texture.h"
+#include "Texture.h"
 #include <string>
-#include "math.h"
+#include "Math.h"
 
 Texture::Texture( uint width, uint height, PixelFormat format ) : mWidth( width ), mHeight( height ), mFormat( format )
 {

@@ -1,5 +1,5 @@
-#include "color.h"
-#include "vector4.h"
+#include "Color.h"
+#include "Vector4.h"
 
 Color::Color( uint color )
 {

@@ -1,5 +1,5 @@
-#include "app.h"
-#include "renderdevice.h"
+#include "App.h"
+#include "RenderDevice.h"
 
 LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {

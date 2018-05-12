@@ -9,3 +9,13 @@ VertexProcessEngine& VertexProcessEngine::Instance( )
 
 	return *mInstance;
 }
+
+void VertexProcessEngine::Prepare( )
+{
+
+}
+
+void VertexProcessEngine::Process( const VertexProcessContext& context )
+{
+
+}

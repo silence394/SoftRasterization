@@ -1,8 +1,8 @@
 #pragma once
 
-#include "prerequisites.h"
+#include "Prerequisites.h"
 #include "assert.h"
-#include "vector4.h"
+#include "Vector4.h"
 
 class Matrix4
 {

@@ -30,11 +30,33 @@ class SamplerState
 private:
 	SamplerStateDesc	mDesc;
 
-	SamplerState( ) { }
+	SamplerState( const SamplerStateDesc& desc ) : mDesc( desc ) { }
+};
 
-public:
-	SamplerState( const SamplerStateDesc& desc )
-	{
-		mDesc = desc;
-	}
+enum EFillMode
+{
+	FM_SOLID		= 0,
+	FM_WIREFRAME	= 1,
+};
+
+enum ECullMode
+{
+	ECM_NONE		= 0,
+	ECM_FRONT		= 1,
+	ECM_BACK		= 2,
+};
+
+struct RasterizerDesc
+{
+	EFillMode	fillMode;
+	ECullMode	cullMode;
+};
+
+class RasterizerState
+{
+private:
+	RasterizerDesc	mDesc;
+
+	RasterizerState( const RasterizerDesc& desc ) : mDesc( desc ) { }
+
 };

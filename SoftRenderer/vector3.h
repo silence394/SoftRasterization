@@ -1,7 +1,7 @@
 #pragma once
 
-#include "prerequisites.h"
-#include "math.h"
+#include "Prerequisites.h"
+#include "Math.h"
 
 class Vector3
 {

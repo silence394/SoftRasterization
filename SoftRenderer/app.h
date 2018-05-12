@@ -1,7 +1,7 @@
 #pragma once
 
-#include "prerequisites.h"
-#include "windows.h"
+#include "Prerequisites.h"
+#include "Windows.h"
 
 static App*	GStaticWindow = nullptr;
 

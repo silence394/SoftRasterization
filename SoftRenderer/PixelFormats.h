@@ -1,7 +1,7 @@
 #pragma once
 
-#include "prerequisites.h"
-#include "color.h"
+#include "Prerequisites.h"
+#include "Color.h"
 
 #if defined(PF_MAX)
 #undef PF_MAX
