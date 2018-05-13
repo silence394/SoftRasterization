@@ -12,3 +12,5 @@
 *.opensdf
 *.user
 *.unsuccessfulbuild
+*.sbr
+*.bsc

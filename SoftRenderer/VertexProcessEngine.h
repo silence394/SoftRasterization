@@ -15,6 +15,11 @@ struct VertexProcessContext
 	uint				mIndexCount;
 	uint				mIndexStart;
 	uint				mVertexStart;
+
+	bool IsValid( ) const
+	{
+		return mVertexBuffer != nullptr && mIndexBuffer != nullptr && mInputLayout != nullptr && mVertexShader != nullptr;
+	}
 };
 
 class VertexProcessEngine
@@ -25,17 +30,8 @@ private:
 		MC_VertexCache	= 64,
 	};
 
-	GraphicsBufferPtr								mVertexBuffer;
-	GraphicsBufferPtr								mIndexBuffer;
-	InputLayoutPtr									mInputLayout;
-	VertexShaderPtr									mVertexShader;
-	ConstantBufferPtr*								mVSConstantBuffer;
-	RasterizerStatePtr								mRasterizerState;
-	uint											mIndexCount;
-	uint											mIndexStart;
-	uint											mVertexStart;
-
 	static std::unique_ptr< VertexProcessEngine >	mInstance;
+	VertexProcessContext							mContext;
 	std::pair< uint, PSInput* >						mVertexCache[ MC_VertexCache ];
 	std::vector< PSInput >							mVertexPool;
 	std::list< PSInput >							mClippedVertex;
@@ -44,11 +40,6 @@ private:
 
 private:
 	VertexProcessEngine( ) { }
-
-	bool IsContextValid( ) const
-	{
-		return mVertexBuffer != nullptr && mIndexBuffer != nullptr && mInputLayout != nullptr && mVertexShader != nullptr;
-	}
 
 	void FetchVertex3( PSInput** out, uint prim );
 

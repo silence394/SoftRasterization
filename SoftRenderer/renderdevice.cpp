@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include <algorithm>
 #include "RenderStates.h"
+#include "VertexProcessEngine.h"
 
 std::unique_ptr<RenderDevice> RenderDevice::mInstance = nullptr;
 RenderDevice::RenderDevice( ) : mClearColor( 0 ), mWidth( 0 ), mHeight( 0 ), mClipXMax( 0 ), mClipYMax( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr )
@@ -17,6 +18,20 @@ RenderDevice::RenderDevice( ) : mClearColor( 0 ), mWidth( 0 ), mHeight( 0 ), mCl
 	rsdesc.cullMode = ECullMode::ECM_BACK;
 	rsdesc.fillMode = EFillMode::FM_SOLID;
 	mDefaultRS = RasterizerStatePtr( new RasterizerState( rsdesc ) );
+}
+
+void RenderDevice::PreparePipeline( )
+{
+	if ( mRasterizerState == nullptr )
+		mRasterizerState = mDefaultRS;
+
+	for ( uint i = 0; i < _MAX_TEXTURE_COUNT; i ++ )
+	{
+		if ( mTextures[i] != nullptr && mSamplers[i] == nullptr )
+			mSamplers[i] = mDefaultSampler;
+	}
+
+	mVaryingCount = mInputLayout != nullptr ? mInputLayout->GetElementCount( ) - 1 : 0;
 }
 
 RenderDevice::~RenderDevice( )
@@ -611,216 +626,288 @@ void RenderDevice::SetTexture( uint index, TexturePtr tex )
 		mTextures[index] = tex;
 }
 
+//void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex )
+//{
+//	if ( mVertexBuffer == nullptr || mIndexBuffer == nullptr )
+//		return;
+//
+//	if ( mRasterizerState == nullptr )
+//		mRasterizerState = mDefaultRS;
+//
+//	mVaryingCount = mInputLayout->GetElementDescs( ).size( ) - 1;
+//
+//	// Prepare vertexpool;
+//	for ( uint i = 0; i < _MAX_VERTEXCACHE_COUNT; i ++ )
+//		mVertexCache[i] = std::make_pair( -1, nullptr );
+//
+//	uint vlen = mVertexBuffer->GetLength( );
+//	uint vsize = mVertexBuffer->GetSize( );
+//	uint vcount = vlen / vsize;
+//	mVertexPool.resize( vcount );
+//
+//	mClippedVertex.clear( );
+//	mPtrClipedVertex.clear( );
+//	mWireFrameVertexs.clear( );
+//
+//	byte* vb = (byte*) mVertexBuffer->GetBuffer( ) + startvertex * vsize;
+//
+//	uint icount = mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( );
+//	indexcount = Math::Clamp( indexcount, (uint) 0, icount - startindex );
+//	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
+//
+//	indexcount = indexcount - indexcount % 3;
+//	ushort* ibegin = ib;
+//	ushort* iend = ib + indexcount;
+//
+//	uint temcout = 0;
+//	for ( ; ibegin != iend; ibegin += 3 )
+//	{
+//		PSInput* psinputs[3];
+//		for ( uint k = 0; k < 3; k ++ )
+//		{
+//			uint index = *( ibegin + k );
+//			uint key = index % _MAX_VERTEXCACHE_COUNT;
+//			auto& cache = mVertexCache[ key ];
+//			if ( cache.first == index )
+//			{
+//				psinputs[k] = cache.second;
+//			}
+//			else
+//			{
+//				VSInput vsinput;
+//
+//				// Fetch vertex.
+//				{
+//					auto& descs = mInputLayout->GetElementDescs( );
+//					auto iterbegin = descs.begin( );
+//					auto iterend = descs.end( );
+//					byte* vbase = vb + index * vsize;
+//					uint i = 0;
+//					for ( ; iterbegin != iterend; iterbegin ++, i ++ )
+//					{
+//						uint format = iterbegin->mFormat;
+//						if ( format == GraphicsBuffer::BF_R32B32G32_FLOAT )
+//						{
+//							Vector3& vec3 = *(Vector3*) ( vbase + iterbegin->mOffset );
+//							vsinput.attribute( i ) = Vector4( vec3.x, vec3.y, vec3.z, 1.0f );
+//						}
+//						else if ( format == GraphicsBuffer::BF_A8R8G8B8 )
+//						{
+//							Color c = *(uint*) ( vbase + iterbegin->mOffset );
+//							vsinput.attribute( i ) = Vector4( c.r, c.g, c.b, c.a );
+//						}
+//						else if ( format == GraphicsBuffer::BF_R32G32_FLOAT )
+//						{
+//							Vector2& vec2 = *(Vector2*) ( vbase + iterbegin->mOffset );
+//							vsinput.attribute( i ) = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
+//						}
+//					}
+//				}
+//
+//				PSInput& psinput = mVertexPool[ index ];
+//				mVertexShader->Execute( vsinput, psinput, mVSConstantBuffer );
+//
+//				cache = std::make_pair( index, &psinput );
+//				psinputs[k] = &psinput;
+//			}
+//		}
+//
+//		bool infrustum = true;
+//		for ( uint i = 0; i < 3; i ++ )
+//		{
+//			if ( psinputs[i]->position( ).z < 0 )
+//			{
+//				infrustum = false;
+//				break;
+//			}
+//		}
+//
+//		auto IsFrontFace = []( PSInput** inputs )
+//		{
+//			Vector2 pv_2d[3];
+//			for ( uint i = 0; i < 3; i ++ )
+//			{
+//				float invw = 1.0f / inputs[i]->position( ).w;
+//				pv_2d[i].x = inputs[i]->position( ).x * invw;
+//				pv_2d[i].y = inputs[i]->position( ).y * invw;
+//			}
+//
+//			return ( pv_2d[2].x - pv_2d[0].x ) * ( pv_2d[2].y - pv_2d[1].y ) - ( pv_2d[2].y - pv_2d[0].y ) * ( pv_2d[2].x - pv_2d[1].x ) <= 0;
+//		};
+//
+//		if ( infrustum )
+//		{
+//			if ( IsFrontFace( psinputs ) )
+//			{
+//				if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
+//				{
+//					mPtrClipedVertex.push_back( psinputs[0] );
+//					mPtrClipedVertex.push_back( psinputs[1] );
+//					mPtrClipedVertex.push_back( psinputs[2] );
+//				}
+//				else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
+//				{
+//					mWireFrameVertexs.push_back( psinputs[0] );
+//					mWireFrameVertexs.push_back( psinputs[1] );
+//					mWireFrameVertexs.push_back( psinputs[1] );
+//					mWireFrameVertexs.push_back( psinputs[2] );
+//					mWireFrameVertexs.push_back( psinputs[2] );
+//					mWireFrameVertexs.push_back( psinputs[0] );
+//				}
+//			}
+//		}
+//		else
+//		{
+//			PSInput* clippedvertexs[5];
+//
+//			float neartest1 = psinputs[0]->position( ).z;
+//			uint clipnum = 0;
+//
+//			for ( uint i = 0, j = 1; i < 3; i ++, j ++ )
+//			{
+//				j %= 3;
+//				if ( neartest1 >= 0.0 )
+//				{
+//					clippedvertexs[ clipnum ++ ] = psinputs[i];
+//
+//					if ( psinputs[j]->position( ).z < 0 )
+//					{
+//						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
+//						PSInput* input = &mClippedVertex.back( );
+//
+//						float factor = neartest1 / ( neartest1 - psinputs[j]->position( ).z );
+//						PSInput::Lerp( *input, mVaryingCount, *psinputs[i], *psinputs[j], factor );
+//
+//						clippedvertexs[ clipnum ++ ] = input;
+//					}
+//				}
+//				else
+//				{
+//					if ( psinputs[j]->position( ).z >= 0 )
+//					{
+//						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
+//						PSInput* input = &mClippedVertex.back( );
+//
+//						float factor = psinputs[j]->position( ).z / ( psinputs[j]->position( ).z - neartest1 );
+//						PSInput::Lerp( *input, mVaryingCount, *psinputs[j], *psinputs[i], factor );
+//
+//						clippedvertexs[ clipnum ++ ] = input;
+//					}
+//				}
+//
+//				neartest1 = psinputs[j]->position( ).z; 
+//			}
+//
+//			if ( clipnum >= 3 )
+//			{
+//				if ( IsFrontFace( clippedvertexs ) )
+//				{
+//					if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
+//					{
+//						for ( uint i = 1; i < clipnum - 1; i ++ )
+//						{
+//							mPtrClipedVertex.push_back( clippedvertexs[0] );
+//							mPtrClipedVertex.push_back( clippedvertexs[ i ] );
+//							mPtrClipedVertex.push_back( clippedvertexs[ i + 1] );
+//						}
+//					}
+//					else
+//					{
+//						for ( uint i = 0; i < clipnum - 1; i ++ )
+//						{
+//							mWireFrameVertexs.push_back( clippedvertexs[ i ] );
+//							mWireFrameVertexs.push_back( clippedvertexs[ i + 1] );
+//						}
+//
+//						mWireFrameVertexs.push_back( clippedvertexs[ clipnum - 1 ] );
+//						mWireFrameVertexs.push_back( clippedvertexs[ 0 ] );
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	vector<PSInput*> sorts;
+//	if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
+//		sorts.insert( sorts.begin( ), mPtrClipedVertex.begin( ), mPtrClipedVertex.end( ) );
+//	else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
+//		sorts.insert( sorts.begin( ), mWireFrameVertexs.begin( ), mWireFrameVertexs.end( ) );
+//
+//	std::sort(sorts.begin(), sorts.end());
+//	sorts.erase( std::unique( sorts.begin( ), sorts.end () ), sorts.end( ) );
+//
+//	for ( uint i = 0; i < sorts.size( ); i ++ )
+//	{
+//		sorts[i]->Homogen( mVaryingCount );
+//				
+//		// Viewport transformation.
+//		Vector4& pos = sorts[i]->position( );
+//		pos.x = ( 1.0f + pos.x ) * 0.5f * mWidth;
+//		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;
+//	}
+//
+//	if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
+//	{
+//		for ( uint i = 0; i < mPtrClipedVertex.size( ); i += 3 )
+//		{
+//			PSInput* top = mPtrClipedVertex[i];
+//			PSInput* middle = mPtrClipedVertex[i + 1];
+//			PSInput* bottom = mPtrClipedVertex[i + 2];
+//
+//			// top to bottom, value of y is larger.
+//			if ( top->position( ).y > middle->position( ).y )
+//				Math::Swap( top, middle );
+//			if ( middle->position( ).y > bottom->position( ).y )
+//				Math::Swap( middle, bottom );
+//			if ( top->position( ).y > middle->position( ).y )
+//				Math::Swap( top, middle );
+//
+//			float factor = ( middle->position( ).y - top->position( ).y ) / ( bottom->position( ).y - top->position( ).y );
+//			PSInput newmiddle;
+//			PSInput::Lerp( newmiddle, mVaryingCount,*top, *bottom, factor );
+//
+//			DrawStandardTopTriangle( *top, newmiddle, *middle );
+//			DrawStandardBottomTriangle( *middle, newmiddle, *bottom );
+//		}
+//	}
+//	else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
+//	{
+//		for ( uint i = 0; i < mWireFrameVertexs.size( ); i += 2 )
+//		{
+//			const Vector4& v1 = mWireFrameVertexs[i]->position( );
+//			const Vector4& v2 = mWireFrameVertexs[ i + 1 ]->position( );
+//			DrawLine( Point( (int) v1.x, (int) v1.y ), Point( (int) v2.x, (int) v2.y ), 0xff00ff00 );
+//		}
+//	}
+//}
+
 void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex )
 {
-	if ( mVertexBuffer == nullptr || mIndexBuffer == nullptr )
+	PreparePipeline( );
+
+	VertexProcessContext ctx;
+	ctx.mVertexBuffer		= mVertexBuffer;
+	ctx.mIndexBuffer		= mIndexBuffer;
+	ctx.mInputLayout		= mInputLayout;
+	ctx.mVertexShader		= mVertexShader;
+	ctx.mVSConstantBuffer	= mVSConstantBuffer;
+	ctx.mRasterizerState	= mRasterizerState;
+	ctx.mIndexCount			= indexcount;
+	ctx.mIndexStart			= startindex;
+	ctx.mVertexStart		= startvertex;
+
+	VertexProcessEngine& vpengine = VertexProcessEngine::Instance( );
+	vpengine.Prepare( ctx );
+	std::vector< PSInput* >& rasterverts = vpengine.Process( );
+	if ( rasterverts.size( ) == 0 )
 		return;
 
-	if ( mRasterizerState == nullptr )
-		mRasterizerState = mDefaultRS;
-
-	mVaryingCount = mInputLayout->GetElementDescs( ).size( ) - 1;
-
-	// Prepare vertexpool;
-	for ( uint i = 0; i < _MAX_VERTEXCACHE_COUNT; i ++ )
-		mVertexCache[i] = std::make_pair( -1, nullptr );
-
-	uint vlen = mVertexBuffer->GetLength( );
-	uint vsize = mVertexBuffer->GetSize( );
-	uint vcount = vlen / vsize;
-	mVertexPool.resize( vcount );
-
-	mClippedVertex.clear( );
-	mPtrClipedVertex.clear( );
-	mWireFrameVertexs.clear( );
-
-	byte* vb = (byte*) mVertexBuffer->GetBuffer( ) + startvertex * vsize;
-
-	uint icount = mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( );
-	indexcount = Math::Clamp( indexcount, (uint) 0, icount - startindex );
-	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( );
-
-	indexcount = indexcount - indexcount % 3;
-	ushort* ibegin = ib;
-	ushort* iend = ib + indexcount;
-
-	uint temcout = 0;
-	for ( ; ibegin != iend; ibegin += 3 )
-	{
-		PSInput* psinputs[3];
-		for ( uint k = 0; k < 3; k ++ )
-		{
-			uint index = *( ibegin + k );
-			uint key = index % _MAX_VERTEXCACHE_COUNT;
-			auto& cache = mVertexCache[ key ];
-			if ( cache.first == index )
-			{
-				psinputs[k] = cache.second;
-			}
-			else
-			{
-				VSInput vsinput;
-
-				// Fetch vertex.
-				{
-					auto& descs = mInputLayout->GetElementDescs( );
-					auto iterbegin = descs.begin( );
-					auto iterend = descs.end( );
-					byte* vbase = vb + index * vsize;
-					uint i = 0;
-					for ( ; iterbegin != iterend; iterbegin ++, i ++ )
-					{
-						uint format = iterbegin->mFormat;
-						if ( format == GraphicsBuffer::BF_R32B32G32_FLOAT )
-						{
-							Vector3& vec3 = *(Vector3*) ( vbase + iterbegin->mOffset );
-							vsinput.attribute( i ) = Vector4( vec3.x, vec3.y, vec3.z, 1.0f );
-						}
-						else if ( format == GraphicsBuffer::BF_A8R8G8B8 )
-						{
-							Color c = *(uint*) ( vbase + iterbegin->mOffset );
-							vsinput.attribute( i ) = Vector4( c.r, c.g, c.b, c.a );
-						}
-						else if ( format == GraphicsBuffer::BF_R32G32_FLOAT )
-						{
-							Vector2& vec2 = *(Vector2*) ( vbase + iterbegin->mOffset );
-							vsinput.attribute( i ) = Vector4( vec2.x, vec2.y, 0.0f, 0.0f );
-						}
-					}
-				}
-
-				PSInput& psinput = mVertexPool[ index ];
-				mVertexShader->Execute( vsinput, psinput, mVSConstantBuffer );
-
-				cache = std::make_pair( index, &psinput );
-				psinputs[k] = &psinput;
-			}
-		}
-
-		bool infrustum = true;
-		for ( uint i = 0; i < 3; i ++ )
-		{
-			if ( psinputs[i]->position( ).z < 0 )
-			{
-				infrustum = false;
-				break;
-			}
-		}
-
-		auto IsFrontFace = []( PSInput** inputs )
-		{
-			Vector2 pv_2d[3];
-			for ( uint i = 0; i < 3; i ++ )
-			{
-				float invw = 1.0f / inputs[i]->position( ).w;
-				pv_2d[i].x = inputs[i]->position( ).x * invw;
-				pv_2d[i].y = inputs[i]->position( ).y * invw;
-			}
-
-			return ( pv_2d[2].x - pv_2d[0].x ) * ( pv_2d[2].y - pv_2d[1].y ) - ( pv_2d[2].y - pv_2d[0].y ) * ( pv_2d[2].x - pv_2d[1].x ) <= 0;
-		};
-
-		if ( infrustum )
-		{
-			if ( IsFrontFace( psinputs ) )
-			{
-				if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
-				{
-					mPtrClipedVertex.push_back( psinputs[0] );
-					mPtrClipedVertex.push_back( psinputs[1] );
-					mPtrClipedVertex.push_back( psinputs[2] );
-				}
-				else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
-				{
-					mWireFrameVertexs.push_back( psinputs[0] );
-					mWireFrameVertexs.push_back( psinputs[1] );
-					mWireFrameVertexs.push_back( psinputs[1] );
-					mWireFrameVertexs.push_back( psinputs[2] );
-					mWireFrameVertexs.push_back( psinputs[2] );
-					mWireFrameVertexs.push_back( psinputs[0] );
-				}
-			}
-		}
-		else
-		{
-			PSInput* clippedvertexs[5];
-
-			float neartest1 = psinputs[0]->position( ).z;
-			uint clipnum = 0;
-
-			for ( uint i = 0, j = 1; i < 3; i ++, j ++ )
-			{
-				j %= 3;
-				if ( neartest1 >= 0.0 )
-				{
-					clippedvertexs[ clipnum ++ ] = psinputs[i];
-
-					if ( psinputs[j]->position( ).z < 0 )
-					{
-						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
-						PSInput* input = &mClippedVertex.back( );
-
-						float factor = neartest1 / ( neartest1 - psinputs[j]->position( ).z );
-						PSInput::Lerp( *input, mVaryingCount, *psinputs[i], *psinputs[j], factor );
-
-						clippedvertexs[ clipnum ++ ] = input;
-					}
-				}
-				else
-				{
-					if ( psinputs[j]->position( ).z >= 0 )
-					{
-						mClippedVertex.resize( mClippedVertex.size( ) + 1 );
-						PSInput* input = &mClippedVertex.back( );
-
-						float factor = psinputs[j]->position( ).z / ( psinputs[j]->position( ).z - neartest1 );
-						PSInput::Lerp( *input, mVaryingCount, *psinputs[j], *psinputs[i], factor );
-
-						clippedvertexs[ clipnum ++ ] = input;
-					}
-				}
-
-				neartest1 = psinputs[j]->position( ).z; 
-			}
-
-			if ( clipnum >= 3 )
-			{
-				if ( IsFrontFace( clippedvertexs ) )
-				{
-					if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
-					{
-						for ( uint i = 1; i < clipnum - 1; i ++ )
-						{
-							mPtrClipedVertex.push_back( clippedvertexs[0] );
-							mPtrClipedVertex.push_back( clippedvertexs[ i ] );
-							mPtrClipedVertex.push_back( clippedvertexs[ i + 1] );
-						}
-					}
-					else
-					{
-						for ( uint i = 0; i < clipnum - 1; i ++ )
-						{
-							mWireFrameVertexs.push_back( clippedvertexs[ i ] );
-							mWireFrameVertexs.push_back( clippedvertexs[ i + 1] );
-						}
-
-						mWireFrameVertexs.push_back( clippedvertexs[ clipnum - 1 ] );
-						mWireFrameVertexs.push_back( clippedvertexs[ 0 ] );
-					}
-				}
-			}
-		}
-	}
-
-	vector<PSInput*> sorts;
-	if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
-		sorts.insert( sorts.begin( ), mPtrClipedVertex.begin( ), mPtrClipedVertex.end( ) );
-	else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
-		sorts.insert( sorts.begin( ), mWireFrameVertexs.begin( ), mWireFrameVertexs.end( ) );
-
+	std::vector< PSInput* > sorts;
+	sorts.insert( sorts.begin( ), rasterverts.begin( ), rasterverts.end( ) );
 	std::sort(sorts.begin(), sorts.end());
 	sorts.erase( std::unique( sorts.begin( ), sorts.end () ), sorts.end( ) );
 
+	// Viewport Transformation.
 	for ( uint i = 0; i < sorts.size( ); i ++ )
 	{
 		sorts[i]->Homogen( mVaryingCount );
@@ -831,13 +918,15 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;
 	}
 
-	if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
+	// Rasterization.
+	EFillMode fillmode = mRasterizerState->GetFillMode( );
+	if ( fillmode == EFillMode::FM_SOLID )
 	{
-		for ( uint i = 0; i < mPtrClipedVertex.size( ); i += 3 )
+		for ( uint i = 0; i < rasterverts.size( ); i += 3 )
 		{
-			PSInput* top = mPtrClipedVertex[i];
-			PSInput* middle = mPtrClipedVertex[i + 1];
-			PSInput* bottom = mPtrClipedVertex[i + 2];
+			PSInput* top = rasterverts[i];
+			PSInput* middle = rasterverts[i + 1];
+			PSInput* bottom = rasterverts[i + 2];
 
 			// top to bottom, value of y is larger.
 			if ( top->position( ).y > middle->position( ).y )
@@ -855,12 +944,12 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			DrawStandardBottomTriangle( *middle, newmiddle, *bottom );
 		}
 	}
-	else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
+	else if ( fillmode == EFillMode::FM_WIREFRAME )
 	{
-		for ( uint i = 0; i < mWireFrameVertexs.size( ); i += 2 )
+		for ( uint i = 0; i < rasterverts.size( ); i += 2 )
 		{
-			const Vector4& v1 = mWireFrameVertexs[i]->position( );
-			const Vector4& v2 = mWireFrameVertexs[ i + 1 ]->position( );
+			const Vector4& v1 = rasterverts[i]->position( );
+			const Vector4& v2 = rasterverts[ i + 1 ]->position( );
 			DrawLine( Point( (int) v1.x, (int) v1.y ), Point( (int) v2.x, (int) v2.y ), 0xff00ff00 );
 		}
 	}
@@ -902,7 +991,7 @@ Color RenderDevice::Texture2D( uint index, float u, float v )
 		}
 	};
 
-	SamplerStateDesc& desc = mSamplers[index] != nullptr ? mSamplers[index]->mDesc : mDefaultSampler->mDesc;
+	SamplerStateDesc& desc = mSamplers[index]->mDesc;
 	Address( desc.address, u, v );
 
 	SurfacePtr suf = mTextures[index]->GetSurface( 0 );

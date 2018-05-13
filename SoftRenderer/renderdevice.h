@@ -65,6 +65,8 @@ private:
 private:
 	RenderDevice( );
 
+	void	PreparePipeline( );
+
 public:
 	~RenderDevice( );
 

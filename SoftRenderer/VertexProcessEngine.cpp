@@ -3,6 +3,8 @@
 #include "GraphicsBuffer.h"
 #include "Vector2.h"
 #include "RenderStates.h"
+#include <algorithm>
+#include "RenderDevice.h"
 
 std::unique_ptr<VertexProcessEngine> VertexProcessEngine::mInstance = nullptr;
 VertexProcessEngine& VertexProcessEngine::Instance( )
@@ -10,27 +12,20 @@ VertexProcessEngine& VertexProcessEngine::Instance( )
 	if ( mInstance == nullptr )
 		mInstance = std::unique_ptr<VertexProcessEngine> ( new VertexProcessEngine );
 
-	return *mInstance;
+	return *mInstance; 
 }
 
 void VertexProcessEngine::Prepare( const VertexProcessContext& ctx  )
 {
-	mVertexBuffer = ctx.mVertexBuffer;
-	mIndexBuffer = ctx.mIndexBuffer;
-	mInputLayout = ctx.mInputLayout;
-	mVertexShader = ctx.mVertexShader;
-	mVSConstantBuffer = ctx.mVSConstantBuffer;
-	mRasterizerState = ctx.mRasterizerState;
-	mIndexCount = ctx.mIndexCount;
-	mIndexStart = ctx.mIndexStart;
-	mVertexStart = ctx.mVertexStart;
+	mContext = ctx;
 }
 
 void VertexProcessEngine::FetchVertex3( PSInput** out, uint prim )
 {
-	uint vsize = mVertexBuffer->GetSize( );
-	byte* vb = (byte*) mVertexBuffer->GetBuffer( ) + mVertexStart * vsize;
-	ushort* ib = (ushort*) mIndexBuffer->GetBuffer( ) + mIndexStart + prim * 3;
+	GraphicsBufferPtr vertexbuffer = mContext.mVertexBuffer;
+	uint vsize = vertexbuffer->GetSize( );
+	byte* vb = (byte*) vertexbuffer->GetBuffer( ) + mContext.mVertexStart * vsize;
+	ushort* ib = (ushort*) mContext.mIndexBuffer->GetBuffer( ) + mContext.mIndexStart + prim * 3;
 
 	for ( uint i = 0; i < 3; i ++ )
 	{
@@ -45,7 +40,7 @@ void VertexProcessEngine::FetchVertex3( PSInput** out, uint prim )
 		{
 			VSInput vsinput;
 			{
-				auto& descs = mInputLayout->GetElementDescs( );
+				auto& descs = mContext.mInputLayout->GetElementDescs( );
 				auto it = descs.begin( );
 				byte* vbase = vb + index * vsize;
 
@@ -75,7 +70,7 @@ void VertexProcessEngine::FetchVertex3( PSInput** out, uint prim )
 			}
 
 			PSInput& psinput = mVertexPool[ index ];
-			mVertexShader->Execute( vsinput, psinput, mVSConstantBuffer );
+			mContext.mVertexShader->Execute( vsinput, psinput, mContext.mVSConstantBuffer );
 
 			cache = std::make_pair( index, &psinput );
 			out[i] = &psinput;
@@ -97,7 +92,7 @@ void VertexProcessEngine::Cull( PSInput** in )
 
 	auto culltest = [&] ( PSInput** in )
 	{
-		ECullMode cullmode = mRasterizerState->GetCullMode( );
+		ECullMode cullmode = mContext.mRasterizerState->GetCullMode( );
 		if ( cullmode == ECullMode::ECM_NONE )
 			return true;
 
@@ -113,8 +108,8 @@ void VertexProcessEngine::Cull( PSInput** in )
 		return cullmode == ECullMode::ECM_BACK ? cross <= 0.0f : cross > 0.0f;
 	};
 
-	EFillMode fillmode = mRasterizerState->GetFillMode( );
-	uint varyingcount = mInputLayout->GetElementCount( );
+	EFillMode fillmode = mContext.mRasterizerState->GetFillMode( );
+	uint varyingcount = mContext.mInputLayout->GetElementCount( );
 	if ( infrustum )
 	{
 		if ( culltest( in ) )
@@ -204,20 +199,20 @@ void VertexProcessEngine::Cull( PSInput** in )
 
 std::vector< PSInput* >& VertexProcessEngine::Process(  )
 {
-	mRasterizerVertex.empty( );
-	if ( IsContextValid( ) == false )
+	mRasterizerVertex.clear( );
+	if ( mContext.IsValid( ) == false )
 		return mRasterizerVertex;
 
 	for ( uint i = 0; i < MC_VertexCache; i ++ )
 		mVertexCache[i] = std::make_pair( -1, nullptr );
 
-	uint vsize = mVertexBuffer->GetSize( );
-	uint vlen = mVertexBuffer->GetLength( );
+	uint vsize = mContext.mVertexBuffer->GetSize( );
+	uint vlen = mContext.mVertexBuffer->GetLength( );
 	mVertexPool.resize( vlen / vsize );
 
-	GraphicsBufferPtr indexbuffer = mIndexBuffer;
-	uint isize = mIndexBuffer->GetSize( );
-	uint indexcount = mIndexCount;
+	GraphicsBufferPtr indexbuffer =mContext. mIndexBuffer;
+	uint isize = mContext.mIndexBuffer->GetSize( );
+	uint indexcount = mContext.mIndexCount;
 	indexcount = Math::Clamp( indexcount, (uint) 0, indexbuffer->GetLength( ) / isize );
 	
 	uint primcount = indexcount / 3;
@@ -225,6 +220,7 @@ std::vector< PSInput* >& VertexProcessEngine::Process(  )
 	{
 		PSInput* psinputs[3];
 		FetchVertex3( psinputs, i );
+		Cull( psinputs );
 	}
 
 	return mRasterizerVertex;
