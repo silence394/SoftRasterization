@@ -40,7 +40,10 @@ private:
 	InputLayoutPtr				mInputLayout;
 	GraphicsBufferPtr			mVertexBuffer;
 	GraphicsBufferPtr			mIndexBuffer;
-	uint						mRenderState;
+
+	RasterizerStatePtr			mRasterizerState;
+
+	uint						mVaryingCount;
 
 	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
 	std::vector< PSInput >		mVertexPool;
@@ -54,6 +57,7 @@ private:
 
 	// Default settings.
 	SamplerStatePtr				mDefaultSampler;
+	RasterizerStatePtr			mDefaultRS;
 
 	ConstantBufferPtr			mVSConstantBuffer[ _MAX_CONSTANTBUFFER_COUNT ];
 	ConstantBufferPtr			mPSConstantBuffer[ _MAX_CONSTANTBUFFER_COUNT ];
@@ -70,7 +74,6 @@ public:
 	void	DrawLine( uint x1, uint y1, uint x2, uint y2, uint color );
 	void	DrawClipLine( int x1, int y1, int x2, int y2, uint color );
 
-	PSInput	InterpolatePSInput( const PSInput& input1, const PSInput& input2, float factor );
 	void	DrawScanline( PSInput& input1, PSInput& input2 );
 	void	DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
 	void	DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
@@ -120,11 +123,6 @@ public:
 	void SetIndexBuffer( GraphicsBufferPtr buffer )
 	{
 		mIndexBuffer = buffer;
-	}
-
-	inline void SetRenderState( uint state )
-	{
-		mRenderState = state;
 	}
 
 	void Clear( );

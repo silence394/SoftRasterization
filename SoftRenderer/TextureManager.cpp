@@ -5,6 +5,16 @@
 #include "String.h"
 #include "FreeImageColor.h"
 
+std::unique_ptr<TextureManager> TextureManager::mInstance = nullptr;
+
+TextureManager& TextureManager::Instance( )
+{
+	if ( mInstance == nullptr )
+		mInstance = std::unique_ptr<TextureManager> ( new TextureManager( ) );
+
+	return *mInstance;
+}
+
 template <typename T>
 void ConvertColor( FIBITMAP* image, SurfacePtr suf )
 {

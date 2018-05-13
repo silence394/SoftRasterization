@@ -4,6 +4,12 @@
 
 class TextureManager
 {
+private:
+	TextureManager( ) { }
+
+	static std::unique_ptr<TextureManager>	mInstance;
+
 public:
-	static TexturePtr Load( const std::wstring& resname );
+	static TextureManager&	Instance( );
+	TexturePtr				Load( const std::wstring& resname );
 };

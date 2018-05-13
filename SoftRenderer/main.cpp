@@ -80,7 +80,7 @@ void DemoApp::OnCreate( )
 		}
 	}
 
-	mTexture = TextureManager::Load( L"../Media/stone_color.jpg" );
+	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
 
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;

@@ -71,4 +71,9 @@ public:
 	{
 		return mDescs;
 	}
+
+	uint GetElementCount( ) const
+	{
+		return mDescs.size( );
+	}
 };

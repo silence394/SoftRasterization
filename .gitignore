@@ -10,3 +10,5 @@
 *.suo
 *.lastbuildstate
 *.opensdf
+*.user
+*.unsuccessfulbuild

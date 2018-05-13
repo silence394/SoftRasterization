@@ -9,9 +9,14 @@
 #include "RenderStates.h"
 
 std::unique_ptr<RenderDevice> RenderDevice::mInstance = nullptr;
-RenderDevice::RenderDevice( ) : mClearColor( 0 ), mWidth( 0 ), mHeight( 0 ), mClipXMax( 0 ), mClipYMax( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr ), mRenderState( 0 )
+RenderDevice::RenderDevice( ) : mClearColor( 0 ), mWidth( 0 ), mHeight( 0 ), mClipXMax( 0 ), mClipYMax( 0 ), mVertexShader( nullptr ), mPixelShader( nullptr ), mVertexBuffer( nullptr ), mIndexBuffer( nullptr )
 {
 	mDefaultSampler = SamplerStatePtr( new SamplerState( SamplerStateDesc( ) ) );
+	
+	RasterizerDesc rsdesc;
+	rsdesc.cullMode = ECullMode::ECM_BACK;
+	rsdesc.fillMode = EFillMode::FM_SOLID;
+	mDefaultRS = RasterizerStatePtr( new RasterizerState( rsdesc ) );
 }
 
 RenderDevice::~RenderDevice( )
@@ -171,16 +176,6 @@ void RenderDevice::DrawClipLine( int x1, int y1, int x2, int y2, uint color )
 		DrawLine( x1, y1, x2, y2, color );
 }
 
-PSInput RenderDevice::InterpolatePSInput( const PSInput& input1, const PSInput& input2, float factor )
-{
-	PSInput input;
-	input.position( ) = Vector4::Lerp( input1.position( ), input2.position( ), factor );
-	for ( uint i = 0; i < _MAX_PSINPUT_COUNT; i ++ )
-		input.varying( i ) = Vector4::Lerp( input1.varying( i ), input2.varying( i ), factor );
-
-	return input;
-}
-
 void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 {
 	PSInput* left = nullptr;
@@ -219,10 +214,12 @@ void RenderDevice::DrawScanline( PSInput& input1, PSInput& input2 )
 	else
 	{
 		float invwidth = 1.0f / ( xright - xleft );
+		uint varycount = mInputLayout->GetElementCount( );
 		for ( uint x = startx; x < endx; x ++)
 		{
 			float factor = ( (float) x - xleft ) * invwidth;
-			PSInput psinput = InterpolatePSInput( *left, *right, factor );
+			PSInput psinput;
+			PSInput::Lerp( psinput, varycount, *left, *right, factor );
 
 			psinput.InHomogen( regcount );
 
@@ -288,8 +285,9 @@ void RenderDevice::DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInp
 			for ( int y = ys; y <= ye; y ++ )
 			{
 				float factor = (float) (y - ymin) * invheight;
-				PSInput input1 = InterpolatePSInput( top, middle, factor );;
-				PSInput input2 = InterpolatePSInput( top, bottom, factor );;
+				PSInput input1, input2;
+				PSInput::Lerp( input1, mVaryingCount, top, middle, factor );;
+				PSInput::Lerp( input2, mVaryingCount, top, bottom, factor );;
 
 				DrawScanline( input1, input2 );
 			}
@@ -299,8 +297,9 @@ void RenderDevice::DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInp
 			for ( int y = ys; y <= ye; y++ )
 			{
 				float factor = (float) (y - ymin) * invheight;
-				PSInput input1 = InterpolatePSInput( top, middle, factor );
-				PSInput input2 = InterpolatePSInput( top, bottom, factor );
+				PSInput input1, input2;
+				PSInput::Lerp( input1, mVaryingCount, top, middle, factor );
+				PSInput::Lerp( input2, mVaryingCount, top, bottom, factor );
 				
 				int xleftint = (int) xs;
 				int xrightint = (int) xe;
@@ -311,8 +310,9 @@ void RenderDevice::DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInp
 					float xright = Math::Clamp( xe, 0.0f, (float) mClipXMax );
 
 					float invwidth = 1.0f / ( xe - xs );
-					PSInput draw1 = InterpolatePSInput( input1, input2, ( xleft - xs ) * invwidth );
-					PSInput draw2 = InterpolatePSInput( input1, input2, ( xright - xs ) * invwidth );
+					PSInput draw1, draw2;
+					PSInput::Lerp( draw1, mVaryingCount, input1, input2, ( xleft - xs ) * invwidth );
+					PSInput::Lerp( draw2, mVaryingCount, input1, input2, ( xright - xs ) * invwidth );
 
 					DrawScanline( draw1, draw2 );
 				}
@@ -372,13 +372,15 @@ void RenderDevice::DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PS
 		if ( ye < ys )
 			return;
 
+		uint varycount = mInputLayout->GetElementCount( );
 		if ( x1 >= 0 && x1 <= mClipXMax && x2 >= 0 && x2 <= mClipXMax && x3 >= 0 && x3 <= mClipXMax )
 		{
 			for ( int y = ys; y <= ye; y ++ )
 			{
 				float factor = (float) (y - ymin) * invheight;
-				PSInput input1 = InterpolatePSInput( top, bottom, factor );;
-				PSInput input2 = InterpolatePSInput( middle, bottom, factor );;
+				PSInput input1, input2;
+				PSInput::Lerp( input1, varycount, top, bottom, factor );;
+				PSInput::Lerp( input2, varycount, middle, bottom, factor );;
 
 				DrawScanline( input1, input2 );
 			}
@@ -388,8 +390,9 @@ void RenderDevice::DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PS
 			for ( int y = ys; y <= ye; y++ )
 			{
 				float factor = (float) (y - ymin) * invheight;
-				PSInput input1 = InterpolatePSInput( top, bottom, factor );
-				PSInput input2 = InterpolatePSInput( middle, bottom, factor );
+				PSInput input1, input2;
+				PSInput::Lerp( input1, mVaryingCount, top, bottom, factor );
+				PSInput::Lerp( input2, mVaryingCount, middle, bottom, factor );
 
 				int xleftint = (int) xs;
 				int xrightint = (int) xe;
@@ -400,8 +403,9 @@ void RenderDevice::DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PS
 					float xright = Math::Clamp( xe, 0.0f, (float) mClipXMax );
 
 					float invwidth = 1.0f / ( xe - xs );
-					PSInput draw1 = InterpolatePSInput( input1, input2, ( xleft - xs ) * invwidth );
-					PSInput draw2 = InterpolatePSInput( input1, input2, ( xright - xs ) * invwidth );
+					PSInput draw1, draw2;
+					PSInput::Lerp( draw1, mVaryingCount,input1, input2, ( xleft - xs ) * invwidth );
+					PSInput::Lerp( draw2, mVaryingCount,input1, input2, ( xright - xs ) * invwidth );
 
 					DrawScanline( draw1, draw2 );
 				}
@@ -612,7 +616,10 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	if ( mVertexBuffer == nullptr || mIndexBuffer == nullptr )
 		return;
 
-	uint regcount = mInputLayout->GetElementDescs( ).size( );
+	if ( mRasterizerState == nullptr )
+		mRasterizerState = mDefaultRS;
+
+	mVaryingCount = mInputLayout->GetElementDescs( ).size( ) - 1;
 
 	// Prepare vertexpool;
 	for ( uint i = 0; i < _MAX_VERTEXCACHE_COUNT; i ++ )
@@ -717,13 +724,13 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		{
 			if ( IsFrontFace( psinputs ) )
 			{
-				if ( mRenderState == _RENDER_SOLID )
+				if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
 				{
 					mPtrClipedVertex.push_back( psinputs[0] );
 					mPtrClipedVertex.push_back( psinputs[1] );
 					mPtrClipedVertex.push_back( psinputs[2] );
 				}
-				else if ( mRenderState == _RENDER_WIREFRAME )
+				else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
 				{
 					mWireFrameVertexs.push_back( psinputs[0] );
 					mWireFrameVertexs.push_back( psinputs[1] );
@@ -754,7 +761,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 						PSInput* input = &mClippedVertex.back( );
 
 						float factor = neartest1 / ( neartest1 - psinputs[j]->position( ).z );
-						*input = InterpolatePSInput( *psinputs[i], *psinputs[j], factor );
+						PSInput::Lerp( *input, mVaryingCount, *psinputs[i], *psinputs[j], factor );
 
 						clippedvertexs[ clipnum ++ ] = input;
 					}
@@ -767,7 +774,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 						PSInput* input = &mClippedVertex.back( );
 
 						float factor = psinputs[j]->position( ).z / ( psinputs[j]->position( ).z - neartest1 );
-						*input = InterpolatePSInput( *psinputs[j], *psinputs[i], factor );
+						PSInput::Lerp( *input, mVaryingCount, *psinputs[j], *psinputs[i], factor );
 
 						clippedvertexs[ clipnum ++ ] = input;
 					}
@@ -780,7 +787,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			{
 				if ( IsFrontFace( clippedvertexs ) )
 				{
-					if ( mRenderState == _RENDER_SOLID )
+					if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
 					{
 						for ( uint i = 1; i < clipnum - 1; i ++ )
 						{
@@ -806,9 +813,9 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	}
 
 	vector<PSInput*> sorts;
-	if ( mRenderState == _RENDER_SOLID )
+	if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
 		sorts.insert( sorts.begin( ), mPtrClipedVertex.begin( ), mPtrClipedVertex.end( ) );
-	else if ( mRenderState == _RENDER_WIREFRAME )
+	else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
 		sorts.insert( sorts.begin( ), mWireFrameVertexs.begin( ), mWireFrameVertexs.end( ) );
 
 	std::sort(sorts.begin(), sorts.end());
@@ -816,7 +823,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 	for ( uint i = 0; i < sorts.size( ); i ++ )
 	{
-		sorts[i]->Homogen( regcount );
+		sorts[i]->Homogen( mVaryingCount );
 				
 		// Viewport transformation.
 		Vector4& pos = sorts[i]->position( );
@@ -824,7 +831,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;
 	}
 
-	if ( mRenderState == _RENDER_SOLID )
+	if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_SOLID )
 	{
 		for ( uint i = 0; i < mPtrClipedVertex.size( ); i += 3 )
 		{
@@ -841,13 +848,14 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 				Math::Swap( top, middle );
 
 			float factor = ( middle->position( ).y - top->position( ).y ) / ( bottom->position( ).y - top->position( ).y );
-			PSInput newmiddle = InterpolatePSInput( *top, *bottom, factor );
+			PSInput newmiddle;
+			PSInput::Lerp( newmiddle, mVaryingCount,*top, *bottom, factor );
 
 			DrawStandardTopTriangle( *top, newmiddle, *middle );
 			DrawStandardBottomTriangle( *middle, newmiddle, *bottom );
 		}
 	}
-	else if ( mRenderState == _RENDER_WIREFRAME )
+	else if ( mRasterizerState->mDesc.fillMode == EFillMode::FM_WIREFRAME )
 	{
 		for ( uint i = 0; i < mWireFrameVertexs.size( ); i += 2 )
 		{
@@ -954,4 +962,14 @@ void RenderDevice::PSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr 
 	assert( index < _MAX_CONSTANTBUFFER_COUNT );
 
 	mPSConstantBuffer[index] = bufferptr;
+}
+
+RasterizerStatePtr RenderDevice::CreateRasterizerState( const RasterizerDesc& desc )
+{
+	return RasterizerStatePtr( new RasterizerState( desc ) );
+}
+
+void RenderDevice::SetRasterizerState( RasterizerStatePtr rs )
+{
+	mRasterizerState = rs;
 }

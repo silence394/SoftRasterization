@@ -24,6 +24,13 @@ private:
 	Vector4 mShaderRigisters[ _MAX_PSINPUT_COUNT + 1 ];
 
 public:
+	static void Lerp( PSInput& out, uint varyingcount, const PSInput& input1, const PSInput& input2, float factor )
+	{
+		out.position( ) = Vector4::Lerp( input1.position( ), input2.position( ), factor );
+		for ( uint i = 0; i < varyingcount; i ++ )
+			out.varying( i ) = Vector4::Lerp( input1.varying( i ), input2.varying( i ), factor );
+	}
+
 	Vector4& position( )
 		{ return mShaderRigisters[0]; }
 
@@ -36,7 +43,7 @@ public:
 	const Vector4& varying( uint index ) const
 		{ return mShaderRigisters[ index + 1 ]; }
 
-	void Homogen( uint regcount )
+	void Homogen( uint varyingcount )
 	{
 		Vector4& pos = position( );
 		float invw = 1.0f / pos.w;
@@ -46,15 +53,15 @@ public:
 		pos.z *= invw;
 		pos.w = invw;
 
-		for ( uint i = 1; i < regcount; i ++ )
-			mShaderRigisters[i] *= invw;
+		for ( uint i = 0; i < varyingcount; i ++ )
+			varying( i ) *= invw;
 	}
 
-	void InHomogen( uint regcount )
+	void InHomogen( uint varyingcount )
 	{
 		float invw = 1.0f / position( ).w;
-		for ( uint i = 1; i < regcount; i ++ )
-			mShaderRigisters[i] *= invw;
+		for ( uint i = 0; i < varyingcount; i ++ )
+			varying( i )  *= invw;
 	}
 };
 

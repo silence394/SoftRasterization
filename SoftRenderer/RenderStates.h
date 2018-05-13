@@ -27,6 +27,7 @@ struct SamplerStateDesc
 class SamplerState
 {
 	friend class RenderDevice;
+
 private:
 	SamplerStateDesc	mDesc;
 
@@ -54,9 +55,21 @@ struct RasterizerDesc
 
 class RasterizerState
 {
+	friend class RenderDevice;
+
 private:
 	RasterizerDesc	mDesc;
 
 	RasterizerState( const RasterizerDesc& desc ) : mDesc( desc ) { }
 
+public:
+	EFillMode GetFillMode( ) const
+	{
+		return mDesc.fillMode;
+	}
+
+	ECullMode GetCullMode( ) const
+	{
+		return mDesc.cullMode;
+	}
 };
