@@ -972,6 +972,11 @@ void RenderDevice::SetSamplerState( uint index, SamplerStatePtr sampler )
 	mSamplers[index] = sampler;
 }
 
+Color RenderDevice::Texture2D( uint index, Vector2 uv )
+{
+	return Texture2D( index, uv.x, uv.y );
+}
+
 Color RenderDevice::Texture2D( uint index, float u, float v )
 {
 	assert( index < _MAX_TEXTURE_COUNT && mTextures[index] != nullptr );

@@ -5,8 +5,9 @@
 
 class Material
 {
-	Vector3 ambient;
-	Vector3 diffuse;
-	Vector3 specular;
-	Vector3 shiness;
+public:
+	Vector3	ambient;
+	Vector3	diffuse;
+	Vector3	specular;
+	float	shiness;
 };

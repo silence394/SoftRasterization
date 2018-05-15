@@ -10,7 +10,7 @@ class VertexShader : public IVertexShader
 	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb )
 	{
 		out.position( ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "wvp" );
-		out.varying( 0 ) = in.attribute( 1 );
+		out.varying( 0 ) = in.attribute( 2 );
 	}
 };
 
@@ -30,6 +30,7 @@ private:
 	Matrix4				mViewTransform;
 	Matrix4				mPerspectTransform;
 	TexturePtr			mTexture;
+	TexturePtr			mNormalTexture;
 	SamplerStatePtr		mSampler;
 
 	InputLayoutPtr		mInputLayout;
@@ -41,6 +42,10 @@ private:
 
 	ConstantBufferPtr	mVSContantBuffer;
 	ConstantBufferPtr	mPSConstantBuffer;
+
+	AmbientLight		mAmbientLight;
+	SkyLight			mSkyLight;
+	Material			mMaterial; 
 
 public:
 	DemoApp( int width = 800, int height = 600, LPCWSTR name = L"Demo" )
@@ -65,22 +70,8 @@ void DemoApp::OnCreate( )
 	mViewTransform = mCamera.GetViewMatrix( );
 	mPerspectTransform = Matrix4::Perspective( 3.141592654f / 4.0f, (float) rd.GetDeviceWidth( ) / (float) rd.GetDeviceHeight( ), 1.0f, 5000.0f );
 
-	// Create texture.
-	uint width = 256;
-	uint height = 256;
-	uint length = width * height;
-	uint* texbuffer = new uint[ length ];
-	uint* base = texbuffer;
-	for ( uint j = 0; j < height; j ++ )
-	{
-		for ( uint i = 0; i < width; i ++ )
-		{
-			uint color = ( ( i / 32 + j / 32 ) & 1) ? 0xffffffff : 0xff0093dd;
-			*base ++ = color;
-		}
-	}
-
 	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
+	mNormalTexture = TextureManager::Instance( ).Load( L"../Media/stone_normal.jpg" );
 
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;
@@ -94,55 +85,55 @@ void DemoApp::OnCreate( )
 
 	std::vector<InputElementDesc> descs;
 	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
-	//descs.push_back( InputElementDesc( "COLOR", GraphicsBuffer::BF_A8R8G8B8 ) );
-	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT, sizeof( Vector3 ) + sizeof( uint ) ) );
+	descs.push_back( InputElementDesc( "NORMAL", GraphicsBuffer::BF_R32B32G32_FLOAT, sizeof( Vector3 ) ) );
+	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT, sizeof( Vector3 ) + sizeof( Vector3 ) ) );
 
 	mInputLayout = rd.CreateInputLayout( &descs[0], descs.size( ) );
 
 	struct Vertex
 	{
 		Vector3	pos;
-		uint	color;
+		Vector3	normal;
 		Vector2	texcoord;
 	};
 
 	Vertex vertex[24] = 
 	{
 		// X +.
-		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, Vector2( 0.0f, 0.0f ) },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, Vector2( 0.0f, 1.0f ) },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
 
 		// X -.
-		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f )},
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, Vector2( 1.0f, 0.0f ) },
-		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 0.0f )},
+		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
 
 		// Y +.
-		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
 
 		// Y -.
-		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, Vector2( 0.0f, 0.0f ) },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 0.0f ) },
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, Vector2( 0.0f, 1.0f ) },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
 
 		// Z +.
-		{ Vector3( -1.0f, -1.0f,  1.0f ), 0xff00ff00, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f,  1.0f,  1.0f ), 0xff00ffff, Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f,  1.0f,  1.0f ), 0xffff0000, Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f, -1.0f,  1.0f ), 0xffffff00, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 0.0f, 1.0f ) },
 
 		// Z -.
-		{ Vector3( -1.0f,  1.0f, -1.0f ), 0xff339977, Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f, -1.0f, -1.0f ), 0xff22ff88, Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), 0xffff00ff, Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), 0xff0000ff, Vector2( 0.0f, 1.0f ) },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 0.0f, 1.0f ) },
 	};
 
 	uint vsize = sizeof( Vertex );
@@ -175,6 +166,18 @@ void DemoApp::OnCreate( )
 
 	mVSContantBuffer = rd.CreateConstantBuffer( );
 	mPSConstantBuffer = rd.CreateConstantBuffer( );
+
+	mAmbientLight.color = Color( 0.2f, 0.2f, 0.2f, 1.0f );
+	mSkyLight.color = Color( 4.0f, 4.0f, 0.0f, 1.0f );
+	mSkyLight.direction = Vector3( 1.0f, 1.0f, -1.0f );
+
+	mPSConstantBuffer->AddConstant( "ambientcolor", mAmbientLight.color );
+	mPSConstantBuffer->AddConstant( "skycolor", mSkyLight.color );
+	mPSConstantBuffer->AddConstant( "skydir", mSkyLight.direction );
+
+	mMaterial.shiness = 50.0f;
+
+	mPSConstantBuffer->AddConstant( "shiness", mMaterial.shiness );
 }
 
 void DemoApp::OnClose( )
@@ -210,22 +213,17 @@ void DemoApp::OnRender( )
 
 	rd.SetTexture( 0, mTexture );
 	rd.SetSamplerState( 0, mSampler );
+	rd.SetTexture( 1, mNormalTexture );
+	rd.SetSamplerState( 1, mSampler );
 	rd.SetVertexShader( mVertexShader );
 	rd.SetPixelShader( mPixelShader );
-	mWorldTransform = Matrix4( ).SetScaling( 1.3f );
+	mWorldTransform = Matrix4( ).SetScaling( 1.0f );
 	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+	mVSContantBuffer->SetConstant( "w", mWorldTransform );
 	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
-	rd.SetInputLayout( mInputLayout );
-	rd.SetVertexBuffer( mVertexBuffer );
-	rd.SetIndexBuffer( mIndexBuffer );
-	rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
-
-	rd.SetTexture( 0, mTexture );
-	rd.SetVertexShader( mVertexShader );
-	rd.SetPixelShader( mPixelShader );
-	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, -1.0f, 0.0f ) );
-	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
-	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
+	mPSConstantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
+	mPSConstantBuffer->SetConstant( "w", mWorldTransform );
+	rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
 	rd.SetInputLayout( mInputLayout );
 	rd.SetVertexBuffer( mVertexBuffer );
 	rd.SetIndexBuffer( mIndexBuffer );

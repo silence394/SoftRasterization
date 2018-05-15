@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Prerequisites.h"
-#include "surface.h"
+#include "Surface.h"
 #include <vector>
 
 class Texture

@@ -10,6 +10,9 @@
 
 #include "Camera.h"
 #include "Color.h"
+#include "Light.h"
+#include "Material.h"
+
 #include "Texture.h"
 #include "GraphicsBuffer.h"
 #include "RenderStates.h"

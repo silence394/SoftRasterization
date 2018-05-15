@@ -11,6 +11,8 @@ public:
 public:
 	Vector4( ) { }
 
+	Vector4( float f ) : x( f ), y( f ), z( f ), w( f ) { }
+
 	Vector4( float xx, float yy, float zz, float ww ) : x( xx ), y( yy ), z( zz ), w( ww ) { }
 
 	Vector4( const Vector3& vec3, float ww ) : x( vec3.x ), y( vec3.y ), z( vec3.z ), w( ww ) { }
@@ -56,6 +58,22 @@ public:
 	float Dot( const Vector4& v ) const
 	{
 		return x * v.x + y * v.y + z * v.z + w * v.w;
+	}
+
+	float Magnitude( ) const
+	{
+		return Math::Sqrt( x * x + y * y + z * z + w * w );
+	}
+
+	Vector4& Normalize( )
+	{
+		float m = Magnitude( );
+		if ( m > 0.0f )
+		{
+			x /= m; y /= m; z /= m; w /= m;
+		}
+		
+		return *this;
 	}
 
 	Vector4& operator *= ( const Matrix4& mat );

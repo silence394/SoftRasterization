@@ -30,14 +30,30 @@ public:
 		return Color( r - c.r, g - c.g, b - c.b, a - c.a );
 	}
 
+	Color operator - ( float f ) const
+	{
+		return Color( r - f, g - f, b - f, a - f );
+	}
+
 	Color operator * ( float f ) const
 	{
 		return Color ( r * f, g * f, b * f, a * f );
 	}
 
-	Color& operator*= ( float f )
+	Color& operator *= ( float f )
 	{
 		r *= f; g *= f; b *= f; a *= f; return *this;
+	}
+
+	Color operator * ( const Color& c ) const
+	{
+		return Color( r * c.r, g * c.g, b * c.b, a * c.a );
+	}
+
+	Color& operator *= ( const Color& c )
+	{
+		r *= c.r; g *= c.g; b *= c.b; a *= c.a;
+		return *this;
 	}
 
 	inline operator uint( ) const

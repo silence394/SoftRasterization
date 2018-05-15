@@ -5,8 +5,8 @@
 #include "Color.h"
 #include <unordered_map>
 
-#define _MAX_VSINPUT_COUNT 2
-#define _MAX_PSINPUT_COUNT 2
+#define _MAX_VSINPUT_COUNT 4
+#define _MAX_PSINPUT_COUNT 4
 
 class VSInput
 {
@@ -136,5 +136,6 @@ class IPixelShader
 public:
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb ) = 0;
 	virtual uint SampleTexture( uint index, float u, float v );
+	virtual Color Texture2D( uint index, Vector2 uv );
 	virtual Color Texture2D( uint index, float u, float v );
 };

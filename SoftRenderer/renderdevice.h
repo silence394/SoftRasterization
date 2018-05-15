@@ -147,6 +147,7 @@ public:
 	SamplerStatePtr		CreateSamplerState( const SamplerStateDesc& desc );
 	void				SetSamplerState( uint index, SamplerStatePtr sampler );
 
+	Color				Texture2D( uint index, Vector2 uv );
 	Color				Texture2D( uint index, float u, float v );
 
 	ConstantBufferPtr	CreateConstantBuffer( );
