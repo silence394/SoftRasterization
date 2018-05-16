@@ -11,6 +11,9 @@ class VertexShader : public IVertexShader
 	{
 		out.position( ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "wvp" );
 		out.varying( 0 ) = in.attribute( 2 );
+		out.varying( 1 ) = in.attribute( 1 ) * cb[0]->GetConstant<Matrix4>( "w" );
+		Vector4 worldpos = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "w" );
+		out.varying( 2 ) =  Vector4( cb[0]->GetConstant<Vector3>( "eye" ), 1.0f ) - worldpos;
 	}
 };
 
@@ -18,7 +21,25 @@ class PixelShader : public IPixelShader
 {
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb )
 	{
-		out.color = Texture2D( 0, in.varying( 0 ).x, in.varying( 0 ).y );
+		Vector2 uv = Vector2( in.varying( 0 ).x, in.varying( 0 ).y );
+
+		Vector3 L = -cb[0]->GetConstant<Vector3>( "skydir" );
+
+		Vector3 N( in.varying( 1 ).x, in.varying( 1 ).y, in.varying( 1 ).z );
+		N.Normalize( );
+		float skydiffuse = Math::Clamp( Vector3::Dot( N, L ), 0.0f, 1.0f );
+
+		Vector3 viewdir( in.varying( 2 ).x, in.varying( 2 ).y, in.varying( 2 ).z );
+		viewdir.Normalize( );
+		Vector3 H = ( viewdir + L ).Normalize( );
+
+		float specular = Math::Pow( Math::Max( 0.0f, Vector3::Dot( H, N ) ), cb[0]->GetConstant<float>( "shiness" ) );
+
+		Color albedo = Texture2D( 0, uv );
+		Color skycolor = cb[0]->GetConstant<Color>( "skycolor" );
+		Color ambientcolor = cb[0]->GetConstant<Color>( "ambientcolor" );
+
+		out.color = (ambientcolor + skycolor * (skydiffuse + specular)) * albedo;
 	}
 };
 
@@ -64,7 +85,7 @@ void DemoApp::OnCreate( )
 {
 	RenderDevice& rd = RenderDevice::Instance( );
 
-	mCamera.SetPosition( Vector3( 4, 4, 4 ) );
+	mCamera.SetPosition( Vector3( 5.0f, 5.0f, 5.0f ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mViewTransform = mCamera.GetViewMatrix( );
@@ -168,14 +189,14 @@ void DemoApp::OnCreate( )
 	mPSConstantBuffer = rd.CreateConstantBuffer( );
 
 	mAmbientLight.color = Color( 0.2f, 0.2f, 0.2f, 1.0f );
-	mSkyLight.color = Color( 4.0f, 4.0f, 0.0f, 1.0f );
-	mSkyLight.direction = Vector3( 1.0f, 1.0f, -1.0f );
+	mSkyLight.color = Color( 0.0f, 1.0f, 0.0f, 1.0f );
+	mSkyLight.direction = Vector3( -3.0f, -4.0f, -5.0f );
 
 	mPSConstantBuffer->AddConstant( "ambientcolor", mAmbientLight.color );
 	mPSConstantBuffer->AddConstant( "skycolor", mSkyLight.color );
-	mPSConstantBuffer->AddConstant( "skydir", mSkyLight.direction );
+	mPSConstantBuffer->AddConstant( "skydir", mSkyLight.direction.Normalize( ) );
 
-	mMaterial.shiness = 50.0f;
+	mMaterial.shiness = 1.0f;
 
 	mPSConstantBuffer->AddConstant( "shiness", mMaterial.shiness );
 }
@@ -217,12 +238,13 @@ void DemoApp::OnRender( )
 	rd.SetSamplerState( 1, mSampler );
 	rd.SetVertexShader( mVertexShader );
 	rd.SetPixelShader( mPixelShader );
+	rd.SetShaderVaryingCount( 3 );
 	mWorldTransform = Matrix4( ).SetScaling( 1.0f );
 	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 	mVSContantBuffer->SetConstant( "w", mWorldTransform );
+	mVSContantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
 	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
-	mPSConstantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
-	mPSConstantBuffer->SetConstant( "w", mWorldTransform );
+	
 	rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
 	rd.SetInputLayout( mInputLayout );
 	rd.SetVertexBuffer( mVertexBuffer );

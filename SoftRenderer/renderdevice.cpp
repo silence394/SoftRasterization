@@ -31,7 +31,8 @@ void RenderDevice::PreparePipeline( )
 			mSamplers[i] = mDefaultSampler;
 	}
 
-	mVaryingCount = mInputLayout != nullptr ? mInputLayout->GetElementCount( ) - 1 : 0;
+	if ( mVaryingCount == 0 )
+		mVaryingCount = mInputLayout != nullptr ? mInputLayout->GetElementCount( ) - 1 : 0;
 }
 
 RenderDevice::~RenderDevice( )

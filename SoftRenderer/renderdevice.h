@@ -127,6 +127,16 @@ public:
 		mIndexBuffer = buffer;
 	}
 
+	void SetShaderVaryingCount( uint count )
+	{
+		mVaryingCount = count;
+	}
+
+	uint GetShaderVaryingCount( ) const
+	{
+		return mVaryingCount;
+	}
+
 	void Clear( );
 	void DrawPixel( uint x, uint y, uint color );
 	void DrawPoint( const Point& p, uint color );

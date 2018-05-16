@@ -2,8 +2,10 @@
 
 #include <Math.h>
 
-namespace Math
+class Math
 {
+public:
+	const static float cEpsilon;
 
 	template< typename T >
 	static void Swap( T& t1, T& t2 )
@@ -64,4 +66,18 @@ namespace Math
 	{
 		return val >= 0 ? val : -val;
 	}
-}
+
+	static float Pow( float base, float exponent )
+	{
+		if ( base < cEpsilon )
+			return 0.0f;
+
+		return ::powf( base, exponent );
+	}
+
+	template< typename T >
+	static T Max( T t1, T t2 )
+	{
+		return t1 >= t2 ? t1 : t2;
+	}
+};
