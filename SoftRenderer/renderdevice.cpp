@@ -41,6 +41,8 @@ RenderDevice::~RenderDevice( )
 
 	for ( uint i = 0; i < mHeight; i ++ )
 		delete[] mDepthBuffer[i];
+
+	delete[] mDepthBuffer;
 }
 
 bool RenderDevice::Init( HWND window, uint * framebuffer )
@@ -937,7 +939,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 			if ( top->position( ).y > middle->position( ).y )
 				Math::Swap( top, middle );
 
-			float factor = ( middle->position( ).y - top->position( ).y ) / ( bottom->position( ).y - top->position( ).y );
+			float factor = ( Math::Ceil( middle->position( ).y ) - Math::Ceil( top->position( ).y ) ) / ( Math::Ceil( bottom->position( ).y ) - Math::Ceil( top->position( ).y ) );
 			PSInput newmiddle;
 			PSInput::Lerp( newmiddle, mVaryingCount,*top, *bottom, factor );
 

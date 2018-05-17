@@ -35,10 +35,10 @@ class PixelShader : public IPixelShader
 
 		float specular = Math::Pow( Math::Max( 0.0f, Vector3::Dot( H, N ) ), cb[0]->GetConstant<float>( "shiness" ) );
 
-		Color albedo = Texture2D( 0, uv );
+		
 		Color skycolor = cb[0]->GetConstant<Color>( "skycolor" );
 		Color ambientcolor = cb[0]->GetConstant<Color>( "ambientcolor" );
-
+		Color albedo = Texture2D( 0, uv );
 		out.color = (ambientcolor + skycolor * (skydiffuse + specular)) * albedo;
 	}
 };
@@ -53,6 +53,7 @@ private:
 	TexturePtr			mTexture;
 	TexturePtr			mNormalTexture;
 	SamplerStatePtr		mSampler;
+	RasterizerStatePtr	mRasterState;
 
 	InputLayoutPtr		mInputLayout;
 	VertexShaderPtr		mVertexShader;
@@ -199,6 +200,11 @@ void DemoApp::OnCreate( )
 	mMaterial.shiness = 1.0f;
 
 	mPSConstantBuffer->AddConstant( "shiness", mMaterial.shiness );
+
+	RasterizerDesc rsdesc;
+	rsdesc.fillMode = EFillMode::FM_WIREFRAME;
+	rsdesc.cullMode = ECullMode::ECM_BACK;
+	mRasterState = rd.CreateRasterizerState( rsdesc );
 }
 
 void DemoApp::OnClose( )
@@ -236,6 +242,7 @@ void DemoApp::OnRender( )
 	rd.SetSamplerState( 0, mSampler );
 	rd.SetTexture( 1, mNormalTexture );
 	rd.SetSamplerState( 1, mSampler );
+	//rd.SetRasterizerState( mRasterState );
 	rd.SetVertexShader( mVertexShader );
 	rd.SetPixelShader( mPixelShader );
 	rd.SetShaderVaryingCount( 3 );
