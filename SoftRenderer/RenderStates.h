@@ -63,9 +63,19 @@ private:
 	RasterizerState( const RasterizerDesc& desc ) : mDesc( desc ) { }
 
 public:
+	void SetFillMode( EFillMode mode )
+	{
+		mDesc.fillMode = mode;
+	}
+
 	EFillMode GetFillMode( ) const
 	{
 		return mDesc.fillMode;
+	}
+
+	void SetCullMode( ECullMode mode )
+	{
+		mDesc.cullMode = mode;
 	}
 
 	ECullMode GetCullMode( ) const

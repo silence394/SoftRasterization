@@ -78,6 +78,7 @@ public:
 	virtual void OnRender( );
 	virtual void OnClose( );
 
+	virtual void OnKeyDown( uint key );
 	virtual void OnMouseMove( int x, int y );
 	virtual void OnMouseWheel( int delta );
 };
@@ -202,13 +203,25 @@ void DemoApp::OnCreate( )
 	mPSConstantBuffer->AddConstant( "shiness", mMaterial.shiness );
 
 	RasterizerDesc rsdesc;
-	rsdesc.fillMode = EFillMode::FM_WIREFRAME;
+	rsdesc.fillMode = EFillMode::FM_SOLID;
 	rsdesc.cullMode = ECullMode::ECM_BACK;
 	mRasterState = rd.CreateRasterizerState( rsdesc );
 }
 
 void DemoApp::OnClose( )
-{;
+{
+}
+
+void DemoApp::OnKeyDown( uint key )
+{
+	if ( key == 'Q' )
+		mRasterState->SetFillMode( EFillMode::FM_WIREFRAME );
+	else if ( key == 'A' )
+		mRasterState->SetFillMode( EFillMode::FM_SOLID );
+	else if ( key == 'W' )
+		mRasterState->SetCullMode( ECullMode::ECM_FRONT );
+	else if ( key == 'S' )
+		mRasterState->SetCullMode( ECullMode::ECM_BACK );
 }
 
 void DemoApp::OnMouseMove( int x, int y )
@@ -242,7 +255,7 @@ void DemoApp::OnRender( )
 	rd.SetSamplerState( 0, mSampler );
 	rd.SetTexture( 1, mNormalTexture );
 	rd.SetSamplerState( 1, mSampler );
-	//rd.SetRasterizerState( mRasterState );
+	rd.SetRasterizerState( mRasterState );
 	rd.SetVertexShader( mVertexShader );
 	rd.SetPixelShader( mPixelShader );
 	rd.SetShaderVaryingCount( 3 );

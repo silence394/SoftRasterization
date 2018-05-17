@@ -7,6 +7,7 @@ LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 	{
 		case WM_KEYDOWN:
 		{
+			GStaticWindow->OnKeyDown( (uint) wparam );
 			break;
 		}
 			
@@ -25,15 +26,15 @@ LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 		}
 
 		case WM_MOUSEWHEEL:
-			{
-				int x = (int) LOWORD (lparam);
-				int y = (int) HIWORD (lparam);
-				int delta = (short) HIWORD (wparam);
+		{
+			int x = (int) LOWORD (lparam);
+			int y = (int) HIWORD (lparam);
+			int delta = (short) HIWORD (wparam);
 
-				GStaticWindow->OnMouseWheel( delta );
+			GStaticWindow->OnMouseWheel( delta );
 
-				break;
-			}
+			break;
+		}
 	}
 
 	if ( msg == WM_CLOSE )

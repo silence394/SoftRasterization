@@ -26,6 +26,7 @@ public:
 	virtual void	OnRender( ) { };
 	virtual void	OnClose( ) { };
 
+	virtual void	OnKeyDown( uint key ) { }
 	virtual void	OnMouseMove( int x, int y ) { };
 	virtual void	OnMouseWheel( int delta ) { };
 
