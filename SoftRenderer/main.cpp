@@ -8,6 +8,22 @@
 #include "Assimp/scene.h"
 #include "Assimp/postprocess.h"
 
+class BaseVertexShader : public IVertexShader
+{
+	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb )
+	{
+		out.position( ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "wvp" );
+	}
+};
+
+class BasePixelShader : public IPixelShader
+{
+	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb )
+	{
+		out.color = Color( 1.0f, 1.0f, 1.0f, 1.0f );
+	}
+};
+
 class VertexShader : public IVertexShader
 {
 	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb )
