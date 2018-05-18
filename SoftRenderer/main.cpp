@@ -86,51 +86,6 @@ public:
 	virtual void OnMouseWheel( int delta );
 };
 
-struct VERTEX
-{
-	float x,y,z;
-	Vector2 texcoord;
-};
-
-void ProcessNode( aiNode * node, const aiScene * scene )
-{
-	for (uint i = 0; i < node->mNumMeshes; i++)
-	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		//meshes.push_back(this->processMesh(mesh, scene));
-		std::vector<VERTEX> vertexs;
-		//std::vector<uint> indices;
-		
-		for ( uint j = 0; j < mesh->mNumVertices; j ++ )
-		{
-			VERTEX vertex;
-			vertex.x = mesh->mVertices[i].x;
-			vertex.y = mesh->mVertices[i].y;
-			vertex.z = mesh->mVertices[i].z;
-		}
-
-		if ( mesh->mTextureCoords[0] )
-		{
-
-		}
-
-		if ( mesh->mNormals )
-		{
-			for ( uint n = 0; n < mesh->mNumVertices; n ++ )
-			{
-				float x = mesh->mNormals[n].x;
-				float y = mesh->mNormals[n].y;
-				float z = mesh->mNormals[n].z;
-			}
-		}
-	}
-
-	for (uint i = 0; i < node->mNumChildren; i++)
-	{
-		ProcessNode(node->mChildren[i], scene);
-	}
-}
-
 void DemoApp::OnCreate( )
 {
 	RenderDevice& rd = RenderDevice::Instance( );
@@ -144,14 +99,7 @@ void DemoApp::OnCreate( )
 	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
 	mNormalTexture = TextureManager::Instance( ).Load( L"../Media/stone_normal.jpg" );
 
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile( std::string("../Media/box.obj"), aiProcess_GenNormals| aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType );
-	if ( scene == nullptr )
-	{
-		cout << "Fuck error!" << endl;
-	}
-
-	ProcessNode( scene->mRootNode, scene );
+	ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/WusonOBJ.obj" ) );
 
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;

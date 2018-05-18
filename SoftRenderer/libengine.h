@@ -20,6 +20,8 @@
 
 #include "TextureManager.h"
 
+#include "ModelManager.h"
+
 #include "Window.h"
 #include "App.h"
 

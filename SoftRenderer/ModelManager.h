@@ -9,7 +9,7 @@ private:
 	ModelManager( ) { }
 
 public:
-	ModelManager& Instance( );
+	static ModelManager& Instance( );
 
 	StaticMeshPtr	LoadModel( std::wstring& resname );
 };

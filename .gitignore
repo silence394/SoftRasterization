@@ -2,7 +2,8 @@
 *.exe
 *.ilk
 *.pdb
-*.obj
+SoftRenderer/Debug/*.obj
+SoftRenderer/Release/*.obj
 *.tlog
 *.log
 *.idb

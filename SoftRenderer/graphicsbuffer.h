@@ -17,26 +17,28 @@ public:
 private:
 	friend class RenderDevice;
 
-	void*	mBuffer;
-	uint	mLength;
-	uint	mSize;
+	std::vector<byte>	mBuffer;
+	uint				mSize;
 
-	GraphicsBuffer( void* buffer, uint len, uint size ) : mBuffer( buffer ), mLength( len ), mSize( size ) { }
+	GraphicsBuffer( void* buffer, uint len, uint size ) : mSize( size )
+	{
+		mBuffer.resize( len );
+		mBuffer.assign( (byte*) buffer, (byte*) buffer + len );
+	}
+
+	GraphicsBuffer( const GraphicsBuffer& rhs ) { }
+	void operator == ( const GraphicsBuffer& rhs ) { }
 
 public:
-	~GraphicsBuffer( )
-	{
-		delete[] mBuffer;
-	}
 
 	void* GetBuffer( ) const
 	{
-		return mBuffer;
+		return (void*) mBuffer.data( );
 	}
 
 	uint GetLength( ) const
 	{
-		return mLength;
+		return mBuffer.size( );
 	}
 
 	uint GetSize( ) const
