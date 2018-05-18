@@ -153,7 +153,6 @@ void DemoApp::OnCreate( )
 
 	ProcessNode( scene->mRootNode, scene );
 
-
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;
 	desc.filter = ESamplerFilter::SF_Linear;

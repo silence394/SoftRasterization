@@ -30,6 +30,8 @@ class SamplerState;
 struct RasterizerDesc;
 class RasterizerState;
 
+class StaticMesh;
+
 class RenderDevice;
 
 class Window;
@@ -49,3 +51,4 @@ typedef std::shared_ptr<IPixelShader> PixelShaderPtr;
 typedef std::shared_ptr<GraphicsBuffer> GraphicsBufferPtr;
 typedef std::shared_ptr<InputLayout> InputLayoutPtr;
 typedef std::shared_ptr<RasterizerState> RasterizerStatePtr;
+typedef std::shared_ptr<StaticMesh> StaticMeshPtr;

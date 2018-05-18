@@ -197,7 +197,7 @@ void VertexProcessEngine::Cull( PSInput** in )
 	}
 }
 
-std::vector< PSInput* >& VertexProcessEngine::Process(  )
+std::vector<PSInput*>& VertexProcessEngine::Process(  )
 {
 	mRasterizerVertex.clear( );
 	if ( mContext.IsValid( ) == false )

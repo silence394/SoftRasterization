@@ -45,12 +45,6 @@ private:
 
 	uint						mVaryingCount;
 
-	std::pair< uint, PSInput* >	mVertexCache[ _MAX_VERTEXCACHE_COUNT ];
-	std::vector< PSInput >		mVertexPool;
-	std::list<PSInput>			mClippedVertex;
-	std::vector< PSInput* >		mPtrClipedVertex;
-	std::vector< PSInput* >		mWireFrameVertexs;
-
 	// Textures and samplers.
 	TexturePtr					mTextures[ _MAX_TEXTURE_COUNT ];
 	SamplerStatePtr				mSamplers[ _MAX_TEXTURE_COUNT ];

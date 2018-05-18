@@ -59,7 +59,7 @@ class InputLayout
 private:
 	friend class RenderDevice;
 
-	std::vector<InputElementDesc>	mDescs;
+	std::vector<InputElementDesc> mDescs;
 
 	InputLayout( InputElementDesc const* desc, uint count )
 	{

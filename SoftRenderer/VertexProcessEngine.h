@@ -32,11 +32,11 @@ private:
 
 	static std::unique_ptr< VertexProcessEngine >	mInstance;
 	VertexProcessContext							mContext;
-	std::pair< uint, PSInput* >						mVertexCache[ MC_VertexCache ];
-	std::vector< PSInput >							mVertexPool;
-	std::list< PSInput >							mClippedVertex;
+	std::pair<uint, PSInput*>						mVertexCache[ MC_VertexCache ];
+	std::vector<PSInput>							mVertexPool;
+	std::list<PSInput>							mClippedVertex;
 
-	std::vector< PSInput* >							mRasterizerVertex;
+	std::vector<PSInput*>							mRasterizerVertex;
 
 private:
 	VertexProcessEngine( ) { }

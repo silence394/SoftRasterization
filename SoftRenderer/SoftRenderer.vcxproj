@@ -88,12 +88,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Matrix4.cpp" />
+    <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="PixelFormats.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="RenderDevice.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="Shaders.cpp" />
+    <ClCompile Include="StaticMesh.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -110,6 +112,7 @@
     <ClInclude Include="LibEngine.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="ModelManager.h" />
     <ClInclude Include="PixelFormats.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Shaders.h" />
@@ -120,6 +123,7 @@
     <ClInclude Include="Point.h" />
     <ClInclude Include="RenderDevice.h" />
     <ClInclude Include="App.h" />
+    <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="String.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="Texture.h" />
