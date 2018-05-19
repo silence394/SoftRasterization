@@ -78,6 +78,9 @@ private:
 	VertexShaderPtr		mVertexShader;
 	PixelShaderPtr		mPixelShader;
 
+	VertexShaderPtr		mBaseVS;
+	PixelShaderPtr		mBasePS;
+
 	GraphicsBufferPtr	mVertexBuffer;
 	GraphicsBufferPtr	mIndexBuffer;
 
@@ -115,7 +118,10 @@ void DemoApp::OnCreate( )
 	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
 	mNormalTexture = TextureManager::Instance( ).Load( L"../Media/stone_normal.jpg" );
 
-	ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/WusonOBJ.obj" ) );
+	ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/cube.obj" ) );
+
+	mBaseVS = VertexShaderPtr( new BaseVertexShader( ) );
+	mBasePS = PixelShaderPtr( new BasePixelShader( ) );
 
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;

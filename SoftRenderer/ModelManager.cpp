@@ -98,8 +98,11 @@ StaticMeshPtr ModelManager::LoadModel( std::wstring& resname )
 			indices.push_back( mesh->mFaces[j].mIndices[2] );
 		}
 
-		GraphicsBufferPtr indexbuffer = rd.CreateBuffer( indices.data( ), indices.size( ) * sizeof( ushort ), sizeof( ushort ) );
-		GraphicsBufferPtr vertexbuffer = rd.CreateBuffer( vertexs.data( ), vertexs.size( ), vsize );
+		StaticMeshResouce resource;
+		resource.mVertexBuffer = rd.CreateBuffer( vertexs.data( ), vertexs.size( ), vsize );
+		resource.mIndexBuffer = rd.CreateBuffer( indices.data( ), indices.size( ) * sizeof( ushort ), sizeof( ushort ) );
+
+		resources.push_back( resource );
 	}
 
 	return StaticMeshPtr( new StaticMesh( resources ) );

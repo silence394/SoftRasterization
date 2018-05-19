@@ -93,7 +93,9 @@
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="RenderDevice.cpp" />
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="RenderFactory.cpp" />
     <ClCompile Include="RenderStates.cpp" />
+    <ClCompile Include="RenderTechnique.cpp" />
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="StaticMesh.cpp" />
     <ClCompile Include="String.cpp" />
@@ -114,7 +116,9 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="PixelFormats.h" />
+    <ClInclude Include="RenderFactory.h" />
     <ClInclude Include="RenderStates.h" />
+    <ClInclude Include="RenderTechnique.h" />
     <ClInclude Include="Shaders.h" />
     <ClInclude Include="Prerequisites.h" />
     <ClInclude Include="GraphicsBuffer.h" />
