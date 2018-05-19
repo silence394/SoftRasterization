@@ -12,4 +12,6 @@ public:
 	static ModelManager& Instance( );
 
 	StaticMeshPtr	LoadModel( std::wstring& resname );
+
+	StaticMeshPtr	CreateBox( );
 };

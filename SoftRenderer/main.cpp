@@ -4,9 +4,6 @@
 #include "stdlib.h"
 #include <memory>
 #include <iostream>
-#include "Assimp/Importer.hpp"
-#include "Assimp/scene.h"
-#include "Assimp/postprocess.h"
 
 class BaseVertexShader : public IVertexShader
 {
@@ -78,6 +75,8 @@ private:
 	VertexShaderPtr		mVertexShader;
 	PixelShaderPtr		mPixelShader;
 
+	StaticMeshPtr		mCube;
+
 	VertexShaderPtr		mBaseVS;
 	PixelShaderPtr		mBasePS;
 	InputLayoutPtr		mBaseInputLayout;
@@ -124,10 +123,10 @@ void DemoApp::OnCreate( )
 
 	mBaseVS = VertexShaderPtr( new BaseVertexShader( ) );
 	mBasePS = PixelShaderPtr( new BasePixelShader( ) );
+	mBaseVS->SetVaryingCount( 0 );
 
 	std::vector<InputElementDesc> eledesc;
 	eledesc.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
-
 	mBaseInputLayout = rd.CreateInputLayout( &eledesc[0], eledesc.size( ) );
 
 	SamplerStateDesc desc;
@@ -135,10 +134,10 @@ void DemoApp::OnCreate( )
 	desc.filter = ESamplerFilter::SF_Linear;
 	mSampler = rd.CreateSamplerState( desc );
 
-	mPixelShader = PixelShaderPtr( new PixelShader( ) );
-	rd.SetPixelShader( mPixelShader );
-
 	mVertexShader = VertexShaderPtr( new VertexShader( ) );
+	mVertexShader->SetVaryingCount( 3 );
+
+	mPixelShader = PixelShaderPtr( new PixelShader( ) );
 
 	std::vector<InputElementDesc> descs;
 	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
@@ -147,79 +146,7 @@ void DemoApp::OnCreate( )
 
 	mInputLayout = rd.CreateInputLayout( &descs[0], descs.size( ) );
 
-	struct Vertex
-	{
-		Vector3	pos;
-		Vector3	normal;
-		Vector2	texcoord;
-	};
-
-	Vertex vertex[24] = 
-	{
-		// X +.
-		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
-
-		// X -.
-		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 0.0f )},
-		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
-		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
-
-		// Y +.
-		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
-
-		// Y -.
-		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
-		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
-		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
-
-		// Z +.
-		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 0.0f, 1.0f ) },
-
-		// Z -.
-		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 0.0f, 0.0f ) },
-		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 1.0f, 0.0f ) },
-		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 1.0f, 1.0f ) },
-		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 0.0f, 1.0f ) },
-	};
-
-	uint vsize = sizeof( Vertex );
-	uint vlen = sizeof( vertex );
-	byte* vbuffer = new byte[ vlen ];
-	memcpy( vbuffer, vertex, vlen );
-
-	ushort indices[36] =
-	{
-		0, 2, 1,
-		0, 3, 2,
-		4, 6, 5,
-		4, 7, 6,
-		8, 10, 9,
-		8, 11, 10,
-		12, 14, 13,
-		12, 15, 14,
-		16, 18, 17,
-		16, 19, 18,
-		20, 22, 21,
-		20, 23, 22,
-	};
-	
-	uint ilen = sizeof( indices );
-	byte* ibuffer = new byte[ ilen ];
-	memcpy( ibuffer, indices, ilen );
-
-	mVertexBuffer = rd.CreateBuffer( vbuffer, vlen, vsize );
-	mIndexBuffer = rd.CreateBuffer( ibuffer, ilen, sizeof( ushort ) );
+	mCube = ModelManager::Instance( ).CreateBox( );
 
 	mVSContantBuffer = rd.CreateConstantBuffer( );
 	mPSConstantBuffer = rd.CreateConstantBuffer( );
@@ -286,14 +213,13 @@ void DemoApp::OnRender( )
 	rd.Clear( );
 
 	{
-	/*	rd.SetTexture( 0, mTexture );
+		rd.SetTexture( 0, mTexture );
 		rd.SetSamplerState( 0, mSampler );
 		rd.SetTexture( 1, mNormalTexture );
 		rd.SetSamplerState( 1, mSampler );
 		rd.SetRasterizerState( mRasterState );
 		rd.SetVertexShader( mVertexShader );
 		rd.SetPixelShader( mPixelShader );
-		rd.SetShaderVaryingCount( 3 );
 		mWorldTransform = Matrix4( ).SetScaling( 1.0f );
 		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 		mVSContantBuffer->SetConstant( "w", mWorldTransform );
@@ -302,17 +228,14 @@ void DemoApp::OnRender( )
 
 		rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
 		rd.SetInputLayout( mInputLayout );
-		rd.SetVertexBuffer( mVertexBuffer );
-		rd.SetIndexBuffer( mIndexBuffer );
-		rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );*/
+		mCube->Draw( );
 	}
 
 	{
 		rd.SetVertexShader( mBaseVS );
 		rd.SetPixelShader( mBasePS );
-		rd.SetShaderVaryingCount( 0 );
 		rd.SetInputLayout( mBaseInputLayout );
-		mWorldTransform = Matrix4( ).SetScaling( 1.0f );
+		mWorldTransform = Matrix4( ).SetTrans( Vector3( 2.0f, 0.0f, 0.0f ) );
 		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 		rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 

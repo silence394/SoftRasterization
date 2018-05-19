@@ -107,3 +107,79 @@ StaticMeshPtr ModelManager::LoadModel( std::wstring& resname )
 
 	return StaticMeshPtr( new StaticMesh( resources ) );
 }
+
+StaticMeshPtr ModelManager::CreateBox( )
+{
+	StaticMeshResouce resource;
+
+	struct Vertex
+	{
+		Vector3	pos;
+		Vector3	normal;
+		Vector2	texcoord;
+	};
+
+	Vertex vertex[24] = 
+	{
+		// X +.
+		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
+
+		// X -.
+		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 0.0f )},
+		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( -1.0f, 0.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
+
+		// Y +.
+		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
+
+		// Y -.
+		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( 0.0f, -1.0f, 0.0f ), Vector2( 0.0f, 1.0f ) },
+
+		// Z +.
+		{ Vector3( -1.0f, -1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f,  1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f, -1.0f,  1.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector2( 0.0f, 1.0f ) },
+
+		// Z -.
+		{ Vector3( -1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 0.0f, 0.0f ) },
+		{ Vector3( -1.0f, -1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 1.0f, 0.0f ) },
+		{ Vector3(  1.0f, -1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 1.0f, 1.0f ) },
+		{ Vector3(  1.0f,  1.0f, -1.0f ), Vector3( 0.0f, 0.0f, -1.0f ), Vector2( 0.0f, 1.0f ) },
+	};
+
+	resource.mVertexBuffer = RenderDevice::Instance( ).CreateBuffer( &vertex, sizeof( vertex ), sizeof( Vertex ) );
+
+	ushort indices[36] =
+	{
+		0, 2, 1,
+		0, 3, 2,
+		4, 6, 5,
+		4, 7, 6,
+		8, 10, 9,
+		8, 11, 10,
+		12, 14, 13,
+		12, 15, 14,
+		16, 18, 17,
+		16, 19, 18,
+		20, 22, 21,
+		20, 23, 22,
+	};
+
+	resource.mIndexBuffer = RenderDevice::Instance( ).CreateBuffer( &indices, sizeof( indices ), sizeof( ushort ) );
+
+	std::vector<StaticMeshResouce> resources;
+	resources.push_back( resource );
+
+	return StaticMeshPtr( new StaticMesh( resources ) );
+}

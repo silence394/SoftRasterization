@@ -30,9 +30,6 @@ void RenderDevice::PreparePipeline( )
 		if ( mTextures[i] != nullptr && mSamplers[i] == nullptr )
 			mSamplers[i] = mDefaultSampler;
 	}
-
-	if ( mVaryingCount == 0 )
-		mVaryingCount = mInputLayout != nullptr ? mInputLayout->GetElementCount( ) - 1 : 0;
 }
 
 RenderDevice::~RenderDevice( )
@@ -304,8 +301,8 @@ void RenderDevice::DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInp
 			{
 				float factor = (float) (y - ymin) * invheight;
 				PSInput input1, input2;
-				PSInput::Lerp( input1, mVaryingCount, top, middle, factor );;
-				PSInput::Lerp( input2, mVaryingCount, top, bottom, factor );;
+				PSInput::Lerp( input1, mVertexShader->GetVaryingCount( ), top, middle, factor );;
+				PSInput::Lerp( input2, mVertexShader->GetVaryingCount( ), top, bottom, factor );;
 
 				DrawScanline( input1, input2 );
 			}
@@ -316,8 +313,8 @@ void RenderDevice::DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInp
 			{
 				float factor = (float) (y - ymin) * invheight;
 				PSInput input1, input2;
-				PSInput::Lerp( input1, mVaryingCount, top, middle, factor );
-				PSInput::Lerp( input2, mVaryingCount, top, bottom, factor );
+				PSInput::Lerp( input1, mVertexShader->GetVaryingCount( ), top, middle, factor );
+				PSInput::Lerp( input2, mVertexShader->GetVaryingCount( ), top, bottom, factor );
 				
 				int xleftint = (int) xs;
 				int xrightint = (int) xe;
@@ -329,8 +326,8 @@ void RenderDevice::DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInp
 
 					float invwidth = 1.0f / ( xe - xs );
 					PSInput draw1, draw2;
-					PSInput::Lerp( draw1, mVaryingCount, input1, input2, ( xleft - xs ) * invwidth );
-					PSInput::Lerp( draw2, mVaryingCount, input1, input2, ( xright - xs ) * invwidth );
+					PSInput::Lerp( draw1, mVertexShader->GetVaryingCount( ), input1, input2, ( xleft - xs ) * invwidth );
+					PSInput::Lerp( draw2, mVertexShader->GetVaryingCount( ), input1, input2, ( xright - xs ) * invwidth );
 
 					DrawScanline( draw1, draw2 );
 				}
@@ -409,8 +406,8 @@ void RenderDevice::DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PS
 			{
 				float factor = (float) (y - ymin) * invheight;
 				PSInput input1, input2;
-				PSInput::Lerp( input1, mVaryingCount, top, bottom, factor );
-				PSInput::Lerp( input2, mVaryingCount, middle, bottom, factor );
+				PSInput::Lerp( input1, mVertexShader->GetVaryingCount( ), top, bottom, factor );
+				PSInput::Lerp( input2, mVertexShader->GetVaryingCount( ), middle, bottom, factor );
 
 				int xleftint = (int) xs;
 				int xrightint = (int) xe;
@@ -422,8 +419,8 @@ void RenderDevice::DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PS
 
 					float invwidth = 1.0f / ( xe - xs );
 					PSInput draw1, draw2;
-					PSInput::Lerp( draw1, mVaryingCount,input1, input2, ( xleft - xs ) * invwidth );
-					PSInput::Lerp( draw2, mVaryingCount,input1, input2, ( xright - xs ) * invwidth );
+					PSInput::Lerp( draw1, mVertexShader->GetVaryingCount( ),input1, input2, ( xleft - xs ) * invwidth );
+					PSInput::Lerp( draw2, mVertexShader->GetVaryingCount( ),input1, input2, ( xright - xs ) * invwidth );
 
 					DrawScanline( draw1, draw2 );
 				}
@@ -658,7 +655,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	// Viewport Transformation.
 	for ( uint i = 0; i < sorts.size( ); i ++ )
 	{
-		sorts[i]->Homogen( mVaryingCount );
+		sorts[i]->Homogen( mVertexShader->GetVaryingCount( ) );
 				
 		// Viewport transformation.
 		Vector4& pos = sorts[i]->position( );
@@ -686,7 +683,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 
 			float factor = ( Math::Ceil( middle->position( ).y ) - Math::Ceil( top->position( ).y ) ) / ( Math::Ceil( bottom->position( ).y ) - Math::Ceil( top->position( ).y ) );
 			PSInput newmiddle;
-			PSInput::Lerp( newmiddle, mVaryingCount,*top, *bottom, factor );
+			PSInput::Lerp( newmiddle, mVertexShader->GetVaryingCount( ),*top, *bottom, factor );
 
 			DrawStandardTopTriangle( *top, newmiddle, *middle );
 			DrawStandardBottomTriangle( *middle, newmiddle, *bottom );

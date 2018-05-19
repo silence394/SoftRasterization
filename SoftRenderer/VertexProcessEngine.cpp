@@ -109,7 +109,7 @@ void VertexProcessEngine::Cull( PSInput** in )
 	};
 
 	EFillMode fillmode = mContext.mRasterizerState->GetFillMode( );
-	uint varyingcount = RenderDevice::Instance( ).GetShaderVaryingCount( );
+	uint varyingcount = mContext.mVertexShader->GetVaryingCount( );
 	if ( infrustum )
 	{
 		if ( culltest( in ) )
