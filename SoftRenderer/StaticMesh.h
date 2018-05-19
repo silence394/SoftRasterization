@@ -23,4 +23,6 @@ private:
 
 public:
 	StaticMesh( const std::vector<StaticMeshResouce>& resources );
+
+	void Draw( );
 };

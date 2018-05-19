@@ -20,6 +20,7 @@
 
 #include "TextureManager.h"
 
+#include "StaticMesh.h"
 #include "ModelManager.h"
 
 #include "Window.h"

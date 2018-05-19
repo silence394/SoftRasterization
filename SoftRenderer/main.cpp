@@ -80,6 +80,8 @@ private:
 
 	VertexShaderPtr		mBaseVS;
 	PixelShaderPtr		mBasePS;
+	InputLayoutPtr		mBaseInputLayout;
+	StaticMeshPtr		mBaseBox;
 
 	GraphicsBufferPtr	mVertexBuffer;
 	GraphicsBufferPtr	mIndexBuffer;
@@ -118,10 +120,15 @@ void DemoApp::OnCreate( )
 	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
 	mNormalTexture = TextureManager::Instance( ).Load( L"../Media/stone_normal.jpg" );
 
-	ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/cube.obj" ) );
+	mBaseBox = ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/box.obj" ) );
 
 	mBaseVS = VertexShaderPtr( new BaseVertexShader( ) );
 	mBasePS = PixelShaderPtr( new BasePixelShader( ) );
+
+	std::vector<InputElementDesc> eledesc;
+	eledesc.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
+
+	mBaseInputLayout = rd.CreateInputLayout( &eledesc[0], eledesc.size( ) );
 
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;
@@ -278,25 +285,39 @@ void DemoApp::OnRender( )
 	rd.SetClearColor( 0xFF808080 );
 	rd.Clear( );
 
-	rd.SetTexture( 0, mTexture );
-	rd.SetSamplerState( 0, mSampler );
-	rd.SetTexture( 1, mNormalTexture );
-	rd.SetSamplerState( 1, mSampler );
-	rd.SetRasterizerState( mRasterState );
-	rd.SetVertexShader( mVertexShader );
-	rd.SetPixelShader( mPixelShader );
-	rd.SetShaderVaryingCount( 3 );
-	mWorldTransform = Matrix4( ).SetScaling( 1.0f );
-	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
-	mVSContantBuffer->SetConstant( "w", mWorldTransform );
-	mVSContantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
-	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
-	
-	rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
-	rd.SetInputLayout( mInputLayout );
-	rd.SetVertexBuffer( mVertexBuffer );
-	rd.SetIndexBuffer( mIndexBuffer );
-	rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );
+	{
+	/*	rd.SetTexture( 0, mTexture );
+		rd.SetSamplerState( 0, mSampler );
+		rd.SetTexture( 1, mNormalTexture );
+		rd.SetSamplerState( 1, mSampler );
+		rd.SetRasterizerState( mRasterState );
+		rd.SetVertexShader( mVertexShader );
+		rd.SetPixelShader( mPixelShader );
+		rd.SetShaderVaryingCount( 3 );
+		mWorldTransform = Matrix4( ).SetScaling( 1.0f );
+		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+		mVSContantBuffer->SetConstant( "w", mWorldTransform );
+		mVSContantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
+		rd.VSSetConstantBuffer( 0, mVSContantBuffer );
+
+		rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
+		rd.SetInputLayout( mInputLayout );
+		rd.SetVertexBuffer( mVertexBuffer );
+		rd.SetIndexBuffer( mIndexBuffer );
+		rd.DrawIndex( mIndexBuffer->GetLength( ) / mIndexBuffer->GetSize( ), 0, 0 );*/
+	}
+
+	{
+		rd.SetVertexShader( mBaseVS );
+		rd.SetPixelShader( mBasePS );
+		rd.SetShaderVaryingCount( 0 );
+		rd.SetInputLayout( mBaseInputLayout );
+		mWorldTransform = Matrix4( ).SetScaling( 1.0f );
+		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+		rd.VSSetConstantBuffer( 0, mVSContantBuffer );
+
+		mBaseBox->Draw( );
+	}
 }
 
 int main( )

@@ -31,7 +31,6 @@ struct RasterizerDesc;
 class RasterizerState;
 
 class StaticMesh;
-class RenderTechnique;
 
 class RenderDevice;
 
