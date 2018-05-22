@@ -573,7 +573,7 @@ void RenderDevice::RasterizeTriangle( const PSInput* v1, const PSInput* v2, cons
 		scanline.right = *v2;
 
 		scanline.ymin = (int) y1;
-		scanline.ymax = (int) y2;
+		scanline.ymax = (int) y3;
 
 		float invh = 1.0f / ( y3 - y2 );
 

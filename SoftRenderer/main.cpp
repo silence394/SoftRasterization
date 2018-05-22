@@ -213,33 +213,33 @@ void DemoApp::OnRender( )
 	rd.Clear( );
 
 	{
-		rd.SetTexture( 0, mTexture );
-		rd.SetSamplerState( 0, mSampler );
-		rd.SetTexture( 1, mNormalTexture );
-		rd.SetSamplerState( 1, mSampler );
-		rd.SetRasterizerState( mRasterState );
-		rd.SetVertexShader( mVertexShader );
-		rd.SetPixelShader( mPixelShader );
-		mWorldTransform = Matrix4( ).SetScaling( 1.0f );
-		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
-		mVSContantBuffer->SetConstant( "w", mWorldTransform );
-		mVSContantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
-		rd.VSSetConstantBuffer( 0, mVSContantBuffer );
+		//rd.SetTexture( 0, mTexture );
+		//rd.SetSamplerState( 0, mSampler );
+		//rd.SetTexture( 1, mNormalTexture );
+		//rd.SetSamplerState( 1, mSampler );
+		//rd.SetRasterizerState( mRasterState );
+		//rd.SetVertexShader( mVertexShader );
+		//rd.SetPixelShader( mPixelShader );
+		//mWorldTransform = Matrix4( ).SetScaling( 1.0f );
+		//mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+		//mVSContantBuffer->SetConstant( "w", mWorldTransform );
+		//mVSContantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
+		//rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 
-		rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
-		rd.SetInputLayout( mInputLayout );
-		mCube->Draw( );
+		//rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
+		//rd.SetInputLayout( mInputLayout );
+		//mCube->Draw( );
 	}
 
 	{
-		//rd.SetVertexShader( mBaseVS );
-		//rd.SetPixelShader( mBasePS );
-		//rd.SetInputLayout( mBaseInputLayout );
-		//mWorldTransform = Matrix4( ).SetTrans( Vector3( 2.0f, 0.0f, 0.0f ) );
-		//mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
-		//rd.VSSetConstantBuffer( 0, mVSContantBuffer );
+		rd.SetVertexShader( mBaseVS );
+		rd.SetPixelShader( mBasePS );
+		rd.SetInputLayout( mBaseInputLayout );
+		mWorldTransform = Matrix4( ).SetTrans( Vector3( 2.0f, 0.0f, 0.0f ) );
+		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+		rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 
-		//mBaseBox->Draw( );
+		mBaseBox->Draw( );
 	}
 }
 
