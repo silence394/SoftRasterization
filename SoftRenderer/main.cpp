@@ -37,25 +37,25 @@ class PixelShader : public IPixelShader
 {
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb )
 	{
-		Vector2 uv = Vector2( in.varying( 0 ).x, in.varying( 0 ).y );
+		//Vector2 uv = Vector2( in.varying( 0 ).x, in.varying( 0 ).y );
 
-		Vector3 L = -cb[0]->GetConstant<Vector3>( "skydir" );
+		//Vector3 L = -cb[0]->GetConstant<Vector3>( "skydir" );
 
-		Vector3 N( in.varying( 1 ).x, in.varying( 1 ).y, in.varying( 1 ).z );
-		N.Normalize( );
-		float skydiffuse = Math::Clamp( Vector3::Dot( N, L ), 0.0f, 1.0f );
+		//Vector3 N( in.varying( 1 ).x, in.varying( 1 ).y, in.varying( 1 ).z );
+		//N.Normalize( );
+		//float skydiffuse = Math::Clamp( Vector3::Dot( N, L ), 0.0f, 1.0f );
 
-		Vector3 viewdir( in.varying( 2 ).x, in.varying( 2 ).y, in.varying( 2 ).z );
-		viewdir.Normalize( );
-		Vector3 H = ( viewdir + L ).Normalize( );
+		//Vector3 viewdir( in.varying( 2 ).x, in.varying( 2 ).y, in.varying( 2 ).z );
+		//viewdir.Normalize( );
+		//Vector3 H = ( viewdir + L ).Normalize( );
 
-		float specular = Math::Pow( Math::Max( 0.0f, Vector3::Dot( H, N ) ), cb[0]->GetConstant<float>( "shiness" ) );
+		//float specular = Math::Pow( Math::Max( 0.0f, Vector3::Dot( H, N ) ), cb[0]->GetConstant<float>( "shiness" ) );
 
-		
-		Color skycolor = cb[0]->GetConstant<Color>( "skycolor" );
-		Color ambientcolor = cb[0]->GetConstant<Color>( "ambientcolor" );
-		Color albedo = Texture2D( 0, uv );
-		out.color = (ambientcolor + skycolor * (skydiffuse + specular)) * albedo;
+		//
+		//Color skycolor = cb[0]->GetConstant<Color>( "skycolor" );
+		//Color ambientcolor = cb[0]->GetConstant<Color>( "ambientcolor" );
+		//Color albedo = Texture2D( 0, uv );
+		out.color = Color( 1.0f, 1.0f, 1.0f, 1.0f );//(ambientcolor + skycolor * (skydiffuse + specular)) * albedo;
 	}
 };
 
@@ -119,7 +119,7 @@ void DemoApp::OnCreate( )
 	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
 	mNormalTexture = TextureManager::Instance( ).Load( L"../Media/stone_normal.jpg" );
 
-	mBaseBox = ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/box.obj" ) );
+	mBaseBox = ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/empty_mat.obj" ) );
 
 	mBaseVS = VertexShaderPtr( new BaseVertexShader( ) );
 	mBasePS = PixelShaderPtr( new BasePixelShader( ) );
@@ -232,14 +232,14 @@ void DemoApp::OnRender( )
 	}
 
 	{
-		rd.SetVertexShader( mBaseVS );
-		rd.SetPixelShader( mBasePS );
-		rd.SetInputLayout( mBaseInputLayout );
-		mWorldTransform = Matrix4( ).SetTrans( Vector3( 2.0f, 0.0f, 0.0f ) );
-		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
-		rd.VSSetConstantBuffer( 0, mVSContantBuffer );
+		//rd.SetVertexShader( mBaseVS );
+		//rd.SetPixelShader( mBasePS );
+		//rd.SetInputLayout( mBaseInputLayout );
+		//mWorldTransform = Matrix4( ).SetTrans( Vector3( 2.0f, 0.0f, 0.0f ) );
+		//mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+		//rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 
-		mBaseBox->Draw( );
+		//mBaseBox->Draw( );
 	}
 }
 

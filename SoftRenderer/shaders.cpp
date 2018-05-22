@@ -17,3 +17,7 @@ Color IPixelShader::Texture2D( uint index, Vector2 uv )
 {
 	return RenderDevice::Instance( ).Texture2D( index, uv );
 }
+
+uint PSInput::mVaryingCount = 0;
+
+const PSInput PSInput::cZero = PSInput( 0.0f );

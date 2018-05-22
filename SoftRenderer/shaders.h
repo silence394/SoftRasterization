@@ -21,14 +21,32 @@ public:
 class PSInput
 {
 private:
-	Vector4 mShaderRigisters[ _MAX_PSINPUT_COUNT + 1 ];
+	Vector4	mShaderRigisters[ _MAX_PSINPUT_COUNT + 1 ];
+
+	static uint	mVaryingCount;
 
 public:
-	static void Lerp( PSInput& out, uint varyingcount, const PSInput& input1, const PSInput& input2, float factor )
+	const static PSInput cZero;
+
+public:
+	PSInput( ) { }
+
+	PSInput( float value )
+	{
+		for ( uint i = 0; i < _MAX_PSINPUT_COUNT + 1; i ++ )
+			mShaderRigisters[i] = Vector4( value );
+	}
+
+	static void Lerp( PSInput& out, const PSInput& input1, const PSInput& input2, float factor )
 	{
 		out.position( ) = Vector4::Lerp( input1.position( ), input2.position( ), factor );
-		for ( uint i = 0; i < varyingcount; i ++ )
+		for ( uint i = 0; i < mVaryingCount; i ++ )
 			out.varying( i ) = Vector4::Lerp( input1.varying( i ), input2.varying( i ), factor );
+	}
+
+	static void SetVaryingCount( uint count )
+	{
+		mVaryingCount = count;
 	}
 
 	Vector4& position( )
@@ -53,15 +71,66 @@ public:
 		pos.z *= invw;
 		pos.w = invw;
 
-		for ( uint i = 0; i < varyingcount; i ++ )
+		for ( uint i = 0; i < mVaryingCount; i ++ )
 			varying( i ) *= invw;
 	}
 
-	void InHomogen( uint varyingcount )
+	void InHomogen( )
 	{
 		float invw = 1.0f / position( ).w;
-		for ( uint i = 0; i < varyingcount; i ++ )
+		for ( uint i = 0; i < mVaryingCount; i ++ )
 			varying( i )  *= invw;
+	}
+
+	PSInput& operator -= ( const PSInput& rhs )
+	{
+		position( ) -= rhs.position( );
+		for ( uint i = 0; i < mVaryingCount; i ++ )
+			varying( i ) -= rhs.varying( i );
+
+		return *this;
+	}
+
+	PSInput operator - ( const PSInput& rhs ) const
+	{
+		PSInput lhs = *this;
+		lhs -= rhs;
+
+		return lhs;
+	}
+
+	PSInput& operator += ( const PSInput& rhs )
+	{
+		position( ) += rhs.position( );
+		for ( uint i = 0; i < mVaryingCount; i ++ )
+			varying( i ) += rhs.varying( i );
+
+		return *this;
+	}
+
+	PSInput operator + ( const PSInput& rhs ) const
+	{
+		PSInput lhs = *this;
+		lhs += rhs;
+
+		return lhs;
+	}
+
+	PSInput& operator *= ( float f )
+	{
+		position( ) *= f;
+		for ( uint i = 0; i < mVaryingCount; i ++ )
+			varying( i ) *= f;
+
+		return *this;
+	}
+
+	PSInput operator * ( float f ) const
+	{
+		PSInput lhs = *this;
+		lhs *= f;
+
+		return lhs;
 	}
 };
 

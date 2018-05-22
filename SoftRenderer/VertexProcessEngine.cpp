@@ -149,7 +149,7 @@ void VertexProcessEngine::Cull( PSInput** in )
 					PSInput* input = &mClippedVertex.back( );
 
 					float factor = neartest1 / ( neartest1 - in[j]->position( ).z );
-					PSInput::Lerp( *input, varyingcount, *in[i], *in[j], factor );
+					PSInput::Lerp( *input, *in[i], *in[j], factor );
 
 					clippedvertexs[ clipnum ++ ] = input;
 				}
@@ -162,7 +162,7 @@ void VertexProcessEngine::Cull( PSInput** in )
 					PSInput* input = &mClippedVertex.back( );
 
 					float factor = in[j]->position( ).z / ( in[j]->position( ).z - neartest1 );
-					PSInput::Lerp( *input, varyingcount,  *in[j], *in[i], factor );
+					PSInput::Lerp( *input,  *in[j], *in[i], factor );
 
 					clippedvertexs[ clipnum ++ ] = input;
 				}

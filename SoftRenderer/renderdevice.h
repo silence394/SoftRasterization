@@ -26,6 +26,16 @@ private:
 		_MAX_CONSTANTBUFFER_COUNT	= 4,
 	};
 
+	struct RasterizerScanline
+	{
+		PSInput	left;
+		PSInput	right;
+		PSInput	leftstep;
+		PSInput	rightstep;
+		int		ymin;
+		int		ymax;
+	};
+
 	static std::unique_ptr<RenderDevice>	mInstance;
 
 	uint						mWidth;
@@ -81,6 +91,7 @@ public:
 	bool	IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 );
 
 	void	RasterizeTriangle( const PSInput* v1, const PSInput* v2, const PSInput* v3 );
+	void	DrawScanline( RasterizerScanline& scanline );
 
 public:
 	static RenderDevice& Instance( );
