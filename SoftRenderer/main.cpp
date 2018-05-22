@@ -232,6 +232,7 @@ void DemoApp::OnRender( )
 	}
 
 	{
+		rd.SetRasterizerState( mRasterState );
 		rd.SetVertexShader( mBaseVS );
 		rd.SetPixelShader( mBasePS );
 		rd.SetInputLayout( mBaseInputLayout );

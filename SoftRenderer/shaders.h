@@ -61,7 +61,7 @@ public:
 	const Vector4& varying( uint index ) const
 		{ return mShaderRigisters[ index + 1 ]; }
 
-	void Homogen( uint varyingcount )
+	void Homogen( )
 	{
 		Vector4& pos = position( );
 		float invw = 1.0f / pos.w;
@@ -129,6 +129,23 @@ public:
 	{
 		PSInput lhs = *this;
 		lhs *= f;
+
+		return lhs;
+	}
+
+	PSInput& operator /= ( float f )
+	{
+		position( ) /= f;
+		for ( uint i = 0; i < mVaryingCount; i ++ )
+			varying( i ) /= f;
+
+		return *this;
+	}
+
+	PSInput operator / ( float f ) const
+	{
+		PSInput lhs = *this;
+		lhs /= f;
 
 		return lhs;
 	}

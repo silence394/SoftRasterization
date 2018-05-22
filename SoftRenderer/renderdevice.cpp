@@ -575,7 +575,9 @@ void RenderDevice::RasterizeTriangle( const PSInput* v1, const PSInput* v2, cons
 		scanline.ymin = (int) y1;
 		scanline.ymax = (int) y3;
 
-		float invh = 1.0f / ( y3 - y2 );
+		//float invh = 1.0f / ( y3 - y2 );
+
+		float invh = 1.0f / ( v3->position( ).y - v2->position( ).y );
 
 		scanline.leftstep = ( *v3 - *v1 ) * invh;
 		scanline.rightstep = ( *v3 - *v2 ) * invh ;
@@ -594,7 +596,8 @@ void RenderDevice::RasterizeTriangle( const PSInput* v1, const PSInput* v2, cons
 		scanline.ymin = (int) y1;
 		scanline.ymax = (int) y2;
 
-		float invh = 1.0f / ( y2 - y1 );
+		//float invh = 1.0f / ( y2 - y1 );
+		float invh = 1.0f / ( v2->position( ).y - v1->position( ).y );
 
 		scanline.leftstep = ( *v2 - *v1 ) * invh;
 		scanline.rightstep = ( *v3 - *v1 ) * invh ;
@@ -632,7 +635,8 @@ void RenderDevice::RasterizeTriangle( const PSInput* v1, const PSInput* v2, cons
 			scanline.ymin = (int) y1;
 			scanline.ymax = (int) y2;
 
-			float invh = 1.0f / ( y2 - y1 );
+			//float invh = 1.0f / ( y2 - y1 );
+			float invh = 1.0f / ( v2->position( ).y - v1->position( ).y );
 
 			scanline.leftstep = ( *leftmid - *v1 ) * invh;
 			scanline.rightstep = ( *rightmid - *v1 ) * invh ;
@@ -648,7 +652,8 @@ void RenderDevice::RasterizeTriangle( const PSInput* v1, const PSInput* v2, cons
 			scanline.ymin = (int) y2;
 			scanline.ymax = (int) y3;
 
-			float invh = 1.0f / ( y3 - y2 );
+			//float invh = 1.0f / ( y3 - y2 );
+			float invh = 1.0f / ( v3->position( ).y - v2->position( ).y );
 
 			scanline.leftstep = ( *v3 - *leftmid ) * invh;
 			scanline.rightstep = ( *v3 - *rightmid ) * invh ;
@@ -737,10 +742,10 @@ void RenderDevice::DrawScanline( RasterizerScanline& scanline )
 	float depth;
 	for ( uint y = ymin; y <= ymax; y ++ )
 	{
-		uint xleft = Math::Ceil( left.position( ).x );
-		uint xright = Math::Ceil( right.position( ).x );
+		int xleft = Math::Ceil( left.position( ).x );
+		int xright = Math::Ceil( right.position( ).x );
 
-		PSInput step = xleft == xright ? PSInput::cZero : ( xright - xleft ) / ( right.position( ).x - left.position().x );
+		PSInput step = xleft == xright ? PSInput::cZero : ( right - left ) / ( right.position( ).x - left.position().x );
 		PSInput xiterator = left;
 
 		for ( uint x = xleft; x <= xright; x ++ )
@@ -888,7 +893,7 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 	// Viewport Transformation.
 	for ( uint i = 0; i < sorts.size( ); i ++ )
 	{
-		sorts[i]->Homogen( mVertexShader->GetVaryingCount( ) );
+		sorts[i]->Homogen( );
 				
 		// Viewport transformation.
 		Vector4& pos = sorts[i]->position( );
