@@ -110,7 +110,7 @@ void DemoApp::OnCreate( )
 {
 	RenderDevice& rd = RenderDevice::Instance( );
 
-	mCamera.SetPosition( Vector3( 5.0f, 5.0f, 5.0f ) );
+	mCamera.SetPosition( Vector3( 8.34752f, 2.22418f, 0.609865f ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mViewTransform = mCamera.GetViewMatrix( );
@@ -183,6 +183,8 @@ void DemoApp::OnKeyDown( uint key )
 		mRasterState->SetCullMode( ECullMode::ECM_FRONT );
 	else if ( key == 'S' )
 		mRasterState->SetCullMode( ECullMode::ECM_BACK );
+	else if ( key == 32 )
+		cout << "eye : " << mCamera.GetPosition( ).x << ", " << mCamera.GetPosition( ).y << ", " << mCamera.GetPosition( ).z << ", " << endl;
 }
 
 void DemoApp::OnMouseMove( int x, int y )
