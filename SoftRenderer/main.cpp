@@ -248,6 +248,26 @@ void DemoApp::OnRender( )
 
 int main( )
 {
+		Vector4 v1( 349.327423f, 352.519989f, 1.0f, 1.0f );
+		Vector4 v2( 369.996338f, 352.519989f, 1.0f, 1.0f );
+		Vector4 v3( 552.015381f, 388.435577f, 1.0f, 1.0f );
+
+		Vector4 vstepx = (v3 - v1) / ( v3.y - v1.y );
+		Vector4 vstepy = (v3 - v2) / ( v3.y - v2.y );
+
+
+		Vector4 p1( 351.324127f, 348.835632f, 1.0f, 1.0f );
+		Vector4 p2( 524.180847f, 382.943329f, 1.0f, 1.0f );
+		Vector4 p3( 560.898560f, 382.943329f, 1.0f, 1.0f );
+
+		Vector4 pstepx = (p2 - p1) / ( p2.y - p1.y );
+		Vector4 pstepy = (p3 - p1) / ( p3.y - p1.y );
+		int  a = 1;
+		int b = a + 1;
+
+		Vector4 temp1 = v1 + vstepy * (358.0f - v1.y);
+
+		Vector4 temp2 = p1 + vstepx * (358.0f - p1.y);
 	DemoApp app( 800, 600 );
 	app.Create( );
 	app.Run( );
