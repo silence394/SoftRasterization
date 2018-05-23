@@ -110,7 +110,8 @@ void DemoApp::OnCreate( )
 {
 	RenderDevice& rd = RenderDevice::Instance( );
 
-	mCamera.SetPosition( Vector3( 8.34752f, 2.22418f, 0.609865f ) );
+	//mCamera.SetPosition( Vector3( 8.34752f, 2.22418f, 0.609865f ) );
+	mCamera.SetPosition( Vector3( 8.38787f, 2.10071f, 0.48022f ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mViewTransform = mCamera.GetViewMatrix( );

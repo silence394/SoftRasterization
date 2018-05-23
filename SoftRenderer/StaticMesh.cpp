@@ -16,8 +16,8 @@ void StaticMesh::Draw( )
 		rd.SetVertexBuffer( it->mVertexBuffer );
 		rd.SetIndexBuffer( it->mIndexBuffer );
 
-		//rd.DrawIndex( 6, 108, 0 );//
-		rd.DrawIndex( it->mIndexBuffer->GetLength( ) / it->mIndexBuffer->GetSize( ), 0, 0 );
+		rd.DrawIndex( 6, 144, 0 );
+		//rd.DrawIndex( it->mIndexBuffer->GetLength( ) / it->mIndexBuffer->GetSize( ), 0, 0 );
 		it ++;
 	}
 }
