@@ -32,8 +32,10 @@ private:
 		PSInput	right;
 		PSInput	leftstep;
 		PSInput	rightstep;
-		float	ymin;
-		float	ymax;
+		float	yleftmin;
+		float	yrightmin;
+		float	yleftmax;
+		float	yrightmax;
 	};
 
 	static std::unique_ptr<RenderDevice>	mInstance;
@@ -80,9 +82,6 @@ public:
 	void	DrawLine( uint x1, uint y1, uint x2, uint y2, uint color );
 	void	DrawClipLine( int x1, int y1, int x2, int y2, uint color );
 
-	void	DrawScanline( PSInput& input1, PSInput& input2 );
-	void	DrawStandardTopTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
-	void	DrawStandardBottomTriangle( PSInput& top, PSInput& middle, PSInput& bottom );
 	bool	DepthTestAndWrite( uint x, uint y, float depth );
 
 	uint	SampleTexture( uint index, float u, float v );
@@ -91,7 +90,8 @@ public:
 	bool	IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 );
 
 	void	RasterizeTriangle( const PSInput* v1, const PSInput* v2, const PSInput* v3 );
-	void	DrawScanline( RasterizerScanline& scanline );
+	void	FillScanline( RasterizerScanline& scanline );
+	void	DrawScanline( const PSInput& left, const PSInput& right, int y );
 
 public:
 	static RenderDevice& Instance( );

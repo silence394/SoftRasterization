@@ -120,7 +120,7 @@ void DemoApp::OnCreate( )
 	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
 	mNormalTexture = TextureManager::Instance( ).Load( L"../Media/stone_normal.jpg" );
 
-	mBaseBox = ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/empty_mat.obj" ) );
+	mBaseBox = ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/WusonOBJ.obj" ) );
 
 	mBaseVS = VertexShaderPtr( new BaseVertexShader( ) );
 	mBasePS = PixelShaderPtr( new BasePixelShader( ) );
