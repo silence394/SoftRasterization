@@ -299,148 +299,55 @@ void RenderDevice::RasterizeTriangle( const PSInput* v1, const PSInput* v2, cons
 	if ( v1->position( ).y > v2->position( ).y )
 		Math::Swap( v1, v2 );
 
-	float y1 = Math::Ceil( v1->position( ).y );
-	float y2 = Math::Ceil( v2->position( ).y );
-	float y3 = Math::Ceil( v3->position( ).y );
+	float y31 = v3->position( ).y - v1->position( ).y;
+	float factor = Math::Abs( y31 ) < Math::cEpsilon ? 0.0f : ( v2->position( ).y - v1->position( ).y ) / y31;
 
-	// One line.
-	if ( y1 == y3 )
+	PSInput mid;
+	PSInput::Lerp( mid, *v1, *v3, factor );
+
+	const PSInput* leftmid;
+	const PSInput* rightmid;
+
+	if ( v2->position( ).x < mid.position( ).x )
 	{
-		if ( v1->position( ).x > v2->position( ).x )
-			Math::Swap( v1, v2 );
-		if ( v2->position( ).x > v3->position( ).x )
-			Math::Swap( v2, v3 );
-		if ( v1->position( ).x > v2->position( ).x )
-			Math::Swap( v1, v2 );
-
-		RasterizerScanline scanline;
-		scanline.left = *v1;
-		scanline.right = *v2;
-		scanline.yleftmin = scanline.yrightmin = scanline.yleftmax = scanline.yrightmax = v1->position( ).y;
-		scanline.leftstep = PSInput::cZero;
-		scanline.rightstep = PSInput::cZero;
-
-		FillScanline( scanline );
-	}
-	else if ( y1 == y2 )
-	{
-		if ( v1->position( ).x > v2->position( ).x )
-			Math::Swap( v1, v2 );
-
-		RasterizerScanline scanline;
-		scanline.left = *v1;
-		scanline.right = *v2;
-
-		//scanline.ymin = v1->position( ).y;
-		//scanline.ymax = v3->position( ).y;
-
-		scanline.yleftmin = v1->position( ).y;
-		scanline.yrightmin = v2->position( ).y;
-		scanline.yleftmax = scanline.yrightmax = v3->position( ).y;
-
-		//float invh = 1.0f / ( y3 - y2 );
-
-		float invh = 1.0f / ( v3->position( ).y - v1->position( ).y );
-
-		scanline.leftstep = ( *v3 - *v1 ) / ( scanline.yleftmax - scanline.yleftmin );
-		scanline.rightstep = ( *v3 - *v2 ) / ( scanline.yrightmax - scanline.yrightmin );
-
-		FillScanline( scanline );
-	}
-	else if ( y2 == y3 )
-	{
-		if ( v2->position( ).x > v3->position( ).x )
-			Math::Swap( v2, v3 );
-
-		RasterizerScanline scanline;
-		scanline.left = *v1;
-		scanline.right = *v1;
-
-		//scanline.ymin = v1->position( ).y;
-		//scanline.ymax = v2->position( ).y;
-
-		scanline.yleftmin = scanline.yrightmin = v1->position( ).y;
-		scanline.yleftmax = v2->position( ).y;
-		scanline.yrightmax = v3->position( ).y;
-
-		//float invh = 1.0f / ( y2 - y1 );
-		float invh = 1.0f / ( v2->position( ).y - v1->position( ).y );
-
-		scanline.leftstep = ( *v2 - *v1 ) / ( scanline.yleftmax - scanline.yleftmin );
-		scanline.rightstep = ( *v3 - *v1 ) / ( scanline.yrightmax - scanline.yrightmin );
-
-		FillScanline( scanline );
+		leftmid = v2;
+		rightmid = &mid;
 	}
 	else
 	{
-		const PSInput* leftmid;
-		const PSInput* rightmid;
-
-		PSInput v21;
-		float factor = ( v2->position( ).y - v1->position( ).y ) / ( v3->position( ).y - v1->position( ).y );
-		PSInput::Lerp( v21, *v1, *v3, factor );
-
-		if ( v2->position( ).x < v21.position( ).x )
-		{
-			leftmid = v2;
-			rightmid = &v21;
-		}
-		else
-		{
-			leftmid = &v21;
-			rightmid = v2;
-		}
-
-		// Setup scanline.
-		
-		// Top triangle.
-		PSInput intleft, intright;
-		PSInput::Lerp( intleft, *v1, *leftmid, ( Math::Ceil( leftmid->position( ).y ) - v1->position( ).y ) / ( leftmid->position( ).y - v1->position( ).y ) );
-		PSInput::Lerp( intright, *v1, *rightmid, ( Math::Ceil( rightmid->position( ).y ) - v1->position( ).y ) / ( rightmid->position( ).y - v1->position( ).y ) );
-		{
-			RasterizerScanline scanline;
-			scanline.left = *v1;
-			scanline.right = *v1;
-
-			scanline.yleftmin = scanline.yrightmin = v1->position( ).y;
-			scanline.yleftmax = Math::Ceil( leftmid->position( ).y );
-			scanline.yrightmax = Math::Ceil( rightmid->position( ).y );
-
-			//float invh = 1.0f / ( y2 - y1 );
-			//float invh = 1.0f / ( v2->position( ).y - v1->position( ).y );
-
-			scanline.leftstep = ( intleft - *v1 ) / ( scanline.yleftmax - scanline.yleftmin );
-			scanline.rightstep = ( intright - *v1 ) / ( scanline.yrightmax - scanline.yrightmin );
-			//float invh = 1.0f / ( y2 - y1 );
-			//float invh = 1.0f / ( leftmid->position( ).y - v1->position( ).y );
-
-			//scanline.leftstep = ( *leftmid - *v1 ) * invh;
-			//scanline.rightstep = ( *rightmid - *v1 ) * invh;
-
-			FillScanline( scanline );
-		}
-
-		{
-			RasterizerScanline scanline;
-			scanline.left = intleft;
-			scanline.right = intright;
-
-			//scanline.ymin = v2->position( ).y;
-			//scanline.ymax = v3->position( ).y;
-
-			////float invh = 1.0f / ( y3 - y2 );
-			//float invh = 1.0f / ( v3->position( ).y - leftmid->position( ).y );
-
-			scanline.yleftmin = Math::Ceil( leftmid->position( ).y );
-			scanline.yrightmin = Math::Ceil( rightmid->position( ).y );
-			scanline.yleftmax = scanline.yrightmax = v3->position( ).y;
-
-			scanline.leftstep = ( *v3 - scanline.left ) / ( scanline.yleftmax - scanline.yleftmin ) ;
-			scanline.rightstep = ( *v3 - scanline.right ) / ( scanline.yrightmax - scanline.yrightmin );
-
-			FillScanline( scanline );
-		}
+		leftmid = &mid;
+		rightmid = v2;
 	}
+
+	// Draw top triangle.
+	RasterizerScanline topscanline;
+	topscanline.left = *v1;
+	topscanline.right = *v1;
+
+	float yt = leftmid->position( ).y - v1->position( ).y;
+	float invyt = Math::Abs( yt ) < Math::cEpsilon ? 0.0f : 1.0f / yt;
+	topscanline.leftstep = ( *leftmid - *v1 ) * invyt;
+	topscanline.rightstep = ( *rightmid - *v1 ) * invyt;
+
+	topscanline.ymin = v1->position( ).y;
+	topscanline.ymax = leftmid->position( ).y;
+
+	FillScanline( topscanline );
+
+	// Draw bottom triangle.
+	RasterizerScanline bottomscanline;
+	bottomscanline.left = *leftmid;
+	bottomscanline.right = *rightmid;
+
+	float yb = v3->position( ).y - leftmid->position( ).y;
+	float invyb = Math::Abs( yb ) < Math::cEpsilon ? 0.0f : 1.0f / yb;
+	bottomscanline.leftstep = ( *v3 - *leftmid ) * invyb;
+	bottomscanline.rightstep = ( *v3 - *rightmid ) * invyb;
+
+	bottomscanline.ymin = leftmid->position( ).y;
+	bottomscanline.ymax = v3->position( ).y;
+
+	FillScanline( bottomscanline );
 }
 
 void RenderDevice::FillScanline( RasterizerScanline& scanline )
@@ -450,92 +357,70 @@ void RenderDevice::FillScanline( RasterizerScanline& scanline )
 
 	const PSInput& leftstep = scanline.leftstep;
 	const PSInput& rightstep = scanline.rightstep;
-	float yleftmin = scanline.yleftmin;
-	float yrightmin = scanline.yrightmin;
-	float yleftmax = scanline.yleftmax;
-	float yrightmax = scanline.yrightmax;
+	float ymin = scanline.ymin;
+	float ymax = scanline.ymax;
 
-	int ys = (int) Math::Ceil( yleftmin );
-	int ye = (int) Math::Ceil( yleftmax );
+	// Pop-left fill convention, top part.
+	int ys = (int) Math::Ceil( ymin );
+	int ye = (int) Math::Ceil( ymax ) - 1;
 
 	if ( ys < 0 || ye > mClipYMax )
 		return;
 
 	if ( ys < 0 )
 	{
-		left += leftstep * -yleftmin;
-		right += rightstep * -yrightmin;
+		left += leftstep * -ymin;
+		right += rightstep * -ymin;
 		ys = 0;
-		yleftmin = yrightmin = 0.0f;
+		ymin = 0.0f;
 	}
 
 	if ( ye > mClipYMax )
-	{
 		ye = mClipYMax;
-		yleftmax = yrightmax = 0.0f;
-	}
 
-	if ( ys == ye )
+	if ( ys > ye )
+		return;
+
+	float subpixel = (float) ys - ymin;
+	left += leftstep * subpixel;
+	right += rightstep * subpixel;
+
+	for ( int y = ys; y <= ye; y ++ )
 	{
-		DrawScanline( left, right, ys );
-	}
-	else
-	{
-		// ystart.
-		DrawScanline( left, right, ys );
+		DrawScanline( left, right, y );
 
-		//float factor = (float) ys - ymin;
-		float ysf = (float) ys;
-		left += leftstep * ( ysf - yleftmin );
-		right += rightstep * ( ysf - yrightmin );
-
-		for ( int y = ys + 1; y < ye; y ++ )
-		{
-			if ( y == 310 )
-			{
-				int a = 1;
-				int b = 1;
-			}
-			left += leftstep;
-			right += rightstep;
-			
-			DrawScanline( left, right, y );
-		}
-
-		// yend
-		//factor = ymax + 1.0f - (float) ye;
-		float yef = (float) ye - 1.0f;
-		left += leftstep * ( yleftmax - yef );
-		right += rightstep * ( yrightmax - yef );
-		DrawScanline( left, right, ye );
+		left += leftstep;
+		right += rightstep;
 	}
 }
 
 void RenderDevice::DrawScanline( const PSInput& left, const PSInput& right, int y )
 {
-	/*if ( y != 310 )
-		return;*/
+	float xmin = left.position( ).x;
+	float xmax = right.position( ).x;
+	int xs = (int) Math::Ceil( xmin );
+	int xe = (int) Math::Ceil( xmax ) - 1;
 
-	int xleft = (int) Math::Ceil( left.position( ).x );
-	int xright = (int) Math::Ceil( right.position( ).x );
-
-	if ( xright < 0 || xleft > mClipXMax )
+	if ( xe < 0 || xs > mClipXMax )
 		return;
 
-	PSInput step = xleft == xright ? PSInput::cZero : ( right - left ) / ( right.position( ).x - left.position( ).x );
+	PSInput step = xs == xe ? PSInput::cZero : ( right - left ) / ( xmax - xmin );
 	PSInput iterator = left;
 
-	if ( xleft < 0 )
+	if ( xs < 0 )
 	{
-		xleft = 0;
-		iterator += step * - left.position( ).x;
+		xs = 0;
+		iterator += step * - xmin;
 	}
 
-	if ( xright > mClipXMax )
-		xright = mClipXMax;
+	if ( xe > mClipXMax )
+		xe = mClipXMax;
+
+	float subpixel = (float) xs - xmin;
+	iterator += step * subpixel;
 
 	float depth;
-	for ( int x = xleft; x <= xright; x ++ )
+	for ( int x = xs; x <= xe; x ++ )
 	{
 		iterator.InHomogen( );
 
@@ -680,10 +565,8 @@ void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex
 				
 		// Viewport transformation.
 		Vector4& pos = sorts[i]->position( );
-		pos.x = Math::Ceil( ( 1.0f + pos.x ) * 0.5f * mWidth );
-		pos.y = Math::Ceil( ( 1.0f - pos.y ) * 0.5f * mHeight );
-	/*		pos.x = ( 1.0f + pos.x ) * 0.5f * mWidth;
-		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;*/
+		pos.x = ( 1.0f + pos.x ) * 0.5f * mWidth;
+		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;
 	}
 
 	// Rasterization.

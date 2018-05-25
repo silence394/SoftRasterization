@@ -32,10 +32,8 @@ private:
 		PSInput	right;
 		PSInput	leftstep;
 		PSInput	rightstep;
-		float	yleftmin;
-		float	yrightmin;
-		float	yleftmax;
-		float	yrightmax;
+		float	ymin;
+		float	ymax;
 	};
 
 	static std::unique_ptr<RenderDevice>	mInstance;

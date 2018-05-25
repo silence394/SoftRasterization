@@ -269,6 +269,7 @@ int main( )
 		Vector4 temp1 = v1 + vstepy * (358.0f - v1.y);
 
 		Vector4 temp2 = p1 + vstepx * (358.0f - p1.y);
+
 	DemoApp app( 800, 600 );
 	app.Create( );
 	app.Run( );
