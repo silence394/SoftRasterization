@@ -5,7 +5,7 @@ Camera::Camera( )
 {
 	mPos = Vector3( 0.0f, 0.0f, 0.0f );
 	mLookDir = Vector3( 0.0f, 1.0f, 0.0f );
-	mUp = Vector3( 0.0f, 0.0f, 1.0f );
+	mUp = Vector3( 0.0f, 1.0f, 0.0f );
 }
 
 Matrix4 Camera::GetViewMatrix( )
