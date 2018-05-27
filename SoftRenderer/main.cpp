@@ -11,6 +11,11 @@ class BaseVertexShader : public IVertexShader
 	{
 		out.position( ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "wvp" );
 	}
+
+	virtual uint GetVaryingCount( ) const
+	{
+		return 0;
+	}
 };
 
 class BasePixelShader : public IPixelShader
@@ -21,41 +26,48 @@ class BasePixelShader : public IPixelShader
 	}
 };
 
-class VertexShader : public IVertexShader
+class BaseLightVSNoneTex : public IVertexShader
 {
 	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb )
 	{
 		out.position( ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "wvp" );
-		out.varying( 0 ) = in.attribute( 2 );
-		out.varying( 1 ) = in.attribute( 1 ) * cb[0]->GetConstant<Matrix4>( "w" );
-		Vector4 worldpos = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "w" );
-		out.varying( 2 ) =  Vector4( cb[0]->GetConstant<Vector3>( "eye" ), 1.0f ) - worldpos;
+
+		// Normal.
+		Vector4 normal = in.attribute( 1 );
+		normal.w = 0.0f;
+		out.varying( 0 ) = normal * cb[0]->GetConstant<Matrix4>( "w" );
+
+		// Vertex position in world space.
+		out.varying( 1 ) = in.attribute( 0 ) * cb[0]->GetConstant<Matrix4>( "w" );
+	}
+
+	virtual uint GetVaryingCount( ) const
+	{
+		return 2;
 	}
 };
 
-class PixelShader : public IPixelShader
+class BaseLightPSNoneTex : public IPixelShader
 {
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb )
 	{
-		//Vector2 uv = Vector2( in.varying( 0 ).x, in.varying( 0 ).y );
+		Vector3 L = -cb[0]->GetConstant<Vector3>( "skydir" );
 
-		//Vector3 L = -cb[0]->GetConstant<Vector3>( "skydir" );
+		Vector3 N( in.varying( 0 ).x, in.varying( 0 ).y, in.varying( 0 ).z );
+		N.Normalize( );
 
-		//Vector3 N( in.varying( 1 ).x, in.varying( 1 ).y, in.varying( 1 ).z );
-		//N.Normalize( );
-		//float skydiffuse = Math::Clamp( Vector3::Dot( N, L ), 0.0f, 1.0f );
+		float skydiffuse = Math::Clamp( Vector3::Dot( N, L ), 0.0f, 1.0f );
 
-		//Vector3 viewdir( in.varying( 2 ).x, in.varying( 2 ).y, in.varying( 2 ).z );
-		//viewdir.Normalize( );
-		//Vector3 H = ( viewdir + L ).Normalize( );
+		Vector3 worldpos( in.varying( 1 ).x, in.varying( 1 ).y, in.varying( 1 ).z );
+		Vector3 viewdir = cb[0]->GetConstant<Vector3>( "eye" ) - worldpos;
+		viewdir.Normalize( );
+		Vector3 H = ( viewdir + L ).Normalize( );
 
-		//float specular = Math::Pow( Math::Max( 0.0f, Vector3::Dot( H, N ) ), cb[0]->GetConstant<float>( "shiness" ) );
+		float specular = Math::Pow( Math::Clamp( Vector3::Dot( H, N ), 0.0f, 1.0f ), cb[0]->GetConstant<float>( "shiness" ) );
 
-		//
-		//Color skycolor = cb[0]->GetConstant<Color>( "skycolor" );
-		//Color ambientcolor = cb[0]->GetConstant<Color>( "ambientcolor" );
-		//Color albedo = Texture2D( 0, uv );
-		out.color = Color( 1.0f, 1.0f, 1.0f, 1.0f );//(ambientcolor + skycolor * (skydiffuse + specular)) * albedo;
+		Color skycolor = cb[0]->GetConstant<Color>( "skycolor" );
+		Color ambientcolor = cb[0]->GetConstant<Color>( "ambientcolor" );
+		out.color = (ambientcolor + skycolor * (skydiffuse + specular));
 	}
 };
 
@@ -66,31 +78,23 @@ private:
 	Matrix4				mWorldTransform;
 	Matrix4				mViewTransform;
 	Matrix4				mPerspectTransform;
-	TexturePtr			mTexture;
-	TexturePtr			mNormalTexture;
+
 	SamplerStatePtr		mSampler;
 	RasterizerStatePtr	mRasterState;
-
-	InputLayoutPtr		mInputLayout;
-	VertexShaderPtr		mVertexShader;
-	PixelShaderPtr		mPixelShader;
-
-	StaticMeshPtr		mCube;
-
-	VertexShaderPtr		mBaseVS;
-	PixelShaderPtr		mBasePS;
-	InputLayoutPtr		mBaseInputLayout;
-	StaticMeshPtr		mBaseBox;
-
-	GraphicsBufferPtr	mVertexBuffer;
-	GraphicsBufferPtr	mIndexBuffer;
 
 	ConstantBufferPtr	mVSContantBuffer;
 	ConstantBufferPtr	mPSConstantBuffer;
 
 	AmbientLight		mAmbientLight;
 	SkyLight			mSkyLight;
-	Material			mMaterial; 
+	Material			mMaterial;
+
+	InputLayoutPtr		mStandardInputLayout;
+	InputLayoutPtr		mStandardInputLayoutNoneUV;
+
+	StaticMeshPtr		mCowMesh;
+	VertexShaderPtr		mLightNoneTexVS;
+	PixelShaderPtr		mLightNoneTexPS;
 
 public:
 	DemoApp( int width = 800, int height = 600, LPCWSTR name = L"Demo" )
@@ -110,63 +114,44 @@ void DemoApp::OnCreate( )
 {
 	RenderDevice& rd = RenderDevice::Instance( );
 
-	mCamera.SetPosition( Vector3( 5.0f, 2.0f, 0.0f ) );
+	mCamera.SetPosition( Vector3( 8.0f, 2.0f, 0.0f ) );
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mViewTransform = mCamera.GetViewMatrix( );
 	mPerspectTransform = Matrix4::Perspective( 3.141592654f / 4.0f, (float) rd.GetDeviceWidth( ) / (float) rd.GetDeviceHeight( ), 1.0f, 5000.0f );
-
-	mTexture = TextureManager::Instance( ).Load( L"../Media/stone_color.jpg" );
-	mNormalTexture = TextureManager::Instance( ).Load( L"../Media/stone_normal.jpg" );
-
-	mBaseBox = ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/WusonOBJ.obj" ) );
-
-	mBaseVS = VertexShaderPtr( new BaseVertexShader( ) );
-	mBasePS = PixelShaderPtr( new BasePixelShader( ) );
-	mBaseVS->SetVaryingCount( 0 );
-
-	std::vector<InputElementDesc> eledesc;
-	eledesc.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
-	mBaseInputLayout = rd.CreateInputLayout( &eledesc[0], eledesc.size( ) );
 
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;
 	desc.filter = ESamplerFilter::SF_Linear;
 	mSampler = rd.CreateSamplerState( desc );
 
-	mVertexShader = VertexShaderPtr( new VertexShader( ) );
-	mVertexShader->SetVaryingCount( 3 );
-
-	mPixelShader = PixelShaderPtr( new PixelShader( ) );
-
-	std::vector<InputElementDesc> descs;
-	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
-	descs.push_back( InputElementDesc( "NORMAL", GraphicsBuffer::BF_R32B32G32_FLOAT, sizeof( Vector3 ) ) );
-	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT, sizeof( Vector3 ) + sizeof( Vector3 ) ) );
-
-	mInputLayout = rd.CreateInputLayout( &descs[0], descs.size( ) );
-
-	mCube = ModelManager::Instance( ).CreateBox( );
-
 	mVSContantBuffer = rd.CreateConstantBuffer( );
 	mPSConstantBuffer = rd.CreateConstantBuffer( );
 
-	mAmbientLight.color = Color( 0.2f, 0.2f, 0.2f, 1.0f );
-	mSkyLight.color = Color( 0.0f, 1.0f, 0.0f, 1.0f );
-	mSkyLight.direction = Vector3( -3.0f, -4.0f, -5.0f );
+	mAmbientLight.color = Color( 0.3f, 0.3f, 0.3f, 1.0f );
+	mSkyLight.color = Color( 0.5f, 0.5f, 0.5f, 1.0f );
+	mSkyLight.direction = Vector3( -3.0f, -4.0f, 5.0f );
 
-	mPSConstantBuffer->AddConstant( "ambientcolor", mAmbientLight.color );
-	mPSConstantBuffer->AddConstant( "skycolor", mSkyLight.color );
-	mPSConstantBuffer->AddConstant( "skydir", mSkyLight.direction.Normalize( ) );
-
-	mMaterial.shiness = 1.0f;
-
-	mPSConstantBuffer->AddConstant( "shiness", mMaterial.shiness );
+	mMaterial.shiness = 15.0f;
 
 	RasterizerDesc rsdesc;
 	rsdesc.fillMode = EFillMode::FM_SOLID;
 	rsdesc.cullMode = ECullMode::ECM_BACK;
 	mRasterState = rd.CreateRasterizerState( rsdesc );
+
+	std::vector<InputElementDesc> descs;
+	descs.push_back( InputElementDesc( "POSITION", GraphicsBuffer::BF_R32B32G32_FLOAT, 0 ) );
+	descs.push_back( InputElementDesc( "NORMAL", GraphicsBuffer::BF_R32B32G32_FLOAT, sizeof( Vector3 ) ) );
+
+	mStandardInputLayoutNoneUV = rd.CreateInputLayout( &descs[0], descs.size( ) );
+
+	descs.push_back( InputElementDesc( "TEXCOORD0", GraphicsBuffer::BF_R32G32_FLOAT, sizeof( Vector3 ) + sizeof( Vector3 ) ) );
+
+	mStandardInputLayout = rd.CreateInputLayout( &descs[0], descs.size( ) );
+
+	mCowMesh = ModelManager::Instance( ).LoadModel( std::wstring( L"../Media/OBJ/WusonOBJ.obj" ) );
+	mLightNoneTexVS = VertexShaderPtr( new BaseLightVSNoneTex( ) );
+	mLightNoneTexPS = PixelShaderPtr( new BaseLightPSNoneTex( ) );
 }
 
 void DemoApp::OnClose( )
@@ -214,36 +199,24 @@ void DemoApp::OnRender( )
 	rd.SetClearColor( 0xFF808080 );
 	rd.Clear( );
 
-	{
-		//rd.SetTexture( 0, mTexture );
-		//rd.SetSamplerState( 0, mSampler );
-		//rd.SetTexture( 1, mNormalTexture );
-		//rd.SetSamplerState( 1, mSampler );
-		//rd.SetRasterizerState( mRasterState );
-		//rd.SetVertexShader( mVertexShader );
-		//rd.SetPixelShader( mPixelShader );
-		//mWorldTransform = Matrix4( ).SetScaling( 1.0f );
-		//mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
-		//mVSContantBuffer->SetConstant( "w", mWorldTransform );
-		//mVSContantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
-		//rd.VSSetConstantBuffer( 0, mVSContantBuffer );
+	rd.SetSamplerState( 0, mSampler );
+	rd.SetRasterizerState( mRasterState );
+	rd.SetVertexShader( mLightNoneTexVS );
+	rd.SetPixelShader( mLightNoneTexPS );
+	mWorldTransform = Matrix4( ).SetTrans( Vector3( 0.0f, 0.0f, -3.0f ) );
+	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
+	mVSContantBuffer->SetConstant( "w", mWorldTransform );
 
-		//rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
-		//rd.SetInputLayout( mInputLayout );
-		//mCube->Draw( );
-	}
+	rd.VSSetConstantBuffer( 0, mVSContantBuffer );
 
-	{
-		rd.SetRasterizerState( mRasterState );
-		rd.SetVertexShader( mBaseVS );
-		rd.SetPixelShader( mBasePS );
-		rd.SetInputLayout( mBaseInputLayout );
-		mWorldTransform = Matrix4( ).SetTrans( Vector3( 2.0f, 0.0f, 0.0f ) );
-		mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
-		rd.VSSetConstantBuffer( 0, mVSContantBuffer );
-
-		mBaseBox->Draw( );
-	}
+	mPSConstantBuffer->SetConstant( "ambientcolor", mAmbientLight.color );
+	mPSConstantBuffer->SetConstant( "skycolor", mSkyLight.color );
+	mPSConstantBuffer->SetConstant( "skydir", mSkyLight.direction.Normalize( ) );
+	mPSConstantBuffer->SetConstant( "eye", mCamera.GetPosition( ) );
+	mPSConstantBuffer->SetConstant( "shiness", mMaterial.shiness );
+	rd.PSSetConstantBuffer( 0, mPSConstantBuffer );
+	rd.SetInputLayout( mStandardInputLayoutNoneUV );
+	mCowMesh->Draw( );
 }
 
 int main( )

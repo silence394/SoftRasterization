@@ -213,29 +213,14 @@ public:
 
 class IVertexShader
 {
-private:
-	uint	mVaryingCount;
-
 public:
-	IVertexShader( ) : mVaryingCount( 0 ) { }
-
-	void SetVaryingCount( uint count )
-	{
-		mVaryingCount = count;
-	}
-
-	uint GetVaryingCount( ) const
-	{
-		return mVaryingCount;
-	}
-
 	virtual void Execute( VSInput& in, PSInput& out, ConstantBufferPtr* cb ) = 0;
+	virtual uint GetVaryingCount( ) const = 0;
 };
 
 class IPixelShader
 {
 public:
-
 	virtual void Execute( PSInput& in, PSOutput& out, float& depth, ConstantBufferPtr* cb ) = 0;
 	virtual uint SampleTexture( uint index, float u, float v );
 	virtual Color Texture2D( uint index, Vector2 uv );

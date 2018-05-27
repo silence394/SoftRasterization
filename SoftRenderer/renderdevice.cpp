@@ -422,12 +422,13 @@ void RenderDevice::DrawScanline( const PSInput& left, const PSInput& right, int 
 	float depth;
 	for ( int x = xs; x <= xe; x ++ )
 	{
-		iterator.InHomogen( );
+		PSInput raster = iterator;
+		raster.InHomogen( );
 
 		PSOutput psout;
-		mPixelShader->Execute( iterator, psout, depth, mPSConstantBuffer );
+		mPixelShader->Execute( raster, psout, depth, mPSConstantBuffer );
 
-		if ( DepthTestAndWrite( x, y, iterator.position( ).w ) )
+		if ( DepthTestAndWrite( x, y, raster.position( ).w ) )
 			DrawPixel( x, y, psout.color );
 
 		iterator += step;
