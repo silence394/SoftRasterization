@@ -15,3 +15,7 @@ SoftRenderer/Release/*.obj
 *.unsuccessfulbuild
 *.sbr
 *.bsc
+Debug/assimp-vc120-mt.dll
+Debug/FreeImage.dll
+Release/assimp-vc120-mt.dll
+Release/FreeImage.dll
