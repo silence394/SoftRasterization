@@ -2,8 +2,8 @@
 *.exe
 *.ilk
 *.pdb
-SoftRenderer/Debug/*.obj
-SoftRenderer/Release/*.obj
+Project/msvc11/Debug/*.obj
+Project/msvc11/Release/*.obj
 *.tlog
 *.log
 *.idb

@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Src\app.cpp" />
+    <ClCompile Include="..\..\Src\camera.cpp" />
+    <ClCompile Include="..\..\Src\Color.cpp" />
+    <ClCompile Include="..\..\Src\GraphicsBuffer.cpp" />
+    <ClCompile Include="..\..\Src\main.cpp" />
+    <ClCompile Include="..\..\Src\Math.cpp" />
+    <ClCompile Include="..\..\Src\Matrix4.cpp" />
+    <ClCompile Include="..\..\Src\ModelManager.cpp" />
+    <ClCompile Include="..\..\Src\PixelFormats.cpp" />
+    <ClCompile Include="..\..\Src\Point.cpp" />
+    <ClCompile Include="..\..\Src\renderdevice.cpp" />
+    <ClCompile Include="..\..\Src\RenderStates.cpp" />
+    <ClCompile Include="..\..\Src\shaders.cpp" />
+    <ClCompile Include="..\..\Src\StaticMesh.cpp" />
+    <ClCompile Include="..\..\Src\String.cpp" />
+    <ClCompile Include="..\..\Src\Surface.cpp" />
+    <ClCompile Include="..\..\Src\Texture.cpp" />
+    <ClCompile Include="..\..\Src\TextureManager.cpp" />
+    <ClCompile Include="..\..\Src\Vector3.cpp" />
+    <ClCompile Include="..\..\Src\Vector4.cpp" />
+    <ClCompile Include="..\..\Src\VertexProcessEngine.cpp" />
+    <ClCompile Include="..\..\Src\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Src\app.h" />
+    <ClInclude Include="..\..\Src\Camera.h" />
+    <ClInclude Include="..\..\Src\color.h" />
+    <ClInclude Include="..\..\Src\FreeImageColor.h" />
+    <ClInclude Include="..\..\Src\graphicsbuffer.h" />
+    <ClInclude Include="..\..\Src\libengine.h" />
+    <ClInclude Include="..\..\Src\Light.h" />
+    <ClInclude Include="..\..\Src\Material.h" />
+    <ClInclude Include="..\..\Src\math.h" />
+    <ClInclude Include="..\..\Src\Matrix4.h" />
+    <ClInclude Include="..\..\Src\ModelManager.h" />
+    <ClInclude Include="..\..\Src\PixelFormats.h" />
+    <ClInclude Include="..\..\Src\Point.h" />
+    <ClInclude Include="..\..\Src\prerequisites.h" />
+    <ClInclude Include="..\..\Src\renderdevice.h" />
+    <ClInclude Include="..\..\Src\RenderStates.h" />
+    <ClInclude Include="..\..\Src\shaders.h" />
+    <ClInclude Include="..\..\Src\StaticMesh.h" />
+    <ClInclude Include="..\..\Src\String.h" />
+    <ClInclude Include="..\..\Src\Surface.h" />
+    <ClInclude Include="..\..\Src\texture.h" />
+    <ClInclude Include="..\..\Src\TextureManager.h" />
+    <ClInclude Include="..\..\Src\Vector2.h" />
+    <ClInclude Include="..\..\Src\Vector3.h" />
+    <ClInclude Include="..\..\Src\vector4.h" />
+    <ClInclude Include="..\..\Src\VertexProcessEngine.h" />
+    <ClInclude Include="..\..\Src\Window.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{07A12202-034D-4D97-BF9E-4D07779B089E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>SoftRenderer</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\Bin\msvc11\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\Bin\msvc11\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../ThirdParty/FreeImage;../../ThirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BrowseInformation>true</BrowseInformation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../../ThirdParty/FreeImage;../../ThirdParty/Assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>FreeImage.lib;assimp-vc120-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)..\..\ThirdParty\Assimp\assimp-vc120-mt.dll" $(OutDir) 
+copy /Y "$(ProjectDir)..\..\ThirdParty\FreeImage\FreeImage.dll" $(OutDir) </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../../ThirdParty/FreeImage;../../ThirdParty;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>../../ThirdParty/FreeImage;../../ThirdParty/Assimp;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>FreeImage.lib;assimp-vc120-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)..\..\ThirdParty\Assimp\assimp-vc120-mt.dll" $(OutDir) 
+copy /Y "$(ProjectDir)..\..\ThirdParty\FreeImage\FreeImage.dll" $(OutDir) </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
