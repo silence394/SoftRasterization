@@ -29,7 +29,6 @@ void ConvertColor( FIBITMAP* image, SurfacePtr suf )
 	uint bpp = FreeImage_GetBPP( image ) >> 3;
 
 	byte* src = bits;
-
 	for ( uint j = 0; j < height; j ++ )
 	{
 		for ( uint i = 0; i < width; i ++ )
@@ -47,7 +46,7 @@ void ConvertColor( FIBITMAP* image, SurfacePtr suf )
 
 TexturePtr TextureManager::Load( const std::wstring& resname )
 {
-	string filename;
+	std::string filename;
 	WStr2Str( resname, filename );
 
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
@@ -58,8 +57,6 @@ TexturePtr TextureManager::Load( const std::wstring& resname )
 		fif = FreeImage_GetFIFFromFilename( filename.c_str( ) );
 
 	dib = FreeImage_Load( fif, filename.c_str( ) );
-
-	dib = FreeImage_ConvertTo32Bits( dib );
 
 	FREE_IMAGE_TYPE imagetype = FreeImage_GetImageType( dib );
 	PixelFormat format = PF_UNKNOWN;
@@ -101,37 +98,5 @@ TexturePtr TextureManager::Load( const std::wstring& resname )
 	else if ( colortype == FIC_RGB )
 		ConvertColor<RGB8>( dib, tex->GetSurface( 0 ) );
 
-	
-	/*if ( type == FIT_BITMAP )
-	{
-	uint colortype = FreeImage_GetColorType( dib );
-
-	uint pitch = FreeImage_GetPitch( dib );
-	uint bpp = FreeImage_GetBPP( dib ) >> 3;
-
-	byte* src = bits;
-
-	for ( uint j = 0; j < height; j ++ )
-	{
-	for ( uint i = 0; i < width; i ++ )
-	{
-	byte* temp = src + i * bpp;
-	FreeImageColor<RGB8> fc( src + i * bpp );
-	RGB8 c( fc.r, fc.g, fc.b, fc.a );
-	RGB8* temp1 = reinterpret_cast<RGB8*> ( temp );
-	*temp1 = c;
-	}
-
-	src += pitch;
-	}
-
-	if ( colortype == FIC_RGBALPHA )
-	{
-	}
-	else if ( colortype == FIC_RGB )
-	{
-	}
-	}
-	*/
 	return tex;
 }

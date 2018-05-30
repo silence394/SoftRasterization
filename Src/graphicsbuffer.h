@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Prerequisites.h"
-#include <vector>
 
 class GraphicsBuffer
 {

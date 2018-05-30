@@ -16,11 +16,9 @@ private:
 private:
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	void ProcessMessage( UINT msg, WPARAM wparam, LPARAM lparam );
-
 public:
-	App( int width = 800, int height = 600, LPCWSTR name = L"SoftRender" );
-	~App();
+	App( int width = 800, int height = 600, LPCWSTR name = L"SoftRenderer" );
+	~App( );
 
 	virtual void	OnCreate( ) { };
 	virtual void	OnRender( ) { };

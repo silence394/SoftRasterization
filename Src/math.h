@@ -6,6 +6,9 @@ class Math
 {
 public:
 	const static float cEpsilon;
+	const static float cPI;
+	const static float cHalfPI;
+	const static float cQuadPI;
 
 	template< typename T >
 	static void Swap( T& t1, T& t2 )

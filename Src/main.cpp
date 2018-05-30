@@ -173,7 +173,7 @@ void DemoApp::OnCreate( )
 	mCamera.LookAt( Vector3( 0.0f, 0.0f, 0.0f ) );
 
 	mViewTransform = mCamera.GetViewMatrix( );
-	mPerspectTransform = Matrix4::Perspective( 3.141592654f / 4.0f, (float) rd.GetDeviceWidth( ) / (float) rd.GetDeviceHeight( ), 1.0f, 5000.0f );
+	mPerspectTransform = Matrix4::Perspective( Math::cQuadPI, (float) rd.GetDeviceWidth( ) / (float) rd.GetDeviceHeight( ), 1.0f, 5000.0f );
 
 	SamplerStateDesc desc;
 	desc.address = EAddressMode::AM_CLAMP;
@@ -256,7 +256,7 @@ void DemoApp::OnMouseWheel( int delta )
 void DemoApp::OnRender( )
 {
 	RenderDevice& rd = RenderDevice::Instance( );
-	rd.BeginScene( );
+
 	rd.SetClearColor( 0xFF808080 );
 	rd.Clear( );
 
@@ -266,7 +266,7 @@ void DemoApp::OnRender( )
 	// Render cow.
 	rd.SetVertexShader( mLightNoneTexVS );
 	rd.SetPixelShader( mLightNoneTexPS );
-	mWorldTransform = Matrix4( ).SetRotation( Vector3( 0.0f, 1.0f, 0.0f ), -1.57f ) * Matrix4( ).SetTrans( Vector3( 0.0f, 0.0f, -3.0f ) );
+	mWorldTransform = Matrix4( ).SetRotation( Vector3( 0.0f, 1.0f, 0.0f ), -Math::cHalfPI ) * Matrix4( ).SetTrans( Vector3( 0.0f, 0.0f, -3.0f ) );
 	mVSContantBuffer->SetConstant( "wvp", mWorldTransform * mViewTransform * mPerspectTransform );
 	mVSContantBuffer->SetConstant( "w", mWorldTransform );
 	rd.VSSetConstantBuffer( 0, mVSContantBuffer );

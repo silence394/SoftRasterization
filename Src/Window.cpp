@@ -15,16 +15,6 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 	return DefWindowProc( hwnd, msg, wparam, lparam );
 }
 
-void Window::ProcessMessage(UINT msg, WPARAM wparam, LPARAM lparam)
-{
-
-}
-
-Window::Window( )
-{
-
-}
-
 Window::Window( int width, int height, LPCWSTR name )
 {
 	WNDCLASS winclass;

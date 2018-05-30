@@ -9,9 +9,8 @@ private:
 	ModelManager( ) { }
 
 public:
-	static ModelManager& Instance( );
+	static ModelManager&	Instance( );
 
-	StaticMeshPtr	LoadModel( std::wstring& resname );
-
-	StaticMeshPtr	CreateCube( );
+	StaticMeshPtr			LoadModel( std::wstring& resname );
+	StaticMeshPtr			CreateCube( );
 };

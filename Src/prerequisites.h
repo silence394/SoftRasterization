@@ -18,6 +18,8 @@ class Color;
 class Surface;
 class Texture;
 
+class PSInput;
+
 class IVertexShader;
 class IPixelShader;
 class ConstantBuffer;
@@ -32,6 +34,9 @@ class RasterizerState;
 
 class StaticMesh;
 
+struct VertexProcessContext;
+class VertexProcessEngine;
+
 class RenderDevice;
 
 class Window;
@@ -42,8 +47,8 @@ class App;
 #include <memory>
 #include <assert.h>
 
-typedef std::shared_ptr<Texture> TexturePtr;
 typedef std::shared_ptr<Surface> SurfacePtr;
+typedef std::shared_ptr<Texture> TexturePtr;
 typedef std::shared_ptr<SamplerState> SamplerStatePtr;
 typedef std::shared_ptr<ConstantBuffer> ConstantBufferPtr;
 typedef std::shared_ptr<IVertexShader> VertexShaderPtr;

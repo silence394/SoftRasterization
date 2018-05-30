@@ -4,26 +4,15 @@
 #include "Windows.h"
 #include "Vector4.h"
 #include "Shaders.h"
-#include <vector>
 #include <list>
-#include <memory>
-using namespace std;
 
 class RenderDevice
 {
-public:
-	enum
-	{
-		_RENDER_SOLID		= 0,
-		_RENDER_WIREFRAME	= 1,
-	};
-
 private:
-	enum
+	enum EMaxCount
 	{
-		_MAX_VERTEXCACHE_COUNT		= 64,
-		_MAX_TEXTURE_COUNT			= 8,
-		_MAX_CONSTANTBUFFER_COUNT	= 4,
+		MC_TEXTURE			= 8,
+		MC_CONSTANTBUFFER	= 4,
 	};
 
 	struct RasterizerScanline
@@ -45,26 +34,25 @@ private:
 	uint**						mFrameBuffer;
 	float**						mDepthBuffer;
 	uint						mClearColor;
+
+	// Default settings.
+	SamplerStatePtr				mDefaultSampler;
+	RasterizerStatePtr			mDefaultRS;
+
 	VertexShaderPtr				mVertexShader;
 	PixelShaderPtr				mPixelShader;
 	InputLayoutPtr				mInputLayout;
 	GraphicsBufferPtr			mVertexBuffer;
 	GraphicsBufferPtr			mIndexBuffer;
 
+	ConstantBufferPtr			mVSConstantBuffer[ MC_CONSTANTBUFFER ];
+	ConstantBufferPtr			mPSConstantBuffer[ MC_CONSTANTBUFFER ];
+
 	RasterizerStatePtr			mRasterizerState;
 
-	uint						mVaryingCount;
-
 	// Textures and samplers.
-	TexturePtr					mTextures[ _MAX_TEXTURE_COUNT ];
-	SamplerStatePtr				mSamplers[ _MAX_TEXTURE_COUNT ];
-
-	// Default settings.
-	SamplerStatePtr				mDefaultSampler;
-	RasterizerStatePtr			mDefaultRS;
-
-	ConstantBufferPtr			mVSConstantBuffer[ _MAX_CONSTANTBUFFER_COUNT ];
-	ConstantBufferPtr			mPSConstantBuffer[ _MAX_CONSTANTBUFFER_COUNT ];
+	TexturePtr					mTextures[ MC_TEXTURE ];
+	SamplerStatePtr				mSamplers[ MC_TEXTURE ];
 
 private:
 	RenderDevice( );
@@ -76,17 +64,14 @@ public:
 
 	bool	Init( HWND window, uint * framebuffer );
 
+	// 2D.
 	void	FillUniqueTriangle( const Point& p1, const Point&p2, const Point& p3, uint color  );
 	void	DrawLine( uint x1, uint y1, uint x2, uint y2, uint color );
 	void	DrawClipLine( int x1, int y1, int x2, int y2, uint color );
-
-	bool	DepthTestAndWrite( uint x, uint y, float depth );
-
-	uint	SampleTexture( uint index, float u, float v );
-
 	bool	ClipLine( int& x1, int& y1, int& x2, int& y2 );
-	bool	IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 );
 
+	// 3D.
+	bool	DepthTestAndWrite( uint x, uint y, float depth );
 	void	RasterizeTriangle( const PSInput* v1, const PSInput* v2, const PSInput* v3 );
 	void	FillScanline( RasterizerScanline& scanline );
 	void	DrawScanline( const PSInput& left, const PSInput& right, int y );
@@ -132,28 +117,24 @@ public:
 		mIndexBuffer = buffer;
 	}
 
-	void Clear( );
-	void DrawPixel( uint x, uint y, uint color );
-	void DrawPoint( const Point& p, uint color );
-	void DrawLine( const Point& p1, const Point& p2, uint color );
-	void FillTriangle( const Point& p1, const Point& p2, const Point& p3, uint color );
+	void				Clear( );
+
+	// 2D.
+	void				DrawPixel( uint x, uint y, uint color );
+	void				DrawPoint( const Point& p, uint color );
+	void				DrawLine( const Point& p1, const Point& p2, uint color );
+	void				FillTriangle( const Point& p1, const Point& p2, const Point& p3, uint color );
 
 	InputLayoutPtr		CreateInputLayout( InputElementDesc const * desc, uint count );
-
 	GraphicsBufferPtr	CreateBuffer( void* buffer, uint length, uint size );
 
-	void				BeginScene( );
-
-	void				SetTexture( uint i, TexturePtr tex );
-
-	void				DrawIndex( uint indexcount, uint startindex, uint startvertex );
-
 	TexturePtr			CreateTexture2D( uint width, uint height, uint format );
-	SamplerStatePtr		CreateSamplerState( const SamplerStateDesc& desc );
-	void				SetSamplerState( uint index, SamplerStatePtr sampler );
-
+	void				SetTexture( uint i, TexturePtr tex );
 	Color				Texture2D( uint index, Vector2 uv );
 	Color				Texture2D( uint index, float u, float v );
+
+	SamplerStatePtr		CreateSamplerState( const SamplerStateDesc& desc );
+	void				SetSamplerState( uint index, SamplerStatePtr sampler );
 
 	ConstantBufferPtr	CreateConstantBuffer( );
 	void				VSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr );
@@ -161,4 +142,6 @@ public:
 
 	RasterizerStatePtr	CreateRasterizerState( const RasterizerDesc& desc );
 	void				SetRasterizerState( RasterizerStatePtr rs );
+
+	void				DrawIndex( uint indexcount, uint startindex, uint startvertex );
 };

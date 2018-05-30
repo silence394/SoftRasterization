@@ -43,11 +43,6 @@ LRESULT CALLBACK App::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lpar
 	return DefWindowProc( hwnd, msg, wparam, lparam );
 }
 
-void App::ProcessMessage(UINT msg, WPARAM wparam, LPARAM lparam)
-{
-
-}
-
 App::App( int width, int height, LPCWSTR name )
 {
 	WNDCLASS winclass;
@@ -77,11 +72,11 @@ App::App( int width, int height, LPCWSTR name )
 
 	RECT rect = { 0 };
 	GetClientRect( mWindow, &rect );
+
 	int dw = rect.right;
 	int dh = rect.bottom;
 
 	BITMAPINFO bitinfo;
-
 	bitinfo.bmiHeader.biSize = sizeof( BITMAPINFOHEADER );
 	bitinfo.bmiHeader.biWidth = dw;
 	bitinfo.bmiHeader.biHeight = -dh;
@@ -104,7 +99,6 @@ App::App( int width, int height, LPCWSTR name )
 		return;
 
 	SelectObject( mWindowDC, mBITMAP );
-
 	ShowWindow( mWindow, SW_SHOWNORMAL );
 }
 
@@ -142,7 +136,7 @@ void App::Run()
 		{
 			OnRender( );
 
-			//  Present to screen.
+			// Present to screen.
 			HDC hdc = GetDC( mWindow );
 			RECT rect = { 0 };
 			GetClientRect( mWindow, &rect );

@@ -88,7 +88,7 @@ public:
 		return *this;
 	}
 
-	Vector4& operator *= ( const Matrix4& mat );
-
 	operator Color( ) const;
+
+	Vector4& operator *= ( const Matrix4& mat );
 };

@@ -42,11 +42,7 @@ public:
 
 	Matrix4	GetViewMatrix( );
 
-	void	Pitch( float uints );
-	void	Yaw( float uints );
-	void	Roll( float units );
 	void	Phi( float r );
 	void	Theta( float r );
 	void	Zoom( float units );
-	void	Rotate( const Vector3& axis, float r );
 };

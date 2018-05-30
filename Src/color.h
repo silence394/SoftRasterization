@@ -65,8 +65,6 @@ public:
 		return ( aa << 24 ) | ( rr << 16 ) | ( gg << 8 ) | bb;
 	}
 
-	operator Vector4( ) const;
-
 	Color& ToColor( )
 	{
 		return *this;
@@ -78,6 +76,8 @@ public:
 		*this = c.ToColor( );
 		return *this;
 	}
+
+	operator Vector4( ) const;
 };
 
 class RGBA8

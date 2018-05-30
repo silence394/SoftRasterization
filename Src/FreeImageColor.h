@@ -4,7 +4,8 @@
 
 template< typename ColorType >
 class FreeImageColor
-{};
+{
+};
 
 template<>
 class FreeImageColor<RGB8>

@@ -4,6 +4,7 @@
 #include "Color.h"
 #include "GraphicsBuffer.h"
 #include "Vector2.h"
+#include "Surface.h"
 #include "Texture.h"
 #include <algorithm>
 #include "RenderStates.h"
@@ -25,7 +26,7 @@ void RenderDevice::PreparePipeline( )
 	if ( mRasterizerState == nullptr )
 		mRasterizerState = mDefaultRS;
 
-	for ( uint i = 0; i < _MAX_TEXTURE_COUNT; i ++ )
+	for ( uint i = 0; i < MC_TEXTURE; i ++ )
 	{
 		if ( mTextures[i] != nullptr && mSamplers[i] == nullptr )
 			mSamplers[i] = mDefaultSampler;
@@ -193,25 +194,6 @@ void RenderDevice::DrawClipLine( int x1, int y1, int x2, int y2, uint color )
 		DrawLine( x1, y1, x2, y2, color );
 }
 
-bool RenderDevice::DepthTestAndWrite( uint x, uint y, float depth )
-{
-	if ( mDepthBuffer[ y ][ x ] >= depth )
-		return false;
-
-	// DepthWrite
-	mDepthBuffer[y][x] = depth;
-
-	return true;
-}
-
-uint RenderDevice::SampleTexture( uint index, float u, float v )
-{
-	if ( index < _MAX_TEXTURE_COUNT && mTextures[ index ] != nullptr )
-		return mTextures[index]->GetPixelbyUV( u, v );
-
-	return 0;
-}
-
 // Liang-Barsky
 bool RenderDevice::ClipLine( int& x1, int& y1, int& x2, int& y2 )
 {
@@ -284,9 +266,15 @@ bool RenderDevice::ClipLine( int& x1, int& y1, int& x2, int& y2 )
 	return true;
 }
 
-bool RenderDevice::IsFrontFace( const Vector4& v1, const Vector4& v2, const Vector4& v3 )
+bool RenderDevice::DepthTestAndWrite( uint x, uint y, float depth )
 {
-	return ( v3.x - v1.x ) * ( v3.y - v2.y ) - ( v3.y - v1.y ) * ( v3.x - v2.x ) <= 0;
+	if ( mDepthBuffer[ y ][ x ] >= depth )
+		return false;
+
+	// DepthWrite
+	mDepthBuffer[y][x] = depth;
+
+	return true;
 }
 
 void RenderDevice::RasterizeTriangle( const PSInput* v1, const PSInput* v2, const PSInput* v3 )
@@ -438,7 +426,7 @@ void RenderDevice::DrawScanline( const PSInput& left, const PSInput& right, int 
 RenderDevice& RenderDevice::Instance( )
 {
 	if ( mInstance == nullptr )
-		mInstance = unique_ptr<RenderDevice>( new RenderDevice( ) );
+		mInstance = std::unique_ptr<RenderDevice>( new RenderDevice( ) );
 
 	return *mInstance;
 }
@@ -453,7 +441,6 @@ void RenderDevice::Clear( )
 		for ( uint i = 0; i < mWidth; i ++ )
 			mDepthBuffer[j][i] = 0.0f;
 	}
-		
 }
 
 void RenderDevice::DrawPixel( uint x, uint y, uint color )
@@ -523,86 +510,15 @@ GraphicsBufferPtr RenderDevice::CreateBuffer( void* buffer, uint length, uint si
 	return GraphicsBufferPtr( new GraphicsBuffer( buffer, length, size ) );
 }
 
-void RenderDevice::BeginScene( )
-{
-}
-
-void RenderDevice::SetTexture( uint index, TexturePtr tex )
-{
-	if ( index < _MAX_TEXTURE_COUNT )
-		mTextures[index] = tex;
-}
-
-void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex )
-{
-	PreparePipeline( );
-
-	VertexProcessContext ctx;
-	ctx.mVertexBuffer		= mVertexBuffer;
-	ctx.mIndexBuffer		= mIndexBuffer;
-	ctx.mInputLayout		= mInputLayout;
-	ctx.mVertexShader		= mVertexShader;
-	ctx.mVSConstantBuffer	= mVSConstantBuffer;
-	ctx.mRasterizerState	= mRasterizerState;
-	ctx.mIndexCount			= indexcount;
-	ctx.mIndexStart			= startindex;
-	ctx.mVertexStart		= startvertex;
-
-	VertexProcessEngine& vpengine = VertexProcessEngine::Instance( );
-	vpengine.Prepare( ctx );
-	std::vector<PSInput*>& rasterverts = vpengine.Process( );
-	if ( rasterverts.size( ) == 0 )
-		return;
-
-	std::vector<PSInput*> sorts;
-	sorts.insert( sorts.begin( ), rasterverts.begin( ), rasterverts.end( ) );
-	std::sort(sorts.begin(), sorts.end());
-	sorts.erase( std::unique( sorts.begin( ), sorts.end () ), sorts.end( ) );
-
-	// Viewport Transformation.
-	for ( uint i = 0; i < sorts.size( ); i ++ )
-	{
-		sorts[i]->Homogen( );
-				
-		// Viewport transformation.
-		Vector4& pos = sorts[i]->position( );
-		pos.x = ( 1.0f + pos.x ) * 0.5f * mWidth;
-		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;
-	}
-
-	// Rasterization.
-	EFillMode fillmode = mRasterizerState->GetFillMode( );
-	if ( fillmode == EFillMode::FM_SOLID )
-	{
-		for ( uint i = 0; i < rasterverts.size( ); i += 3 )
-			RasterizeTriangle( rasterverts[i], rasterverts[i + 1], rasterverts[i + 2] );
-	}
-	else if ( fillmode == EFillMode::FM_WIREFRAME )
-	{
-		for ( uint i = 0; i < rasterverts.size( ); i += 2 )
-		{
-			const Vector4& v1 = rasterverts[i]->position( );
-			const Vector4& v2 = rasterverts[ i + 1 ]->position( );
-			DrawLine( Point( (int) v1.x, (int) v1.y ), Point( (int) v2.x, (int) v2.y ), 0xff00ff00 );
-		}
-	}
-}
-
 TexturePtr RenderDevice::CreateTexture2D( uint width, uint height, uint format )
 {
 	return TexturePtr( new Texture( width, height, format ) );
 }
 
-SamplerStatePtr RenderDevice::CreateSamplerState( const SamplerStateDesc& desc )
+void RenderDevice::SetTexture( uint index, TexturePtr tex )
 {
-	return SamplerStatePtr( new SamplerState( desc ) );
-}
-
-void RenderDevice::SetSamplerState( uint index, SamplerStatePtr sampler )
-{
-	assert( index < _MAX_TEXTURE_COUNT );
-
-	mSamplers[index] = sampler;
+	if ( index < MC_TEXTURE )
+		mTextures[index] = tex;
 }
 
 Color RenderDevice::Texture2D( uint index, Vector2 uv )
@@ -612,7 +528,7 @@ Color RenderDevice::Texture2D( uint index, Vector2 uv )
 
 Color RenderDevice::Texture2D( uint index, float u, float v )
 {
-	assert( index < _MAX_TEXTURE_COUNT && mTextures[index] != nullptr );
+	assert( index < MC_TEXTURE && mTextures[index] != nullptr );
 
 	// Address.
 	auto Address = [] ( EAddressMode mode, float& texelu, float& texelv )
@@ -672,6 +588,18 @@ Color RenderDevice::Texture2D( uint index, float u, float v )
 	return samplecolor;
 }
 
+SamplerStatePtr RenderDevice::CreateSamplerState( const SamplerStateDesc& desc )
+{
+	return SamplerStatePtr( new SamplerState( desc ) );
+}
+
+void RenderDevice::SetSamplerState( uint index, SamplerStatePtr sampler )
+{
+	assert( index < MC_TEXTURE );
+
+	mSamplers[index] = sampler;
+}
+
 ConstantBufferPtr RenderDevice::CreateConstantBuffer( )
 {
 	return ConstantBufferPtr( new ConstantBuffer( ) );
@@ -679,15 +607,13 @@ ConstantBufferPtr RenderDevice::CreateConstantBuffer( )
 
 void RenderDevice::VSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr )
 {
-	assert( index < _MAX_CONSTANTBUFFER_COUNT );
-
+	assert( index < MC_CONSTANTBUFFER );
 	mVSConstantBuffer[index] = bufferptr;
 }
 
 void RenderDevice::PSSetConstantBuffer( uint index, ConstantBufferPtr bufferptr )
 {
-	assert( index < _MAX_CONSTANTBUFFER_COUNT );
-
+	assert( index < MC_CONSTANTBUFFER );
 	mPSConstantBuffer[index] = bufferptr;
 }
 
@@ -699,4 +625,59 @@ RasterizerStatePtr RenderDevice::CreateRasterizerState( const RasterizerDesc& de
 void RenderDevice::SetRasterizerState( RasterizerStatePtr rs )
 {
 	mRasterizerState = rs;
+}
+
+void RenderDevice::DrawIndex( uint indexcount, uint startindex, uint startvertex )
+{
+	PreparePipeline( );
+
+	VertexProcessContext ctx;
+	ctx.mVertexBuffer		= mVertexBuffer;
+	ctx.mIndexBuffer		= mIndexBuffer;
+	ctx.mInputLayout		= mInputLayout;
+	ctx.mVertexShader		= mVertexShader;
+	ctx.mVSConstantBuffer	= mVSConstantBuffer;
+	ctx.mRasterizerState	= mRasterizerState;
+	ctx.mIndexCount			= indexcount;
+	ctx.mIndexStart			= startindex;
+	ctx.mVertexStart		= startvertex;
+
+	VertexProcessEngine& vpengine = VertexProcessEngine::Instance( );
+	vpengine.Prepare( ctx );
+	std::vector<PSInput*>& rasterverts = vpengine.Process( );
+	if ( rasterverts.size( ) == 0 )
+		return;
+
+	std::vector<PSInput*> sorts;
+	sorts.insert( sorts.begin( ), rasterverts.begin( ), rasterverts.end( ) );
+	std::sort(sorts.begin(), sorts.end());
+	sorts.erase( std::unique( sorts.begin( ), sorts.end () ), sorts.end( ) );
+
+	// Viewport Transformation.
+	for ( uint i = 0; i < sorts.size( ); i ++ )
+	{
+		sorts[i]->Homogen( );
+
+		// Viewport transformation.
+		Vector4& pos = sorts[i]->position( );
+		pos.x = ( 1.0f + pos.x ) * 0.5f * mWidth;
+		pos.y = ( 1.0f - pos.y ) * 0.5f * mHeight;
+	}
+
+	// Rasterization.
+	EFillMode fillmode = mRasterizerState->GetFillMode( );
+	if ( fillmode == EFillMode::FM_SOLID )
+	{
+		for ( uint i = 0; i < rasterverts.size( ); i += 3 )
+			RasterizeTriangle( rasterverts[i], rasterverts[i + 1], rasterverts[i + 2] );
+	}
+	else if ( fillmode == EFillMode::FM_WIREFRAME )
+	{
+		for ( uint i = 0; i < rasterverts.size( ); i += 2 )
+		{
+			const Vector4& v1 = rasterverts[i]->position( );
+			const Vector4& v2 = rasterverts[ i + 1 ]->position( );
+			DrawLine( Point( (int) v1.x, (int) v1.y ), Point( (int) v2.x, (int) v2.y ), 0xff00ff00 );
+		}
+	}
 }

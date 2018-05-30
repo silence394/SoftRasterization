@@ -2,7 +2,6 @@
 
 #include "Prerequisites.h"
 #include <list>
-#include "Shaders.h"
 
 struct VertexProcessContext
 {
@@ -34,21 +33,19 @@ private:
 	VertexProcessContext							mContext;
 	std::pair<uint, PSInput*>						mVertexCache[ MC_VertexCache ];
 	std::vector<PSInput>							mVertexPool;
-	std::list<PSInput>							mClippedVertex;
+	std::list<PSInput>								mClippedVertex;
 
 	std::vector<PSInput*>							mRasterizerVertex;
 
 private:
 	VertexProcessEngine( ) { }
 
-	void FetchVertex3( PSInput** out, uint prim );
-
-	void Cull( PSInput** in );
+	void	FetchVertex3( PSInput** out, uint prim );
+	void	Cull( PSInput** in );
 
 public:
 	static VertexProcessEngine&	Instance( );
 
 	void						Prepare( const VertexProcessContext& context );
-
 	std::vector< PSInput* >&	Process( );
 };

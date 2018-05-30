@@ -21,21 +21,7 @@ Matrix4 Camera::GetViewMatrix( )
 	return Matrix4( xaxis.x, yaxis.x, zaxis.x, 0.0f,
 					xaxis.y, yaxis.y, zaxis.y, 0.0f,
 					xaxis.z, yaxis.z, zaxis.z, 0.0f,
-					xeye,    yeye,    zeye,	   1.0f );
-}
-
-void Camera::Pitch( float uints )
-{
-
-}
-
-void Camera::Yaw( float uints )
-{
-
-}
-
-void Camera::Roll( float units )
-{
+					xeye,	 yeye,	  zeye,	   1.0f );
 }
 
 void Camera::Phi( float r )
@@ -53,7 +39,6 @@ void Camera::Theta( float r )
 	Vector3 v1 = Vector3::Cross( -mLookDir, right );
 
 	Vector3 look = mPos + mLookDir * mLookDistance;
-
 	mPos *= Matrix4( ).SetTrans( - look ) * Matrix4( ).SetRotation( right, r ) * Matrix4( ).SetTrans( look );
 
 	look -= mPos;
@@ -61,7 +46,6 @@ void Camera::Theta( float r )
 	mLookDir = look.Normalize( );
 
 	Vector3 v2 = Vector3::Cross( -mLookDir, right );
-
 	if ( Vector3::Dot( v1, mUp ) * Vector3::Dot( v2, mUp ) < 0.0f )
 		mUp = - mUp;
 }
@@ -81,9 +65,4 @@ void Camera::Zoom( float units )
 	look -= mPos;
 	mLookDistance = look.Magnitude( );
 	mLookDir = look.Normalize( );
-}
-
-void Camera::Rotate( const Vector3& axis, float r )
-{
-
 }
