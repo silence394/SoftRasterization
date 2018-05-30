@@ -13,5 +13,5 @@ public:
 
 	StaticMeshPtr	LoadModel( std::wstring& resname );
 
-	StaticMeshPtr	CreateBox( );
+	StaticMeshPtr	CreateCube( );
 };

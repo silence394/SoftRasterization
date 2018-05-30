@@ -659,9 +659,9 @@ Color RenderDevice::Texture2D( uint index, float u, float v )
 		int pos1y = ( pos0y + 1 ) % sufh;
 
 		Color c0 = suf->Sample( pos0x, pos0y );
-		Color c1 = suf->Sample( pos0x + 1, pos0y );
-		Color c2 = suf->Sample( pos0x, pos0y + 1 );
-		Color c3 = suf->Sample( pos0x + 1, pos0y + 1 );
+		Color c1 = suf->Sample( pos1x, pos0y );
+		Color c2 = suf->Sample( pos0x, pos1y );
+		Color c3 = suf->Sample( pos1x, pos1y );
 		float w0 = invdu * invdv;
 		float w1 = du * invdv;
 		float w2 = invdu * dv;

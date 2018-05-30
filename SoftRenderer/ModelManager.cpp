@@ -108,7 +108,7 @@ StaticMeshPtr ModelManager::LoadModel( std::wstring& resname )
 	return StaticMeshPtr( new StaticMesh( resources ) );
 }
 
-StaticMeshPtr ModelManager::CreateBox( )
+StaticMeshPtr ModelManager::CreateCube( )
 {
 	StaticMeshResouce resource;
 
